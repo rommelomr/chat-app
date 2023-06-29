@@ -1,0 +1,457 @@
+/* Ionic Variables and Theming. For more info, please see:
+http://ionicframework.com/docs/theming/ */
+
+/** Ionic CSS Variables **/
+:root {
+  --ion-font-family:'Regular';
+  /** primary **/
+  --ion-color-primary: #163F68;
+	--ion-color-primary-rgb: 22,63,104;
+	--ion-color-primary-contrast: #ffffff;
+	--ion-color-primary-contrast-rgb: 255,255,255;
+	--ion-color-primary-shade: #13375c;
+	--ion-color-primary-tint: #2d5277;
+
+  /** secondary **/
+  --ion-color-secondary: #3dc2ff;
+  --ion-color-secondary-rgb: 61, 194, 255;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #36abe0;
+  --ion-color-secondary-tint: #50c8ff;
+
+  /** tertiary **/
+  --ion-color-tertiary: #5260ff;
+  --ion-color-tertiary-rgb: 82, 96, 255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #4854e0;
+  --ion-color-tertiary-tint: #6370ff;
+
+  /** success **/
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
+
+  /** warning **/
+  --ion-color-warning: #ffc409;
+  --ion-color-warning-rgb: 255, 196, 9;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e0ac08;
+  --ion-color-warning-tint: #ffca22;
+
+  /** danger **/
+  --ion-color-danger: #eb445a;
+  --ion-color-danger-rgb: 235, 68, 90;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cf3c4f;
+  --ion-color-danger-tint: #ed576b;
+
+  /** dark **/
+  --ion-color-dark: #222428;
+  --ion-color-dark-rgb: 34, 36, 40;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #1e2023;
+  --ion-color-dark-tint: #383a3e;
+
+  /** medium **/
+  --ion-color-medium: #92949c;
+  --ion-color-medium-rgb: 146, 148, 156;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9d9fa6;
+
+  /** light **/
+  --ion-color-light: #f4f5f8;
+  --ion-color-light-rgb: 244, 245, 248;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #d7d8da;
+  --ion-color-light-tint: #f5f6f9;
+}
+
+
+@font-face {
+  font-family: 'Black';
+  font-style: normal;
+  font-weight: normal;
+  src: url('../assets/fonts/Roboto-Black.ttf');
+}
+
+@font-face {
+  font-family: 'Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: url('../assets/fonts/Roboto-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Medium';
+  font-style: normal;
+  font-weight: normal;
+  src: url('../assets/fonts/Roboto-Medium.ttf');
+}
+
+@font-face {
+  font-family: 'Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: url('../assets/fonts/Roboto-Regular.ttf');
+}
+
+
+@font-face {
+  font-family: 'Light';
+  font-style: normal;
+  font-weight: normal;
+  src: url('../assets/fonts/Roboto-Light.ttf');
+}
+
+
+@font-face {
+  font-family: 'Thin';
+  font-style: normal;
+  font-weight: normal;
+  src: url('../assets/fonts/Roboto-Thin.ttf');
+}
+
+.tabs-page::before
+{
+  background: #163F68;
+  bottom: 0;
+  content: '';
+  height: 60px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+.tabs-page {
+  --background: transparent;
+  border: none !important;
+  height: 100px;
+  bottom: 0;  
+  position: absolute;
+  width: 100%;
+
+  ion-tab-button
+  {
+    margin-top: 40px;
+    position: relative;
+
+    ion-label
+    {
+      color: white;
+      padding-top: 3px;
+    }
+
+    ion-icon
+    {
+      color: #99D5CF;
+      font-size: 30px;
+    }
+    .tab-icon-active {
+      display: none;
+    }
+
+    .tab-icon-inactive {
+      display: block;
+    }
+
+    &.tab-selected {
+      .tab-icon-active {
+        display: block;
+      }
+
+    
+      
+
+      .tab-icon-inactive {
+        display: none;
+      }
+    }
+
+    &.tab-selected {
+      color:var(--ion-color-primary);
+    }
+
+  }}
+  
+  
+  .tab-selected::before
+  { 
+    background: #163F68;
+    border-radius: 50% 50% 0 0;
+    content: '';
+    height: 80px;
+    position: absolute;
+    top: 13px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: 80px;
+    z-index: -1;
+    transition: all .5s ease-in-out;
+  }
+
+  .tab-selected
+  {
+    margin-top: 0 !important; 
+
+    .wrapper
+    {
+      background: white;
+      border-radius: 50%;
+      height: 45px;
+      width: 45px;
+      transition: all .5s ease-in-out;
+    }
+  }
+
+
+  .ripple-parent
+  {
+      position: relative;
+      overflow: hidden;
+  }
+
+.flex
+{
+    display: flex;
+}
+
+.flexd
+{
+    flex-direction: column;
+}
+
+.al-start
+{
+    align-items: flex-start;
+}
+
+.al-center
+{
+    align-items: center;
+}
+
+.al-end
+{
+    align-items: flex-end;
+}
+
+.jc-start
+{
+    justify-content: flex-start;
+}
+
+.jc-center
+{
+    justify-content: center;
+}
+
+.jc-end
+{
+    justify-content: flex-end;
+}
+
+.jc-between
+{
+    justify-content: space-between;
+}
+
+ion-button
+{
+    text-transform: none !important;
+}
+
+.pop .scroll-y
+{
+  overflow-y:clip !important;
+}
+
+.ion-modall
+{
+  background: transparent !important;
+  --background: transparent !important;
+}
+.modal-wrapper
+{
+  background: transparent !important;
+  --background: transparent !important;
+}
+.modall
+{
+  --background: transparent !important;
+  background: transparent;
+  --padding-start:0 !important;
+  --padding-end:0 !important;
+  --padding-top:0 !important;
+  --padding-bottom:0 !important;
+  .holder
+  {
+    height: 100%;
+    position: relative;
+    width: 100% !important;
+
+    .section
+    {
+      background: white;
+      border-radius: 9px;
+      bottom: 0;
+      padding: 16px 10px 0 10px;
+      position: absolute;
+      height: fit-content;
+      width: 100%;
+      h3
+      {
+        font-weight: bolder;
+        font-size: 16px;
+        margin: 0;
+      }
+      ion-item
+      {
+        --background: transparent;
+
+        ion-input
+        {
+          border-bottom: 1px solid var(--ion-color-primary);
+        }
+      }
+
+      ion-button
+      {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+.custom-alert
+{
+  .alert-head
+  {
+    text-align: left !important;
+  }
+  .alert-button-group
+  {
+    padding: 10px;
+  }
+
+  .alert-message 
+  {
+    color: #FF8585;
+    text-align: left;
+  }
+  button.alert-button.alert-button-ok {
+    background-color: var(--ion-color-primary);
+    color: var(--ion-color-success-contrast);
+    flex: unset;
+    margin: 0 auto;
+    min-width: 80%;
+  }
+}
+
+.custom-alert2
+{
+  .alert-title
+  {
+    font-family: 'Bold' !important;
+    text-align: left !important;
+  }
+  .alert-message
+  {
+    display: none !important;
+  }
+
+  .alert-input-group
+  {
+    padding-top: 0 !important;
+  }
+
+  .alert-input-wrapper
+  {
+    position: relative;
+    margin-bottom: 5px;
+  }
+
+  .alert-input-wrapper::before
+  {
+    color: #8a8a8a;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    height: 20px;
+    position: absolute;
+    left: 0;
+    bottom: 38px;
+    right: 0;
+    width: 95%;
+  }
+  .alert-input-wrapper:nth-child(1)::before
+  {
+    content: 'Contraseña anterior';
+  }
+
+  .alert-input-wrapper:nth-child(2)::before
+  {
+    content: 'Nueva contraseña';
+  }
+
+  .alert-input-wrapper:nth-child(3)::before
+  {
+    content: 'Confirmar nueva contraseña';
+  }
+
+  input
+  {
+    height: 40px;
+    padding: 0 !important;
+  }
+
+
+  button.alert-button.alert-button-ok {
+    background-color: var(--ion-color-primary);
+    color: var(--ion-color-success-contrast);
+    flex: unset;
+    margin: 0 auto;
+    min-width: 80%;
+    text-align: center;
+
+    span
+    {
+      width: fit-content !important;
+      margin: 0 auto;
+    }
+  }
+
+
+}
+
+
+ion-select
+{
+  --min-width: 100% !important;
+  min-width: 100% !important;
+  width: 100% !important;
+
+  
+
+  .select-placeholder
+  {
+    background: red !important;
+    font-size: 5px !important;
+  }
+
+  .native-wrapper
+  {
+    width: 100% !important;
+    font-size: 5px !important;
+  }
+}

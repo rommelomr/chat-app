@@ -1,0 +1,77 @@
+.groups-page
+{
+    ion-toolbar
+    {
+      --background: var(--ion-color-primary);
+      padding: 10px 0;
+      ion-title
+      {
+        --color: white;
+        font-family: 'Medium';
+        font-size: 20px;
+      }
+  
+      ion-buttons
+      {
+        ion-back-button,ion-button
+        {
+          --color: white;
+        }
+      }
+    }
+
+    ion-content
+    {
+      .the-list
+      {
+        ion-item
+        {
+          margin-bottom: 10px;
+          ion-avatar
+          {
+            --border-radius: 50%;
+            height: 3rem;
+            width: 3rem;
+          }
+  
+          ion-label
+          {
+            h3
+            {
+              font-family: 'Medium';
+              font-size: 16px;
+  
+              span
+              {
+                color: #9C9C9C;
+                font-size: 11px;
+              }
+            }
+  
+            img
+            {
+              margin-right: 10px;
+            }
+            p
+            {
+              color: #9C9C9C;
+              font-family: 'Medium';
+              font-size: 13px;
+            }
+          }
+  
+          ion-badge
+          {
+            border-radius: 50%;
+            height: 1.5rem;
+            width: 1.5rem;
+          }
+        }
+      }
+
+      ion-fab
+      {
+        margin-bottom: 60px;
+      }
+    }
+}

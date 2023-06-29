@@ -1,0 +1,52 @@
+.entercode-page
+{
+    .title
+    {
+        h3
+        {
+            font-weight: bolder;
+            font-size: 21px;
+        }
+
+        h6
+        {
+            color: #BCBCBC;
+            font-size: 15px;
+        }
+    }
+
+    .section
+    {
+        .sub-title
+        {
+            margin-bottom: 20px;
+            h4
+            {
+                color: #BCBCBC;
+                font-weight: bolder;
+                font-size: 15px;
+            }
+        }
+        .input-item
+        {
+            ion-item
+            {
+                ion-label
+                {
+                    font-weight: bolder !important;
+                    font-size: 15px;
+                }
+
+                ion-input
+                {
+                    border-bottom: 2px solid var(--ion-color-primary);
+                }
+            }
+        }
+    }
+
+    ion-fab 
+    {
+        margin-right: 10px !important;
+    }
+}

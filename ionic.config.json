@@ -1,0 +1,7 @@
+{
+  "name": "mensajeria",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}

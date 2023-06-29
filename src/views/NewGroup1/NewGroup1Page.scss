@@ -1,0 +1,133 @@
+.newgroup-page
+{
+  ion-toolbar
+  {
+    --background: var(--ion-color-primary);
+    padding: 10px 0;
+    ion-title
+    {
+      --color: white;
+     h3
+     {
+      font-family: 'Medium';
+      font-size: 20px;
+      margin: 0;
+     }
+
+    p
+    {
+      font-family: 'Thin' !important;
+        font-size: 13px;
+        margin: 0;
+    }
+    }
+
+    ion-buttons
+    {
+      ion-button,ion-back-button
+      {
+        --color: white;
+      }
+    }
+  }
+
+  ion-content
+  {
+    .avatar-list
+    {
+      overflow-x: scroll !important;
+      overflow-y: hidden !important;
+      white-space: nowrap !important;
+      &::-webkit-scrollbar
+      {
+        display: none !important;
+        }
+
+
+      .avatar-holder
+      {
+        display: inline-block;
+        margin: 0 10px;
+        position: relative;
+        width: fit-content;
+        ion-avatar
+        {
+          height: 3rem;
+          width: 3rem;
+        }
+
+        h6
+        {
+          color: #9C9C9C;
+          font-size: 10px;
+          margin-top: 5px;
+        }
+
+        .btn
+        {
+          background: var(--ion-color-primary);
+          border-radius: 50%;
+            height: 20px;
+            width: 20px;
+            position: absolute;
+            top: 0;
+            right: -5px;
+            ion-icon
+            {
+              color: white;
+                font-size: 16px;
+            }
+        }
+      }
+    }
+
+    .the-list
+    {
+     
+      ion-item
+      {
+        margin-bottom: 10px;
+        ion-avatar
+        {
+          --border-radius: 50%;
+          height: 3rem;
+          width: 3rem;
+        }
+
+        ion-label
+        {
+          h3
+          {
+            font-family: 'Medium';
+            font-size: 16px;
+
+            span
+            {
+              color: #9C9C9C;
+              font-size: 11px;
+            }
+          }
+
+          img
+          {
+            margin-right: 10px;
+          }
+          p
+          {
+            color: #9C9C9C;
+            font-family: 'Medium';
+            font-size: 13px;
+          }
+        }
+
+        ion-badge
+        {
+          border-radius: 50%;
+          height: 1.5rem;
+          width: 1.5rem;
+        }
+      }
+    }
+  }
+
+}

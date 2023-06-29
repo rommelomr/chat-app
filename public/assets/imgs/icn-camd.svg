@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="101" height="101" viewBox="0 0 101 101">
+  <g id="Group_2" data-name="Group 2" transform="translate(-160 -149)">
+    <g id="Ellipse_78" data-name="Ellipse 78" transform="translate(160 149)" fill="#fff" stroke="#163f68" stroke-width="0.5">
+      <circle cx="50.5" cy="50.5" r="50.5" stroke="none"/>
+      <circle cx="50.5" cy="50.5" r="50.25" fill="none"/>
+    </g>
+    <g id="bxs-camera" transform="translate(193 184)">
+      <path id="Path_637" data-name="Path 637" d="M18,13.5A4.5,4.5,0,1,0,22.5,18,4.561,4.561,0,0,0,18,13.5Z" fill="#163f68"/>
+      <path id="Path_638" data-name="Path 638" d="M30,7.5H26.121l-4.06-4.06A1.494,1.494,0,0,0,21,3H15a1.494,1.494,0,0,0-1.06.44L9.879,7.5H6a3,3,0,0,0-3,3V27a3,3,0,0,0,3,3H30a3,3,0,0,0,3-3V10.5A3,3,0,0,0,30,7.5Zm-12,18A7.6,7.6,0,0,1,10.5,18,7.6,7.6,0,0,1,18,10.5,7.6,7.6,0,0,1,25.5,18,7.6,7.6,0,0,1,18,25.5Z" fill="#163f68"/>
+    </g>
+  </g>
+</svg>

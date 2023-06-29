@@ -1,0 +1,44 @@
+.welcome-page
+{
+    h3
+    {
+        color: var(--ion-color-primary);
+        font-weight: bold;
+        font-size: 25px;
+        margin: 0;
+    }
+
+    .img-holder
+    {
+        margin-top: 10vw;
+
+        img
+        {
+            height: 60vw;
+        }
+
+        p
+        {
+            color: #BCBCBC;
+            font-size: 15px;
+        }
+    }
+
+    .bottom-holder
+    {
+        margin-top: 40vw;
+
+        h6
+        {
+            color: #BCBCBC;
+            font-size: 15px;
+
+            span
+            {
+                color: var(--ion-color-primary);
+                font-weight: 300;
+            }
+
+        }
+    }
+}
