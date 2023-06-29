@@ -20,7 +20,9 @@
     "@ionic/vue": "^7.0.0",
     "@ionic/vue-router": "^7.0.0",
     "@supabase/supabase-js": "^2.25.0",
+    "@vueuse/core": "^10.2.1",
     "ionicons": "^7.0.0",
+    "jwt-decode": "^3.1.2",
     "pinia": "^2.1.4",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"

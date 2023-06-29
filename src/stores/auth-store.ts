@@ -5,7 +5,7 @@ export const useConnectionsStore = defineStore({
   id: "connections-store",
   state: () =>
     ({
-      auth: {},
+      auth: {}, 
     } as { auth: Auth }),
   actions: {
     async attemptLogin() {},
