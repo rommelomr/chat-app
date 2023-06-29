@@ -37,17 +37,43 @@
 </template>
 
 <script  setup lang="ts">
+
+import { inject, onMounted, ref, reactive, onUpdated, Ref } from "vue";
+import { supabase } from "@/utils/SupabaseClient";
 import { IonPage, IonHeader, IonToolbar } from '@ionic/vue';
 import { searchOutline, } from 'ionicons/icons';
 import './UsersPage.scss';
 import { useRouter } from 'vue-router';
-import { ref } from 'vue';
 
 
 const router = useRouter();
 
 const goNewGroup =()  => {
      router.replace('/newgroup1');
-   }
+}
+////// VARS //////
+let current_chat_user = reactive({});
+let users: Ref<Array<any> | null>  = ref([]);
+////// VARS //////
+
+////// Methods //////
+const init = async () => {
+  alert("hola")
+  let { data, error } = await supabase
+    .from("chat_users")
+    .select("*,person:people(*,user:users(*))");
+  if (error||!data) return;
+  users.value = data;
+};
+////// Methods //////
+onMounted(async () => {
+  let { data, error } = await supabase.rpc("get_all_current_chat_user_info");
+  current_chat_user = data;
+  supabase.removeAllChannels();
+  init();
+});
+onUpdated(() => {
+  //current_message = 0;
+});
 
 </script>
