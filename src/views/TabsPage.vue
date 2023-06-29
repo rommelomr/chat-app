@@ -17,7 +17,7 @@
             <ion-icon aria-hidden="true" :icon="callOutline" className="tab-icon-active" />
           </div>
 
-          <ion-label className="tab-icon-inactive">Calls</ion-label>
+          <ion-label className="tab-icon-inactive">Usuarios</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab3" href="/tabs/tab3">
