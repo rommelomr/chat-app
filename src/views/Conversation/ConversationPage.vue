@@ -1,117 +1,48 @@
 <template>
   <ion-page class="conversation-page">
     <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-back-button defaultHref="tabs/tab1" mode="ios" text=""></ion-back-button>
-        </ion-buttons>
-        <ion-buttons slot="start">
-          <ion-item lines="none" @click="goProfile">
-            <ion-avatar slot="start">
-              <img src="assets/imgs/user.png" alt="">
-            </ion-avatar>
-            <ion-label>
-              <h3>123456</h3>
-              <p>Online</p>
-            </ion-label>
-          </ion-item>
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button id="end-btn">
-            <ion-icon aria-hidden="true" :icon="call" />
-          </ion-button>
-
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button id="end-btn">
-            <ion-icon aria-hidden="true" :icon="videocam" />
-          </ion-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button id="click-trigger">
-            <ion-icon aria-hidden="true" :icon="ellipsisVertical" />
-          </ion-button>
-          <ion-popover trigger="click-trigger" triggerAction="click">
-            <ion-content class="pop ion-padding" :scrollEvents="false">
-              <ion-item @click="openModal" button detail="false" lines="none">
-                <ion-label>
-                  Re nombrar
-                </ion-label>
-              </ion-item>
-            </ion-content>
-          </ion-popover>
-          
-        </ion-buttons>
-      </ion-toolbar>
+      <Toolbar />
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
+
+
       <div class="chat-holder">
-        <div class="reciver">
-          <div class="chat-bubble">
-            <h4>Hello</h4>
+        <!-- <div v-for="(message,index) in messages" :key="index" 
+            :class="message.chat_user_id!=current_conversation.me ? 'sender':'reciver'"
+          >
+          <div :class="message.chat_user_id!=current_conversation.me ? 'message flex al-center jc-end':'chat-bubble' ">
+            <h4>{{ message.content.text }}</h4>
           </div>
           <div class="time">
             <p>9 : 34 AM</p>
           </div>
-        </div>
-        <div class="sender">
-          <div class="message flex al-center jc-end">
-            <div class="wrapper">
-              <div class="chat-bubble">
-                <h4>Hello</h4>
-              </div>
-              <div class="time flex al-center">
-                <ion-icon aria-hidden="true" :icon="checkmarkDone" />
-                <p>9 : 34 AM</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="reciver">
-          <div class="chat-bubble">
-            <h4>Como estas tu</h4>
-          </div>
-          <div class="time">
-            <p>9 : 34 AM</p>
-          </div>
-        </div>
-        <div class="sender">
-          <div class="message flex al-center jc-end">
-            <div class="wrapper">
-              <div class="chat-bubble">
-                <h4>Yo estoy super bien </h4>
-              </div>
-              <div class="time flex al-center">
-                <ion-icon aria-hidden="true" icon="checkmarkDone" />
-                <p>9 : 34 AM</p>
+        </div> -->
+  
+        <div v-for="(message,index) in messages" :key="index">
+          <div v-if="message.chat_user_id===current_conversation.getCurrentConversation().me" class="sender">
+            <div class="message flex al-center jc-end">
+              <div class="wrapper">
+                <div class="chat-bubble">
+                  <h4>{{ message.content.text }}</h4>
+                </div>
+                <div class="time flex al-center">
+                  <ion-icon aria-hidden="true" :icon="checkmarkDone" />
+                  <p>9 : 34 AM</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="reciver">
-          <div class="chat-bubble">
-            <h4>Pedrito</h4>
-            <div class="img-holder">
-              <img src="assets/imgs/img.png" alt="">
+          <div v-else class="reciver">
+            <div class="chat-bubble">
+              <h4>{{ message.content.text }}</h4>
             </div>
-          </div>
-          <div class="time">
-            <p>9 : 34 AM</p>
-          </div>
-        </div>
-        <div class="sender">
-          <div class="message flex al-center jc-end">
-            <div class="wrapper">
-              <div class="chat-bubble">
-                <h4>Yo estoy super bien </h4>
-              </div>
-              <div class="time flex al-center">
-                <ion-icon aria-hidden="true" :icon="checkmarkDone" />
-                <p>Super</p>
-              </div>
+            <div class="time">
+              <p>9 : 34 AM</p>
             </div>
           </div>
         </div>
+
+
       </div>
       <ion-modal class="ion-modall" :is-open="isModalOpen" @dismiss="dismissModal" >
      
@@ -130,60 +61,144 @@
           </div>
         </ion-content>
       </ion-modal>
-      
+     
     </ion-content>
-
-    <ion-footer class="conversation-footer">
-      <ion-toolbar>
-        <ion-item lines="none">
-          <ion-input type="text" placeholder="Escribir mensaje aquí"></ion-input>
-          <ion-icon aria-hidden="true" :icon="attachOutline" slot="end" />
-        </ion-item>
-        <ion-buttons slot="end">
-          <div class="btn ion-activatable flex al-center jc-center ripple-parent">
-            <ion-icon aria-hidden="true" :icon="mic" />
-            <ion-ripple-effect type="bounded"></ion-ripple-effect>
-          </div>
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <div class="btn ion-activatable flex al-center jc-center ripple-parent">
-            <ion-icon aria-hidden="true" :icon="send" />
-            <ion-ripple-effect type="bounded"></ion-ripple-effect>
-          </div>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-footer>
-
-
+    <FooterConversation
+    :key="current_conversation.getCurrentConversation().id"
+    @onSuccessSend="onSuccessSend"
+     />
     
 
   </ion-page>
 </template>
 
 <script  setup lang="ts">
-import { IonPage,IonPopover, IonHeader, IonToolbar } from '@ionic/vue';
+import { IonPage,IonPopover, IonHeader, IonToolbar,toastController} from '@ionic/vue';
 import { attachOutline, call, checkmarkDone, ellipsisVertical, mic, searchOutline, send, videocam } from 'ionicons/icons';
 import './ConversationPage.scss';
 import { useRouter } from 'vue-router';
-import { ref } from 'vue';
+import { onMounted, reactive, Ref, ref, watch } from 'vue';
+import { ICurrentConversation, useCurrentConversation } from './store/current-conversation.store';
+import { supabase } from '@/utils/SupabaseClient';
+import { useAuthStore } from '@/stores/auth.store';
+import Toolbar from './components/Toolbar.vue'
+import FooterConversation from './components/FooterConversation.vue'
+import { get } from '@vueuse/core';
+import { ErrorToast, SuccessToast } from "@/utils/ShowToast";
+import { IMessage } from './interfaces';
 
-
+const current_conversation = useCurrentConversation()
+const {user} = useAuthStore();
 const router = useRouter();
-
 const isModalOpen = ref(false);
-
 
 const openModal = () => {
   isModalOpen.value = true;
 };
-
 const dismissModal = () => {
   isModalOpen.value = false;
 };
-
-
 const goProfile =()  => {
      router.replace('/profile');
-   }
+}
+let messages:Ref<IMessage[]> = ref([]);
+let channels = reactive({
+  insert: {},
+  update: {},
+});
+
+const onSuccessSend =(message:IMessage)=>{
+  console.log(message)
+  messages.value.push(message)
+}
+
+const getMessageRequest= async (conversation:number, chat_user:number):Promise<any|undefined>=>{
+  let _me = current_conversation.getCurrentConversation().me
+  try{
+    let { data, error } = await supabase
+    .from("messages")
+    .select("*,chat_user:chat_users(*,person:people(*)),files:message_files(*)")
+    .eq("conversation_id", current_conversation.getCurrentConversation().id)
+    .or(
+      `chat_user_id.eq.${_me},and(chat_user_id.eq.${chat_user},deleted_for_me.eq.FALSE)`
+    )
+    .is("message_files.deleted_at", null)
+    .is("deleted_for_all", false)
+    .order("created_at", { ascending: true });   
+    return data;
+  }catch(e){
+    ErrorToast("Ocurrio un error!!!")
+  }
+}
+
+const loadMesaggesFromConversation = async (conversation:number, chat_user:number) => {
+  
+  messages.value = await getMessageRequest(conversation,chat_user);
+  let _conversation_id = current_conversation.getCurrentConversation().id
+  
+  channels.insert = supabase
+    .channel(_conversation_id + "-insert")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "messages",
+        filter: `conversation_id_chat_user_id=eq.${_conversation_id + ''+chat_user + ""}`,
+      },
+      async (event) => {
+        let { data, error } = await supabase
+          .from("messages")
+          .select(
+            "*,chat_user:chat_users(*,person:people(*)),files:message_files(*)",
+            {
+              count: "exact",
+            }
+          )
+          .eq("id", event.new.id);
+        if (error) return;
+        //@ts-ignore
+        messages.value.push(data[0]);
+        setTimeout(() => {
+          //@ts-ignore
+         // scrollToBottom("#conversation");
+        }, 200);
+      }
+    )
+    .subscribe();
+
+  channels.update = await supabase
+    .channel(conversation+ "-update")
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "messages",
+        filter: `conversation_id=eq.${conversation}`,
+      },
+      async (event) => {
+        console.log(event);
+        let deleted_for_owner =
+          event.new.deleted_for_me &&
+          event.new.chat_user_id == user.id;
+        if (event.new.deleted_for_all || deleted_for_owner) {
+          let _message_to_delete = messages.value.findIndex((message) => {
+            //@ts-ignore
+            return message.id == event.new.id;
+          });
+          messages.value.splice(_message_to_delete, 1);
+        }
+      }
+    )
+    .subscribe();
+};
+watch(()=>current_conversation.getCurrentConversation().id,()=>{
+  loadMesaggesFromConversation(current_conversation.getCurrentConversation().id,current_conversation.getCurrentConversation().userConversation?.id??0)
+})
+onMounted(() => {
+  loadMesaggesFromConversation(current_conversation.getCurrentConversation().id,current_conversation.getCurrentConversation().userConversation?.id??0)
+  current_conversation.getMe()
+});
 
 </script>

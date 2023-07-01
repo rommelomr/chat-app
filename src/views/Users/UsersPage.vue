@@ -14,17 +14,19 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="the-list">
-        <ion-item>
+        <ion-item v-for="item in users" :key="item.id"
+        @click="goLoadingConversationPage(item.access_code,item.id)"
+        >
           <ion-avatar slot="start">
-            <img src="assets/imgs/man.png" alt="">
+            <img :src="item.person.photo" alt="">
           </ion-avatar>
           <ion-label>
-            <h3>123456 <span>5m</span></h3>
-            <p>Roman : Hello</p>
+            <h3>{{ item.access_code }}<span></span></h3>
+            <p>{{ item.username }}</p>
           </ion-label>
-          <ion-badge slot="end" class="flex al-center jc-center">
+          <!-- <ion-badge slot="end" class="flex al-center jc-center">
             3
-          </ion-badge>
+          </ion-badge> -->
         </ion-item>
       </div>
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
@@ -44,21 +46,24 @@ import { IonPage, IonHeader, IonToolbar } from '@ionic/vue';
 import { searchOutline, } from 'ionicons/icons';
 import './UsersPage.scss';
 import { useRouter } from 'vue-router';
+import { ChatUser } from "@/logic/interfaces/iChatUser";
+
 
 
 const router = useRouter();
 
-const goNewGroup =()  => {
-     router.replace('/newgroup1');
+const goLoadingConversationPage =(code:number,id:number)  => {
+  router.replace({
+    path: `/loading-conversation/${code}/${id}/SINGLE`,
+  });
 }
 ////// VARS //////
 let current_chat_user = reactive({});
-let users: Ref<Array<any> | null>  = ref([]);
+let users: Ref<Array<ChatUser> | null>  = ref([]);
 ////// VARS //////
 
 ////// Methods //////
 const init = async () => {
-  alert("hola")
   let { data, error } = await supabase
     .from("chat_users")
     .select("*,person:people(*,user:users(*))");
