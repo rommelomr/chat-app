@@ -44,6 +44,7 @@ import './LoadingConversationPage.vue';
 import { useRouter } from 'vue-router';
 import { supabase } from "@/utils/SupabaseClient";
 import { useCurrentConversation } from "../Conversation/store/current-conversation.store";
+import { IChatGroup } from "../Conversation/interfaces";
 
 const router = useRouter();
 const currentConversation = useCurrentConversation();
@@ -65,29 +66,52 @@ const selectChatUserUseCase = async (id:number) => {
       partnerchatuserid: id,
     });
     if(data.conversation.status==404){
-      alert("nolsa  ")
       currentConversation.setCurrentConversation({
        id:data.conversation.id??0,
        type:'SINGLE',
        label:`${data.chat_user.person.name??router.currentRoute.value.params.code.toString()}`,
        isEmpty:true,
        userConversation:data.chat_user,
-       group:null,
+       group:undefined,
        label_image:data.chat_user.person.photo,
        me:0,
        me_uuid:''
       });
     }
     if(data.conversation.status==200){
-      alert("sisa")
       currentConversation.setCurrentConversation({
        id:data.conversation.id,
        type:'SINGLE',
        label:`${data.chat_user.access_code??router.currentRoute.value.params.code.toString()}`,
        isEmpty:false,
        userConversation:data.chat_user,
-       group:null,
+       group:undefined,
        label_image:data.chat_user.person.photo,
+       me:0,
+       me_uuid:''
+      })
+    }
+    router.replace({
+      path: `/conversation`,
+    });
+};
+
+const selectChatGroups = async (id:number) => {
+    currentConversation.reset();
+    let { data, error }: { data: IChatGroup[] | null; error: any } = await supabase.from("groups")
+      .select(
+        "*,conversations(*,participants_count:chat_users_conversations(count)),chat_users(*)"
+      ).eq('id',id);
+
+    if(data && data?.length>0){
+      currentConversation.setCurrentConversation({
+       id:data[0].conversation_id,
+       type:'GROUP',
+       label:`${data[0].name}`,
+       isEmpty:false,
+       userConversation:undefined,
+       group:data[0],
+       label_image:data[0].photo,
        me:0,
        me_uuid:''
       })
@@ -102,6 +126,11 @@ onMounted(() => {
    //@ts-ignore
    let id = parseInt(router.currentRoute.value.params.id);
    selectChatUserUseCase(id)
+ }
+ if(router.currentRoute.value.params.type==='GROUP'){
+  //@ts-ignore
+   let id = parseInt(router.currentRoute.value.params.id);
+   selectChatGroups(id)
  }
 });
 

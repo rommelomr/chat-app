@@ -16,15 +16,12 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-
-
       <ion-searchbar
         v-show="showSearch"
         v-model="searchQuery"
         placeholder="Buscar..."
         @ionInput="handleInput($event)"
       ></ion-searchbar>
-
       <div class="the-list">
         <ion-item
           v-for="(item, index) in displayedGroupList"

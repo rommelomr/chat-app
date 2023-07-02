@@ -6,24 +6,26 @@
           Grupos
         </ion-title>
         <ion-buttons slot="end">
-          <ion-button fill="clear">
+          <ion-button solt="icon-only" @click="toggleSearch">
             <ion-icon aria-hidden="true" :icon="searchOutline" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <div class="the-list">
-        <ion-item>
+      <div class="the-list" v-for="(item, index) in group" :key="index">
+        <ion-item
+        @click="goLoadingConversationPage(item.name,item.id)"
+        >
           <ion-avatar slot="start">
-            <img src="assets/imgs/man.png" alt="">
+            <img :src="item.photo" alt="">
           </ion-avatar>
           <ion-label>
-            <h3>123456 <span>5m</span></h3>
-            <p>Roman : Hello</p>
+            <h3>{{ item.name }}<span>5m</span></h3>
+            <p>{{ getDateDifference(item.created_at) }}</p>
           </ion-label>
           <ion-badge slot="end" class="flex al-center jc-center">
-            3
+           {{ item.conversations.participants_count[0].count }}
           </ion-badge>
         </ion-item>
       </div>
@@ -38,16 +40,54 @@
 
 <script  setup lang="ts">
 import { IonPage, IonHeader, IonToolbar } from '@ionic/vue';
-import { searchOutline, } from 'ionicons/icons';
+import { alertCircle, searchOutline, } from 'ionicons/icons';
+import { IChatGroup } from '../Conversation/interfaces/index'
 import './GroupsPage.scss';
+import {IPaginatorObject,getRangeForPagination} from '@/utils/PaginationUtils'
 import { useRouter } from 'vue-router';
-import { ref } from 'vue';
-
-
+import { ref, reactive, onMounted, Ref } from 'vue';
+import { supabase } from '@/utils/SupabaseClient';
+import { getDateDifference } from '@/utils/MomentUtils';
+import moment from 'moment';
+const showSearch = ref(false);
 const router = useRouter();
+const searchQuery = ref('');
+const goLoadingConversationPage = (code: string, id: number) => {
+  router.replace({
+    path: `/loading-conversation/${code}/${id}/GROUP`,
+  });
+};
 
+const _pagination = reactive<IPaginatorObject>({
+  current_page: 1,
+  items_per_page: 10,
+  total_pages: 0,
+  total_items: 0,
+});
+let group :Ref<IChatGroup[]>=ref([])
+
+const fetchGroups =async ()=> {
+    let { left, right } = getRangeForPagination(_pagination);
+    let { data, error }: { data: IChatGroup[] | null; error: any } = await supabase
+      .from("groups")
+      .select(
+        "*,conversations(*,participants_count:chat_users_conversations(count)),chat_users(*)"
+      ).range(left, right);
+    if(data){
+      group.value=data;
+    }
+}
+
+const toggleSearch = () => {
+  showSearch.value = !showSearch.value;
+};
 const goNewGroup =()  => {
      router.replace('/newgroup1');
-   }
+}
+
+onMounted(async () => {
+  fetchGroups();
+});
+
 
 </script>

@@ -27,7 +27,7 @@
                 </div>
                 <div class="time flex al-center">
                   <ion-icon aria-hidden="true" :icon="checkmarkDone" />
-                  <p>9 : 34 AM</p>
+                  <p>{{ getDateDifference(message.created_at) }}</p>
                 </div>
               </div>
             </div>
@@ -37,7 +37,7 @@
               <h4>{{ message.content.text }}</h4>
             </div>
             <div class="time">
-              <p>9 : 34 AM</p>
+              <p>{{ getDateDifference(message.created_at) }}</p>
             </div>
           </div>
         </div>
@@ -86,6 +86,7 @@ import FooterConversation from './components/FooterConversation.vue'
 import { get } from '@vueuse/core';
 import { ErrorToast, SuccessToast } from "@/utils/ShowToast";
 import { IMessage } from './interfaces';
+import { getDateDifference } from '@/utils/MomentUtils';
 
 const current_conversation = useCurrentConversation()
 const {user} = useAuthStore();

@@ -57,3 +57,46 @@ export interface IMessage {
       message_id: number;
     };
   }
+
+
+
+
+  export interface IChatGroup {
+    id: number;
+    created_at: string;
+    conversation_id: number;
+    name: string;
+    photo: string;
+    chat_user_id: number;
+    conversations: IConversationGroup;
+    chat_users: IChatUserGroup;
+  }
+  
+  export interface IConversationGroup {
+    type: number;
+    created_at: string;
+    deleted_at: string | null;
+    participants_count: { count: number }[];
+    name: string;
+    id: number;
+  }
+  
+  export interface IChatUserGroup {
+    id: number;
+    access_code: string;
+    username: string;
+    gender: string | null;
+    created_at: string;
+    deleted_at: string | null;
+    person_id: number;
+    current_license_id: string | null;
+    is_online: boolean;
+    last_connection: string;
+    main_device_id: string;
+  }
+
+  
+  
+  
+  
+  

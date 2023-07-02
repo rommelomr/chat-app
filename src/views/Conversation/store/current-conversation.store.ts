@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
 import { supabase } from "@/utils/SupabaseClient";
-import { IPersonConversationFinder, IUserConversationFinder } from "../interfaces";
+import { IChatGroup, IPersonConversationFinder, IUserConversationFinder } from "../interfaces";
 
 export interface IMe {
   id: number
@@ -15,7 +15,7 @@ export interface ICurrentConversation {
       label_image:string,
       userConversation?:IUserConversationFinder,
       isEmpty:boolean,
-      group:any,
+      group?:IChatGroup,
       me:number,
       me_uuid:string
 }
@@ -47,7 +47,8 @@ export const useCurrentConversation = defineStore({
           type:conversation.type,
           label_image:conversation.label_image??'https://i.pravatar.cc/300',
           label:conversation.label,
-          userConversation:conversation.userConversation,
+          userConversation:conversation.userConversation?conversation.userConversation:undefined,
+          groups:conversation.group?conversation.group:undefined,
           isEmpty:conversation.isEmpty,
           me:_me?.id??0,
           me_uuid:_me?.me_id??''
