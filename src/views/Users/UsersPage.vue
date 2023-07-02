@@ -1,65 +1,79 @@
 <template>
-  <ion-page class="groups-page">
+  <ion-page class="newgroup-page">
     <ion-header class="ion-no-border">
       <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-back-button defaultHref="tabs/tab3" mode="ios" text=""></ion-back-button>
+        </ion-buttons>
         <ion-title>
-          Usuarios
+          <h3>Usuarios</h3>
         </ion-title>
         <ion-buttons slot="end">
-          <ion-button fill="clear">
+          <ion-button solt="icon-only" @click="toggleSearch">
             <ion-icon aria-hidden="true" :icon="searchOutline" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
+
+
+      <ion-searchbar
+        v-show="showSearch"
+        v-model="searchQuery"
+        placeholder="Buscar..."
+        @ionInput="handleInput($event)"
+      ></ion-searchbar>
+
       <div class="the-list">
-        <ion-item v-for="item in users" :key="item.id"
-        @click="goLoadingConversationPage(item.access_code,item.id)"
+        <ion-item
+          v-for="(item, index) in displayedGroupList"
+          :key="index"
+          @click="goLoadingConversationPage(item.access_code,item.id)"
         >
           <ion-avatar slot="start">
-            <img :src="item.person.photo" alt="">
+            <img :src="item.person.photo" alt="" />
           </ion-avatar>
           <ion-label>
-            <h3>{{ item.access_code }}<span></span></h3>
+            <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
+            <h3>{{ item.access_code }}</h3>
             <p>{{ item.username }}</p>
           </ion-label>
-          <!-- <ion-badge slot="end" class="flex al-center jc-center">
-            3
-          </ion-badge> -->
         </ion-item>
       </div>
-      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button @click="goNewGroup">
-          <ion-icon src="assets/imgs/icn-addperson.svg"></ion-icon>
-        </ion-fab-button>
-      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
 
-<script  setup lang="ts">
-
-import { inject, onMounted, ref, reactive, onUpdated, Ref } from "vue";
+<script setup lang="ts">
+import { inject, onMounted, ref, reactive, onUpdated, Ref,computed } from "vue";
 import { supabase } from "@/utils/SupabaseClient";
-import { IonPage, IonHeader, IonToolbar } from '@ionic/vue';
-import { searchOutline, } from 'ionicons/icons';
-import './UsersPage.scss';
-import { useRouter } from 'vue-router';
+import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
+import { arrowForward, close, searchOutline } from "ionicons/icons";
+import "./UsersPage.scss";
+import { useRouter } from "vue-router";
 import { ChatUser } from "@/logic/interfaces/iChatUser";
 
-
-
+const selectedList = ref(
+  [] as {
+    avatar: string;
+    name: string;
+    message: string;
+    selected: boolean;
+  }[]
+);
+const showSearch = ref(false);
 const router = useRouter();
-
-const goLoadingConversationPage =(code:number,id:number)  => {
+const searchQuery = ref('');
+const goLoadingConversationPage = (code: string, id: number) => {
   router.replace({
     path: `/loading-conversation/${code}/${id}/SINGLE`,
   });
-}
+};
 ////// VARS //////
 let current_chat_user = reactive({});
-let users: Ref<Array<ChatUser> | null>  = ref([]);
+let users: Ref<Array<ChatUser> | null> = ref([]);
+
 ////// VARS //////
 
 ////// Methods //////
@@ -67,7 +81,7 @@ const init = async () => {
   let { data, error } = await supabase
     .from("chat_users")
     .select("*,person:people(*,user:users(*))");
-  if (error||!data) return;
+  if (error || !data) return;
   users.value = data;
 };
 ////// Methods //////
@@ -77,8 +91,32 @@ onMounted(async () => {
   supabase.removeAllChannels();
   init();
 });
-onUpdated(() => {
-  //current_message = 0;
+
+const handleInput = (event: CustomEvent) => {
+  const query = event.detail.value;
+  searchQuery.value = query;
+
+  if (query.trim() === '') {
+    showSearch.value = false;
+  } else {
+    showSearch.value = true;
+  }
+  console.log(searchQuery.value);
+};
+
+const toggleSearch = () => {
+  showSearch.value = !showSearch.value;
+};
+
+const displayedGroupList= computed(() => {
+  const query = searchQuery.value.toLowerCase().trim();
+  if (query === '') {
+    return users.value;
+  } else {
+    return  users.value.filter((users) =>
+    users.access_code.toLowerCase().includes(query)
+    );
+  }
 });
 
 </script>
