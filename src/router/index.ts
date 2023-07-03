@@ -5,6 +5,7 @@ import AccountPage from '../views/Account/AccountPage.vue';
 import ChatPage from '../views/Chat/ChatPage.vue'
 import ConfigurationPage from '../views/Configuration/ConfigurationPage.vue';
 import ConversationPage from '../views/Conversation/ConversationPage.vue';
+import LoadingConversationPage from '../views/LoadingConversation/LoadingConversationPage.vue';
 import ProfilePage from '../views/Profile/ProfilePage.vue';
 import GroupsPage from '../views/Groups/GroupsPage.vue';
 import WelcomePage from '../views/Welcome/WelcomePage.vue';
@@ -34,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'tab2',
-        component: () => import('@/views/Tab2Page.vue')
+        component: () => import('@/views/Users/UsersPage.vue')
       },
       {
         path: 'tab3',
@@ -61,7 +62,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'conversation',
     component: ConversationPage
   },
-
+  {
+    path: '/loading-conversation/:code/:id/:type',
+    name: 'loading_conversation',
+    component: LoadingConversationPage
+  },
   {
     path: '/configuration',
     name: 'configuration',
@@ -73,7 +78,7 @@ const routes: Array<RouteRecordRaw> = [
     component:EnterCodePage
   },
 
-  {
+  { 
     path: '/enterpass',
     name: 'enterpass',
     component:EnterPassPage

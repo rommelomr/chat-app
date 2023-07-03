@@ -46,8 +46,6 @@ export const useAuthStore = defineStore({
         access_token: data.access_token,
       });
 
-     alert("Bienvenido");
-
       this.setLogin({
         id: data.user.id,
         token: data.access_token,
@@ -56,13 +54,23 @@ export const useAuthStore = defineStore({
         role: data.user.role,
         email: data.user.email,
       });
-      window.location.assign("/");
+     // window.location.assign("/");
       return;
     },
     setLogin(user_data:any) {
-        for (let i in user_data) {
-          this.setUserProperty(i, user_data[i]);
+      this.$patch({
+        user:{
+          id: user_data.id,
+          token: user_data.token,
+          refresh_token: user_data.refresh_token,
+          is_logged: true,
+          expiration: "",
+          role: "",
+          email:user_data.email,
+          photo: user_data.photo,
+          name: user_data.name,
         }
+      })
     },
     setUserProperty(property:any, value:any) {
         let _user = this.getProperty("user");
@@ -73,7 +81,7 @@ export const useAuthStore = defineStore({
       return this.user;
     },
     getProperty(property:any):any {
-        return "hola";
+        return null;
     },
     setProperty(property:any, value:any) {
        console.log(property)

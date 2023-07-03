@@ -13,8 +13,8 @@
 
         <ion-tab-button tab="tab2" href="/tabs/tab2">
           <div class="wrapper flex al-center jc-center">
-            <ion-icon aria-hidden="true" :icon="call" className="tab-icon-inactive" />
-            <ion-icon aria-hidden="true" :icon="callOutline" className="tab-icon-active" />
+            <ion-icon aria-hidden="true" :icon="person" className="tab-icon-inactive" />
+            <ion-icon aria-hidden="true" :icon="personOutline" className="tab-icon-active" />
           </div>
 
           <ion-label className="tab-icon-inactive">Usuarios</ion-label>
@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
-import { call } from 'ionicons/icons';
+import { call, person, personCircle, personCircleOutline, personOutline } from 'ionicons/icons';
 import { people } from 'ionicons/icons';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { ellipsisHorizontalOutline } from 'ionicons/icons';
@@ -53,4 +53,11 @@ import { callOutline } from 'ionicons/icons';
 import { chatbox } from 'ionicons/icons';
 import { chatboxOutline } from 'ionicons/icons';
 import { ellipse, square, triangle } from 'ionicons/icons';
+import { useAuthStore} from '@/stores/auth.store';
+ const login_action_testing = useAuthStore().attemptLogin;
+ const startLogin=()=>{
+  login_action_testing()
+ }
+ startLogin();
+
 </script>
