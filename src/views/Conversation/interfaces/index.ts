@@ -45,6 +45,7 @@ export interface IMessage {
   export interface INewConversation {
     conversation_type:number,
     conversation_name?: string,
+    description?:string,
     chat_users_ids: Array<number>,
     auth_ids: Array<string>, //son uuids (más seguros)
     content: ContentMessage,

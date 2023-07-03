@@ -121,11 +121,39 @@ import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue
 import './ChatPage.scss';
 import { personAddOutline, searchOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
-
+import { Ref, onMounted, reactive, ref } from 'vue';
+import { IPaginatorObject, getRangeForPagination } from '@/utils/PaginationUtils';
+import { IChatGroup } from '../Conversation/interfaces';
+import { supabase } from '@/utils/SupabaseClient';
+const _pagination = reactive<IPaginatorObject>({
+  current_page: 1,
+  items_per_page: 1000,
+  total_pages: 0,
+  total_items: 0,
+});
+let conversation :Ref<any[]>=ref([])
 const router = useRouter();
+const fetch =async ()=> {
+    let { left, right } = getRangeForPagination(_pagination);
+
+
+    let { data, error }: { data: any[] | null; error: any } = await supabase
+      .from("conversations")
+      .select("*,chat_users(*)")
+      .order('created_at',{ascending:true})
+      .range(left, right);
+    if(data){
+      conversation.value=data;
+    }
+}
+onMounted(async () => {
+  fetch();
+});
+
+
 
 const goConversation =()  => {
      router.replace('/conversation');
-   }
+ }
 
 </script>

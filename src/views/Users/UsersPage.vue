@@ -92,7 +92,6 @@ onMounted(async () => {
 const handleInput = (event: CustomEvent) => {
   const query = event.detail.value;
   searchQuery.value = query;
-
   if (query.trim() === '') {
     showSearch.value = false;
   } else {
@@ -110,8 +109,7 @@ const displayedGroupList= computed(() => {
   if (query === '') {
     return users.value;
   } else {
-    return  users.value.filter((users) =>
-    users.access_code.toLowerCase().includes(query)
+    return  users.value.filter((users) =>users.access_code.toLowerCase().includes(query)
     );
   }
 });
