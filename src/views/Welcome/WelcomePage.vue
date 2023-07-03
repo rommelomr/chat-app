@@ -58,8 +58,9 @@ import { IonAlert, IonPage, onIonViewDidEnter } from "@ionic/vue";
 import "./WelcomePage.scss";
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
-
+import { useRegisterStore } from "@/stores/register-store";
 const router = useRouter();
+const register_store = useRegisterStore();
 let acces_type_open = ref(false);
 let error_alert_open = ref(false);
 
@@ -97,7 +98,8 @@ const goNextPage = (next_page_info: any) => {
 
   _selectedOption == "sign-in"
     ? router.replace("/entercode")
-    : router.replace("/obtaincode");
+    : //: router.replace("/obtaincode");
+      register_store.register();
 };
 
 const goHome = () => {
