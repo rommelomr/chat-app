@@ -6,7 +6,6 @@ import jwt_decode from "jwt-decode";
 import { useRouter } from "vue-router";
 import { supabase } from "@/utils/SupabaseClient";
 
-
 export const useAuthStore = defineStore({
   id: "auth-store",
   state: () => ({
@@ -26,19 +25,18 @@ export const useAuthStore = defineStore({
   }),
 
   actions: {
-
-    async attemptLogin() {
+    async attemptLogin(email: string, password: string) {
       let { data, error } = await supabase.functions.invoke("customLogin", {
         body: {
-          email: "00010@messenger.chat",
-          password: "messenger.chat.00010",
+          email: `${email}@messenger.chat`,
+          password: password + "..",
         },
       });
 
       if (error) {
         let error_info = await error.context.json();
-        console.error(error_info)
-        return;
+        console.error(error_info);
+        throw "stop";
       }
 
       await supabase.auth.setSession({
@@ -54,37 +52,37 @@ export const useAuthStore = defineStore({
         role: data.user.role,
         email: data.user.email,
       });
-     // window.location.assign("/");
+      // window.location.assign("/");
       return;
     },
-    setLogin(user_data:any) {
+    setLogin(user_data: any) {
       this.$patch({
-        user:{
+        user: {
           id: user_data.id,
           token: user_data.token,
           refresh_token: user_data.refresh_token,
           is_logged: true,
           expiration: "",
           role: "",
-          email:user_data.email,
+          email: user_data.email,
           photo: user_data.photo,
           name: user_data.name,
-        }
-      })
+        },
+      });
     },
-    setUserProperty(property:any, value:any) {
-        let _user = this.getProperty("user");
-        _user[property] = value;
-        this.setProperty("user", _user);
+    setUserProperty(property: any, value: any) {
+      let _user = this.getProperty("user");
+      _user[property] = value;
+      this.setProperty("user", _user);
     },
     getUser() {
       return this.user;
     },
-    getProperty(property:any):any {
-        return null;
+    getProperty(property: any): any {
+      return null;
     },
-    setProperty(property:any, value:any) {
-       console.log(property)
+    setProperty(property: any, value: any) {
+      console.log(property);
     },
   },
 });

@@ -2,9 +2,11 @@ import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
 import RegisterServices from "@/services/supabase/register-services";
 import Utils from "@/utils/Utils";
+import { Device } from "@capacitor/device";
 export const useRegisterStore = defineStore({
   id: "connections-store",
   state: () => ({
+    created_user: {},
     id_machine: useStorage("id_machine", ""),
     imei: "",
     brand: "",
@@ -13,15 +15,20 @@ export const useRegisterStore = defineStore({
     os_version: "",
   }),
   actions: {
+    setCreatedUser(created_user: any) {
+      this.created_user = created_user;
+    },
+    getCreatedUser() {
+      return this.created_user;
+    },
     setImei(imei: string) {
       this.imei = imei;
     },
     getImei(): string {
       return this.imei;
     },
-    obtainImei(): string {
-      let _imei = Math.random() + "";
-      return _imei;
+    async obtainImei(): Promise<string> {
+      return (await Device.getId()).identifier;
     },
     setIdMachine(id_machine: string) {
       this.id_machine = id_machine;
@@ -29,8 +36,8 @@ export const useRegisterStore = defineStore({
     getIdMachine(): string {
       return this.id_machine;
     },
-    obtainIdMachine(): string {
-      return Date.now() + "";
+    async obtainIdMachine(): Promise<string> {
+      return (await Device.getId()).identifier;
     },
     setBrand(brand: string) {
       this.brand = brand;
@@ -38,9 +45,8 @@ export const useRegisterStore = defineStore({
     getBrand(): string {
       return this.brand;
     },
-    obtainBrand(): string {
-      let _brands = ["Motorola", "Samsung", "Xiaomi"];
-      return _brands[Utils.random(0, _brands.length - 1)];
+    async obtainBrand(): Promise<string> {
+      return (await Device.getInfo()).manufacturer;
     },
     setModel(model: string) {
       this.model = model;
@@ -48,9 +54,8 @@ export const useRegisterStore = defineStore({
     getModel(): string {
       return this.model;
     },
-    obtainModel(): string {
-      let _models = ["Model 1", "Model 2", "Model 3"];
-      return _models[Utils.random(0, _models.length - 1)];
+    async obtainModel(): Promise<string> {
+      return (await Device.getInfo()).model;
     },
     setOperatingSystem(os: string) {
       this.os = os;
@@ -58,9 +63,8 @@ export const useRegisterStore = defineStore({
     getOperatingSystem(): string {
       return this.os;
     },
-    obtainOperatingSystem(): string {
-      let _oss = ["os_1", "os_2", "os_3"];
-      return _oss[Utils.random(0, _oss.length - 1)];
+    async obtainOperatingSystem(): Promise<string> {
+      return (await Device.getInfo()).operatingSystem;
     },
     setOSVersion(os_version: string) {
       this.os_version = os_version;
@@ -68,12 +72,11 @@ export const useRegisterStore = defineStore({
     getOSVersion(): string {
       return this.os_version;
     },
-    obtainOSVersion() {
-      let _os_versions = ["osv_1", "osv_2", "osv_3"];
-      return _os_versions[Utils.random(0, _os_versions.length - 1)];
+    async obtainOSVersion(): Promise<string> {
+      return (await Device.getInfo()).osVersion;
     },
     async attemptRegister() {
-      RegisterServices.signUp(
+      let response = await RegisterServices.signUp(
         this.getImei(),
         this.getIdMachine(),
         this.getBrand(),
@@ -81,19 +84,29 @@ export const useRegisterStore = defineStore({
         this.getOperatingSystem(),
         this.getOSVersion()
       );
+      this.setCreatedUser(response);
     },
-    async register() {
-      let _id_machine = this.obtainIdMachine();
-      let brand = this.obtainBrand();
-      let model = this.obtainModel();
-      let operating_system = this.obtainOperatingSystem();
-      let os_version = this.obtainOSVersion();
+    async registerDevice() {
+      let _id_machine = await this.obtainIdMachine();
+      let _imei = await this.obtainImei();
+      let _brand = await this.obtainBrand();
+      let _model = await this.obtainModel();
+      let _operating_system = await this.obtainOperatingSystem();
+      let _os_version = await this.obtainOSVersion();
       this.setIdMachine(_id_machine);
-      this.setBrand(brand);
-      this.setModel(model);
-      this.setOperatingSystem(operating_system);
-      this.setOSVersion(os_version);
-      await this.attemptRegister();
+      this.setImei(_imei);
+      this.setBrand(_brand);
+      this.setModel(_model);
+      this.setOperatingSystem(_operating_system);
+      this.setOSVersion(_os_version);
+      let response = await this.attemptRegister();
+      console.log(response);
+    },
+    async updatePassword(password: string) {
+      await RegisterServices.updatePassword({
+        auth_id: this.getCreatedUser().person.auth_id,
+        data: { password: password + ".." },
+      });
     },
   },
 });

@@ -45,7 +45,7 @@
         :is-open="error_alert_open"
         header="Mensaje"
         sub-header=""
-        message="Este dispositivo ya tiene un usuario asignado,vuelva a intentarlo"
+        message="Un administrador deberá confirmar su cuenta"
         :buttons="alert_buttons2"
         @didDismiss="setErrorAlertOpen(false)"
       ></ion-alert>
@@ -72,9 +72,7 @@ const alert_buttons2 = [
     cssClass: "alert-button-ok",
     handler: () => {
       setErrorAlertOpen(false);
-      setTimeout(() => {
-        goHome();
-      }, 200);
+      setTimeout(() => {}, 200);
     },
   },
 ];
@@ -93,13 +91,26 @@ const alert_inputs = [
 
 const is_obtain_code = router.currentRoute.value.query.isObtaincode;
 
-const goNextPage = (next_page_info: any) => {
-  let _selectedOption = next_page_info.detail.data.values;
+const NEXT_ACTION = new Map<String, Function>([
+  [
+    "sign-up",
+    async () => {
+      await register_store.registerDevice();
+      router.replace("/obtaincode");
+    },
+  ],
+  [
+    "sign-in",
+    () => {
+      router.replace("/entercode");
+    },
+  ],
+]);
 
-  _selectedOption == "sign-in"
-    ? router.replace("/entercode")
-    : //: router.replace("/obtaincode");
-      register_store.register();
+const goNextPage = (next_page_info: any) => {
+  let _selected_option = next_page_info.detail.data.values;
+  const func = NEXT_ACTION.get(_selected_option);
+  if (func) func();
 };
 
 const goHome = () => {
