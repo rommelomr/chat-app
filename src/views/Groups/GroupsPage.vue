@@ -13,7 +13,13 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <div class="the-list" v-for="(item, index) in group" :key="index">
+      <ion-searchbar
+        v-show="showSearch"
+        v-model="searchQuery"
+        placeholder="Buscar..."
+        @ionInput="handleInput($event)"
+      ></ion-searchbar>
+      <div class="the-list" v-for="(item, index) in displayedGroupList" :key="index">
         <ion-item
         @click="goLoadingConversationPage(item.name,item.id)"
         >
@@ -45,7 +51,7 @@ import { IChatGroup } from '../Conversation/interfaces/index'
 import './GroupsPage.scss';
 import {IPaginatorObject,getRangeForPagination} from '@/utils/PaginationUtils'
 import { useRouter } from 'vue-router';
-import { ref, reactive, onMounted, Ref } from 'vue';
+import { ref, reactive, onMounted, Ref, computed } from 'vue';
 import { supabase } from '@/utils/SupabaseClient';
 import { getDateDifference } from '@/utils/MomentUtils';
 import moment from 'moment';
@@ -60,7 +66,7 @@ const goLoadingConversationPage = (code: string, id: number) => {
 
 const _pagination = reactive<IPaginatorObject>({
   current_page: 1,
-  items_per_page: 10,
+  items_per_page: 1000,
   total_pages: 0,
   total_items: 0,
 });
@@ -72,7 +78,8 @@ const fetchGroups =async ()=> {
       .from("groups")
       .select(
         "*,conversations(*,participants_count:chat_users_conversations(count)),chat_users(*)"
-      ).range(left, right);
+      ).order('created_at',{ascending:true})
+      .range(left, right);
     if(data){
       group.value=data;
     }
@@ -87,6 +94,27 @@ const goNewGroup =()  => {
 
 onMounted(async () => {
   fetchGroups();
+});
+
+const handleInput = (event: CustomEvent) => {
+  const query = event.detail.value;
+  searchQuery.value = query;
+  if (query.trim() === '') {
+    showSearch.value = false;
+  } else {
+    showSearch.value = true;
+  }
+  console.log(searchQuery.value);
+};
+
+const displayedGroupList = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim();
+  if (query === '') {
+    return group.value;
+  } else {
+    return  group.value.filter((users) =>users.name.toLowerCase().includes(query)
+    );
+  }
 });
 
 

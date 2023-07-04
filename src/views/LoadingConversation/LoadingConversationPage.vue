@@ -20,11 +20,11 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="chat-holder">
-      
       </div>
- 
-      
     </ion-content>
+    
+    
+
 
     <ion-footer class="conversation-footer">
 
