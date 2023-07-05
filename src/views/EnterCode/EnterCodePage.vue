@@ -21,7 +21,7 @@
               <ion-input
                 v-model="form_state.code"
                 class="ion-text-center"
-                placeholder="Codigo de usuario"
+                label="Codigo de usuario"
               />
             </ion-item>
           </div>

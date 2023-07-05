@@ -14,7 +14,7 @@ const createDevice = async (
   });
   console.log(data);
   if (error) {
-    console.log("Something went wrong when registering device");
+    console.log("00000000000000000000000000000000000000000000000");
     throw "stop";
   }
   return data;
@@ -25,7 +25,7 @@ const phoneAlreadyRegistered = async (imei: string) => {
     .select("*")
     .eq("imei", imei);
   if (error) {
-    console.log("Something went wrong when verifying if device already exists");
+    console.log("111111111111111111111111111111111111111111111111111111");
     throw "stop";
   }
   return data && data.length > 0;
@@ -55,7 +55,7 @@ const createUser = async (access_code: string) => {
     },
   });
   if (error) {
-    console.log("Something went wrong when verifying saving chat user");
+    console.log("=================================0");
     throw "stop";
   }
   return data;
@@ -97,7 +97,7 @@ export default {
     os_version: string
   ) => {
     if (await phoneAlreadyRegistered(imei)) {
-      window.location.assign("/entercode");
+      window.location.replace("/entercode");
       throw "stop";
     }
     let _phone = await createDevice(brand, model, os, os_version);
