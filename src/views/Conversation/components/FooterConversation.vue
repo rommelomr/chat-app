@@ -131,12 +131,11 @@ let setCurrentConversation = () => {
     return;
   }
 
-  console.log(current_conversation.getCurrentConversation().userConversation);
-  newConversationBody.value.chat_users_ids.push(
-    parseInt(
-      current_conversation.getCurrentConversation().userConversation.id ?? "0"
-    )
-  );
+  if(current_conversation.getCurrentConversation().userConversation && current_conversation.getCurrentConversation().userConversation?.id){
+    //@ts-ignore
+    let id =current_conversation.getCurrentConversation().userConversation.id ;
+    newConversationBody.value.chat_users_ids.push(id??0);
+  }
   newConversationBody.value.auth_ids.push(
     current_conversation.getCurrentConversation().userConversation?.person
       ?.auth_id ?? ""

@@ -121,7 +121,7 @@ const getMessageRequest= async (conversation:number, chat_user:number):Promise<a
     .select("*,chat_user:chat_users(*,person:people(*)),files:message_files(*)")
     .eq("conversation_id", current_conversation.getCurrentConversation().id)
     .or(
-      `chat_user_id.eq.${_me},and(chat_user_id.eq.${chat_user},deleted_for_me.eq.FALSE)`
+      `chat_user_id.neq.${_me},and(chat_user_id.eq.${chat_user},deleted_for_me.eq.FALSE)`
     )
     .is("message_files.deleted_at", null)
     .is("deleted_for_all", false)

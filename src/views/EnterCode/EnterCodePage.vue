@@ -47,12 +47,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue-demi";
 import { IonPage } from "@ionic/vue";
 import { arrowForward, person, searchOutline } from "ionicons/icons";
 import "./EnterCodePage.scss";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 
 const router = useRouter();
