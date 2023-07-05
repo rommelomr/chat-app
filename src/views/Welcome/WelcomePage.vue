@@ -9,7 +9,7 @@
           <div class="holder ion-text-center">
             <h3>Bienvenido a nuestro chat</h3>
             <div class="img-holder">
-              <img src="assets/imgs/welcome.svg" alt="" />
+              <img src="/public/assets/imgs/welcome.svg" alt="" />
               <p class="ion-text-wrap">
                 Este chat esta cifrado de extremo a extremo
               </p>
@@ -24,6 +24,12 @@
                 <div class="btn-holder ion-padding">
                   <ion-button expand="block" @click="setAccesTypeOpen(true)">
                     AGREGAR Y CONTINUAR
+                  </ion-button>
+                  <ion-button
+                    expand="block"
+                    @click="router.replace('/tabs/tab2')"
+                  >
+                    ENTRAR ARBITRARIAMENTE
                   </ion-button>
                 </div>
               </div>
@@ -108,16 +114,18 @@ const NEXT_ACTION = new Map<String, Function>([
 ]);
 
 const goNextPage = (next_page_info: any) => {
-  let _selected_option = next_page_info.detail.data.values;
-  const func = NEXT_ACTION.get(_selected_option);
-  if (func) func();
+  if (next_page_info.detail.data) {
+    let _selected_option = next_page_info.detail.data.values;
+    const func = NEXT_ACTION.get(_selected_option);
+    if (func) func();
+  }
+  setAccesTypeOpen(false);
 };
 
 const goHome = () => {
   router.replace("/tabs/tab1");
 };
 const onPageLoaded = () => {
-  console.log(is_obtain_code);
   setTimeout(() => {
     if (is_obtain_code) {
       setErrorAlertOpen(true);

@@ -26,7 +26,7 @@
       <div class="the-list">
         <ion-item @click="goConversation">
           <ion-avatar slot="start">
-            <img src="public/assets/imgs/user.png" alt="" />
+            <img src="/public/assets/imgs/user.png" alt="" />
           </ion-avatar>
           <ion-label>
             <h3>123456 <span>5m</span></h3>
@@ -36,12 +36,12 @@
         </ion-item>
         <ion-item @click="goConversation">
           <ion-avatar slot="start">
-            <img src="public/assets/imgs/user.png" alt="" />
+            <img src="/public/assets/imgs/user.png" alt="" />
           </ion-avatar>
           <ion-label>
             <h3>123456 <span>5m</span></h3>
             <div class="flex al-center">
-              <img src="public/assets/imgs/icn-attachment.svg" alt="" />
+              <img src="/public/assets/imgs/icn-attachment.svg" alt="" />
               <p>Hola como estas</p>
             </div>
           </ion-label>
@@ -49,7 +49,7 @@
         </ion-item>
         <ion-item>
           <ion-avatar slot="start">
-            <img src="public/assets/imgs/user.png" alt="" />
+            <img src="/public/assets/imgs/user.png" alt="" />
           </ion-avatar>
           <ion-label>
             <h3>123456 <span>5m</span></h3>
@@ -59,12 +59,12 @@
         </ion-item>
         <ion-item>
           <ion-avatar slot="start">
-            <img src="public/assets/imgs/user.png" alt="" />
+            <img src="/public/assets/imgs/user.png" alt="" />
           </ion-avatar>
           <ion-label>
             <h3>123456 <span>5m</span></h3>
             <div class="flex al-center">
-              <img src="public/assets/imgs/icn-attachment.svg" alt="" />
+              <img src="/public/assets/imgs/icn-attachment.svg" alt="" />
               <p>Hola como estas</p>
             </div>
           </ion-label>
@@ -72,7 +72,7 @@
         </ion-item>
         <ion-item>
           <ion-avatar slot="start">
-            <img src="public/assets/imgs/user.png" alt="" />
+            <img src="/public/assets/imgs/user.png" alt="" />
           </ion-avatar>
           <ion-label>
             <h3>123456 <span>5m</span></h3>
@@ -82,12 +82,12 @@
         </ion-item>
         <ion-item>
           <ion-avatar slot="start">
-            <img src="public/assets/imgs/user.png" alt="" />
+            <img src="/public/assets/imgs/user.png" alt="" />
           </ion-avatar>
           <ion-label>
             <h3>123456 <span>5m</span></h3>
             <div class="flex al-center">
-              <img src="public/assets/imgs/icn-attachment.svg" alt="" />
+              <img src="/public/assets/imgs/icn-attachment.svg" alt="" />
               <p>Hola como estas</p>
             </div>
           </ion-label>
@@ -97,7 +97,7 @@
 
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
         <ion-fab-button>
-          <ion-icon src="public/assets/imgs/icn-chat.svg"></ion-icon>
+          <ion-icon src="/public/assets/imgs/icn-chat.svg"></ion-icon>
         </ion-fab-button>
       </ion-fab>
     </ion-content>

@@ -21,7 +21,7 @@
               <ion-input
                 v-model="form_state.code"
                 class="ion-text-center"
-                placeholder="Codigo de usuario"
+                label="Codigo de usuario"
               />
             </ion-item>
           </div>
@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue-demi";
+import { reactive } from "vue";
 import { IonPage } from "@ionic/vue";
 import { arrowForward, person, searchOutline } from "ionicons/icons";
 import "./EnterCodePage.scss";

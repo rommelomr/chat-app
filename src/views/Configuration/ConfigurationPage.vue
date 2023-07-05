@@ -16,7 +16,7 @@
       <div class="profile-holder">
         <ion-item lines="none" @click="goProfile">
           <ion-avatar slot="start">
-            <img src="public/assets/imgs/man.png" alt="" />
+            <img src="/public/assets/imgs/man.png" alt="" />
           </ion-avatar>
           <ion-label>
             <h3>123456</h3>
@@ -30,7 +30,7 @@
       <div class="the-list">
         <div class="section">
           <ion-item lines="none" @click="goAccount">
-            <ion-icon src="public/assets/imgs/icn-key.svg" slot="start" />
+            <ion-icon src="/public/assets/imgs/icn-key.svg" slot="start" />
             <ion-label>
               <h3>Cuenta</h3>
               <p class="ion-text-wrap">Configura la cuenta de tu cuenta</p>
@@ -38,7 +38,7 @@
           </ion-item>
           <ion-item lines="none">
             <ion-icon
-              src="public/assets/imgs/icn-notification.svg"
+              src="/public/assets/imgs/icn-notification.svg"
               slot="start"
             />
             <ion-label>
@@ -48,7 +48,7 @@
           </ion-item>
         </div>
         <ion-item lines="none">
-          <ion-icon src="public/assets/imgs/icn-group.svg" slot="start" />
+          <ion-icon src="/public/assets/imgs/icn-group.svg" slot="start" />
           <ion-label>
             <h3>Invitar a un amigo</h3>
           </ion-label>

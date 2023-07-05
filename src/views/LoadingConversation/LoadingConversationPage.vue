@@ -13,7 +13,7 @@
         <ion-buttons slot="start">
           <ion-item lines="none" @click="goProfile">
             <ion-avatar slot="start">
-              <img src="public/assets/imgs/giphy.gif" alt="" />
+              <img src="/public/assets/imgs/giphy.gif" alt="" />
             </ion-avatar>
             <ion-label>
               <h3>{{ $route.params.code }}</h3>
