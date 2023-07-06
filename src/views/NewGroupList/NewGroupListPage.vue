@@ -3,7 +3,7 @@
     <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="chat" mode="ios" text=""></ion-back-button>
+          <ion-back-button defaultHref="/chat" mode="ios" text=""></ion-back-button>
         </ion-buttons>
         <ion-title>
           NewGroupList

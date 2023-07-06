@@ -1,7 +1,7 @@
 <template>
   <ion-toolbar v-if="currentConversation">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="./tabs/tab2" mode="ios" text=""></ion-back-button>
+      <ion-back-button defaultHref="/tabs/tab2" mode="ios" text=""></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="start">
       <ion-item lines="none" @click="open_modal = true">

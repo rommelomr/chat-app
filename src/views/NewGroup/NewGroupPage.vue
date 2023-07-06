@@ -55,7 +55,7 @@
           <h6>{{ group.access_code }}</h6>
         </div>
       </div>
-      <pre>{{ newConversationBody }}</pre>
+     
       <ion-fab
         slot="fixed"
         vertical="bottom"

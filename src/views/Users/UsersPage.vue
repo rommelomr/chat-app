@@ -3,7 +3,7 @@
     <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="tabs/tab3" mode="ios" text=""></ion-back-button>
+          <ion-back-button defaultHref="/tabs/tab3" mode="ios" text=""></ion-back-button>
         </ion-buttons>
         <ion-title>
           <h3>Usuarios</h3>
