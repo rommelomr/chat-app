@@ -53,6 +53,7 @@ import {
   useCurrentConversation,
   ICurrentConversation,
 } from "../store/current-conversation.store";
+import moment from "moment";
 
 const current_conversation = useCurrentConversation();
 const emit = defineEmits(["onSuccessSend"]);
@@ -85,6 +86,22 @@ let senMessageIfNotEmptyConversation = async ({
   chat_user_id,
   content,
 }: IBodyMessage) => {
+  onSuccessSend(
+    {
+      id:0,
+      chat_user: current_conversation.getCurrentConversation().userConversation,
+      content: {
+        text: textInput.value,
+      },
+      has_files:false,
+      files: [],
+      created_at:moment().toString(),
+      conversation_id:current_conversation.getCurrentConversation().id??0,
+      conversation_id_chat_user_id:"",
+      chat_user_id:current_conversation.current_conversation.me,
+      is_forwarded:true
+    }
+  );
   let { data, error } = await supabase.functions.invoke("send-message", {
     body: {
       conversation_id,
@@ -94,7 +111,6 @@ let senMessageIfNotEmptyConversation = async ({
       },
     },
   });
-  onSuccessSend(data.message_info.conversation_answer);
   textInput.value = "";
 };
 
@@ -117,10 +133,7 @@ let senMessageIfEmptyConversation = async ({
   });
   if (error) return;
   textInput.value = "";
-  console.log(data.message_info.first_message.conversation_id);
-  current_conversation.setIdConversation(
-    data.message_info.first_message.conversation_id
-  );
+
 };
 let setCurrentConversation = () => {
   if (!current_conversation.getCurrentConversation().isEmpty) {
@@ -133,15 +146,14 @@ let setCurrentConversation = () => {
 
   if(current_conversation.getCurrentConversation().userConversation && current_conversation.getCurrentConversation().userConversation?.id){
     //@ts-ignore
-    let id =current_conversation.getCurrentConversation().userConversation.id ;
+    let id =current_conversation.getCurrentConversation().userConversation?.id ;
+    //@ts-ignore
+    let uu_id =current_conversation.getCurrentConversation().userConversation?.person?.auth_id ;
     newConversationBody.value.chat_users_ids.push(id??0);
-  }
-  newConversationBody.value.auth_ids.push(
-    current_conversation.getCurrentConversation().userConversation?.person
-      ?.auth_id ?? ""
-  );
-};
+    newConversationBody.value.auth_ids.push(uu_id??'');
 
+};
+}
 const setMessageSelector = () => {
   if (
     bodyMessage.value.content &&

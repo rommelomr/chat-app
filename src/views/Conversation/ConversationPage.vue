@@ -4,7 +4,8 @@
       <Toolbar />
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-
+      
+    
 
       <div class="chat-holder">
         <!-- <div v-for="(message,index) in messages" :key="index" 
@@ -110,7 +111,6 @@ let channels = reactive({
 });
 
 const onSuccessSend =(message:IMessage)=>{
-  console.log(message)
   messages.value.push(message)
 }
 

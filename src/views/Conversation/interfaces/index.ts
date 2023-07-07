@@ -23,12 +23,13 @@ export interface IMessage {
   conversation_id: number;
   chat_user_id: number;
   id: number;
-  conversation_id_chat_user_id: string;
+  conversation_id_chat_user_id?: string;
   is_forwarded: boolean;
-  deleted_for_all: boolean;
-  deleted_for_me: boolean;
+  deleted_for_all?: boolean;
+  deleted_for_me?: boolean;
   files: any[]; // You can replace 'any' with a specific type for files if available
-  chat_user: ChatUser;
+  has_files?:boolean
+  chat_user: any;
 }
 
   export interface ContentMessage {
