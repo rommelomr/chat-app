@@ -23,6 +23,7 @@
               current_conversation.getCurrentConversation().me
             "
             class="sender"
+            @click="presentActionSheet(message.id)"
           >
             <div class="message flex al-center jc-end">
               <div class="wrapper">
@@ -59,7 +60,7 @@
                 <ion-input value="Pedrito" />
               </ion-item>
               <div class="btns-holder flex al-center jc-end">
-                <ion-button fill="clear" @click="dismissModal"
+                <ion-button fill="clear" @ionPress="dismissModal"
                   >Cancelar</ion-button
                 >
                 <ion-button fill="clear">Guardar</ion-button>
@@ -73,6 +74,7 @@
       :key="current_conversation.getCurrentConversation().id"
       @onSuccessSend="onSuccessSend"
     />
+    
   </ion-page>
 </template>
 
@@ -83,6 +85,7 @@ import {
   IonHeader,
   IonToolbar,
   toastController,
+actionSheetController,
 } from "@ionic/vue";
 import {
   attachOutline,
@@ -93,7 +96,8 @@ import {
   searchOutline,
   send,
   videocam,
-} from "ionicons/icons";
+} from "ionicons/icons"
+import { IonActionSheet, IonButton } from '@ionic/vue';
 import "./ConversationPage.scss";
 import { useRouter } from "vue-router";
 import { onMounted, reactive, Ref, ref, watch } from "vue";
@@ -129,6 +133,58 @@ let channels = reactive({
   insert: {},
   update: {},
 });
+
+const deleteForAll = async (id:number) => {
+  let { data, error } = await supabase
+    .from("messages")
+    .update({ deleted_for_all: true })
+    .eq("id",id );
+};
+
+const deleteForMe = async (id:number) => {
+  let { data, error } = await supabase
+    .from("messages")
+    .update({ deleted_for_me: true })
+    .eq("id", id);
+};
+const presentActionSheet = async (id:number) => {
+        const actionSheet = await actionSheetController.create({
+          header: 'Borarr',
+          buttons: [
+            {
+              text: 'Borrar para mi',
+              role: 'destructive',
+              data: {
+                action: 'delete',
+              },
+            },
+            {
+              text: 'Borarr para todos',
+              role: 'destructive',
+              data: {
+                action: 'delete_all',
+              },
+            },
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              data: {
+                action: 'cancel',
+              },
+            },
+          ],
+        });
+
+        await actionSheet.present();
+        const { data } = await actionSheet.onDidDismiss();
+        if(data.action==='delete_all'){
+          deleteForAll(id)
+        }
+        if(data.action==='delete'){
+          deleteForMe(id)
+        }
+      };
+
 
 const onSuccessSend = (message: IMessage) => {
   messages.value.push(message);
