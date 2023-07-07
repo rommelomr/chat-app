@@ -4,9 +4,6 @@
       <Toolbar />
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      
-    
-
       <div class="chat-holder">
         <!-- <div v-for="(message,index) in messages" :key="index" 
             :class="message.chat_user_id!=current_conversation.me ? 'sender':'reciver'"
@@ -19,9 +16,14 @@
           </div>
         </div> -->
 
-  
-        <div v-for="(message,index) in messages" :key="index">
-          <div v-if="message.chat_user_id===current_conversation.getCurrentConversation().me" class="sender">
+        <div v-for="(message, index) in messages" :key="index">
+          <div
+            v-if="
+              message.chat_user_id ===
+              current_conversation.getCurrentConversation().me
+            "
+            class="sender"
+          >
             <div class="message flex al-center jc-end">
               <div class="wrapper">
                 <div class="chat-bubble">
@@ -43,55 +45,73 @@
             </div>
           </div>
         </div>
-
-
       </div>
-      <ion-modal class="ion-modall" :is-open="isModalOpen" @dismiss="dismissModal" >
-     
-        <ion-content  class="modall ion-padding">
+      <ion-modal
+        class="ion-modall"
+        :is-open="isModalOpen"
+        @dismiss="dismissModal"
+      >
+        <ion-content class="modall ion-padding">
           <div class="holder">
             <div class="section">
               <h3>Ingrese Nick Name</h3>
               <ion-item>
-                <ion-input value="Pedrito"  />
+                <ion-input value="Pedrito" />
               </ion-item>
               <div class="btns-holder flex al-center jc-end">
-                <ion-button fill="clear" @click="dismissModal">Cancelar</ion-button>
+                <ion-button fill="clear" @click="dismissModal"
+                  >Cancelar</ion-button
+                >
                 <ion-button fill="clear">Guardar</ion-button>
               </div>
             </div>
           </div>
         </ion-content>
       </ion-modal>
-     
     </ion-content>
     <FooterConversation
-    :key="current_conversation.getCurrentConversation().id"
-    @onSuccessSend="onSuccessSend"
-     />
-    
-
+      :key="current_conversation.getCurrentConversation().id"
+      @onSuccessSend="onSuccessSend"
+    />
   </ion-page>
 </template>
 
-<script  setup lang="ts">
-import { IonPage,IonPopover, IonHeader, IonToolbar,toastController} from '@ionic/vue';
-import { attachOutline, call, checkmarkDone, ellipsisVertical, mic, searchOutline, send, videocam } from 'ionicons/icons';
-import './ConversationPage.scss';
-import { useRouter } from 'vue-router';
-import { onMounted, reactive, Ref, ref, watch } from 'vue';
-import { ICurrentConversation, useCurrentConversation } from './store/current-conversation.store';
-import { supabase } from '@/utils/SupabaseClient';
-import { useAuthStore } from '@/stores/auth.store';
-import Toolbar from './components/Toolbar.vue'
-import FooterConversation from './components/FooterConversation.vue'
-import { get } from '@vueuse/core';
+<script setup lang="ts">
+import {
+  IonPage,
+  IonPopover,
+  IonHeader,
+  IonToolbar,
+  toastController,
+} from "@ionic/vue";
+import {
+  attachOutline,
+  call,
+  checkmarkDone,
+  ellipsisVertical,
+  mic,
+  searchOutline,
+  send,
+  videocam,
+} from "ionicons/icons";
+import "./ConversationPage.scss";
+import { useRouter } from "vue-router";
+import { onMounted, reactive, Ref, ref, watch } from "vue";
+import {
+  ICurrentConversation,
+  useCurrentConversation,
+} from "./store/current-conversation.store";
+import { supabase } from "@/utils/SupabaseClient";
+import { useAuthStore } from "@/stores/auth.store";
+import Toolbar from "./components/Toolbar.vue";
+import FooterConversation from "./components/FooterConversation.vue";
+import { get } from "@vueuse/core";
 import { ErrorToast, SuccessToast } from "@/utils/ShowToast";
-import { IMessage } from './interfaces';
-import { getDateDifference } from '@/utils/MomentUtils';
+import { IMessage } from "./interfaces";
+import { getDateDifference } from "@/utils/MomentUtils";
 
-const current_conversation = useCurrentConversation()
-const {user} = useAuthStore();
+const current_conversation = useCurrentConversation();
+const { user } = useAuthStore();
 const router = useRouter();
 const isModalOpen = ref(false);
 
@@ -101,43 +121,50 @@ const openModal = () => {
 const dismissModal = () => {
   isModalOpen.value = false;
 };
-const goProfile =()  => {
-     router.replace('/profile');
-}
-let messages:Ref<IMessage[]> = ref([]);
+const goProfile = () => {
+  router.replace("/profile");
+};
+let messages: Ref<IMessage[]> = ref([]);
 let channels = reactive({
   insert: {},
   update: {},
 });
 
-const onSuccessSend =(message:IMessage)=>{
-  messages.value.push(message)
-}
+const onSuccessSend = (message: IMessage) => {
+  messages.value.push(message);
+};
 
-const getMessageRequest= async (conversation:number, chat_user:number):Promise<any|undefined>=>{
-  let _me = current_conversation.getCurrentConversation().me
-  try{
+const getMessageRequest = async (
+  conversation: number,
+  chat_user: number
+): Promise<any | undefined> => {
+  let _me = current_conversation.getCurrentConversation().me;
+  try {
     let { data, error } = await supabase
-    .from("messages")
-    .select("*,chat_user:chat_users(*,person:people(*)),files:message_files(*)")
-    .eq("conversation_id", current_conversation.getCurrentConversation().id)
-    .or(
-      `chat_user_id.neq.${_me},and(chat_user_id.eq.${_me},deleted_for_me.eq.FALSE)`
-    )
-    .is("message_files.deleted_at", null)
-    .is("deleted_for_all", false)
-    .order("created_at", { ascending: true });
+      .from("messages")
+      .select(
+        "*,chat_user:chat_users(*,person:people(*)),files:message_files(*)"
+      )
+      .eq("conversation_id", current_conversation.getCurrentConversation().id)
+      .or(
+        `chat_user_id.neq.${_me},and(chat_user_id.eq.${_me},deleted_for_me.eq.FALSE)`
+      )
+      .is("message_files.deleted_at", null)
+      .is("deleted_for_all", false)
+      .order("created_at", { ascending: true });
     return data;
-  }catch(e){
-    ErrorToast("Ocurrio un error!!!")
+  } catch (e) {
+    ErrorToast("Ocurrio un error!!!");
   }
-}
+};
 
-const loadMesaggesFromConversation = async (conversation:number, chat_user:number) => {
-  
-  messages.value = await getMessageRequest(conversation,chat_user);
-  let _conversation_id = current_conversation.getCurrentConversation().id
-  let _me = current_conversation.getCurrentConversation().me
+const loadMesaggesFromConversation = async (
+  conversation: number,
+  chat_user: number
+) => {
+  messages.value = await getMessageRequest(conversation, chat_user);
+  let _conversation_id = current_conversation.getCurrentConversation().id;
+  let _me = current_conversation.getCurrentConversation().me;
   channels.insert = supabase
     .channel(_conversation_id + "-insert")
     .on(
@@ -146,9 +173,18 @@ const loadMesaggesFromConversation = async (conversation:number, chat_user:numbe
         event: "INSERT",
         schema: "public",
         table: "messages",
-        filter: `conversation_id_chat_user_id=neq.${_conversation_id + ''+ _me+ ""}`,
+        filter: `conversation_id_chat_user_id=neq.${
+          _conversation_id + "" + _me + ""
+        }`,
       },
       async (event) => {
+        alert(
+          "detecte que me enviaron un mensaje: " +
+            _conversation_id +
+            "" +
+            _me +
+            ""
+        );
         let { data, error } = await supabase
           .from("messages")
           .select(
@@ -163,14 +199,14 @@ const loadMesaggesFromConversation = async (conversation:number, chat_user:numbe
         messages.value.push(data[0]);
         setTimeout(() => {
           //@ts-ignore
-         // scrollToBottom("#conversation");
+          // scrollToBottom("#conversation");
         }, 200);
       }
     )
     .subscribe();
 
   channels.update = await supabase
-    .channel(conversation+ "-update")
+    .channel(conversation + "-update")
     .on(
       "postgres_changes",
       {
@@ -182,8 +218,7 @@ const loadMesaggesFromConversation = async (conversation:number, chat_user:numbe
       async (event) => {
         console.log(event);
         let deleted_for_owner =
-          event.new.deleted_for_me &&
-          event.new.chat_user_id == user.id;
+          event.new.deleted_for_me && event.new.chat_user_id == user.id;
         if (event.new.deleted_for_all || deleted_for_owner) {
           let _message_to_delete = messages.value.findIndex((message) => {
             //@ts-ignore
@@ -195,12 +230,22 @@ const loadMesaggesFromConversation = async (conversation:number, chat_user:numbe
     )
     .subscribe();
 };
-watch(()=>current_conversation.getCurrentConversation().id,()=>{
-  loadMesaggesFromConversation(current_conversation.getCurrentConversation().id,current_conversation.getCurrentConversation().userConversation?.id??0)
-})
+watch(
+  () => current_conversation.getCurrentConversation().id,
+  () => {
+    loadMesaggesFromConversation(
+      current_conversation.getCurrentConversation().id,
+      current_conversation.getCurrentConversation().userConversation?.id ?? 0
+    );
+  }
+);
 onMounted(() => {
-  loadMesaggesFromConversation(current_conversation.getCurrentConversation().id,current_conversation.getCurrentConversation().userConversation?.id??0)
-  current_conversation.getMe()
+  if (!current_conversation.getCurrentConversation().isEmpty) {
+    loadMesaggesFromConversation(
+      current_conversation.getCurrentConversation().id,
+      current_conversation.getCurrentConversation().userConversation?.id ?? 0
+    );
+  }
+  current_conversation.getMe();
 });
-
 </script>

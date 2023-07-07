@@ -66,7 +66,7 @@ const currentConversation: Ref<ICurrentConversation | undefined> = ref();
 let textInput: Ref<string> = ref("");
 let bodyMessage: Ref<IBodyMessage> = ref({
   conversation_id: current_conversation.getCurrentConversation().id ?? 0,
-  chat_user_id: current_conversation.getCurrentConversation().me?? 0,
+  chat_user_id: current_conversation.getCurrentConversation().me ?? 0,
   content: {
     text: "",
   },
@@ -86,22 +86,20 @@ let senMessageIfNotEmptyConversation = async ({
   chat_user_id,
   content,
 }: IBodyMessage) => {
-  onSuccessSend(
-    {
-      id:0,
-      chat_user: current_conversation.getCurrentConversation().userConversation,
-      content: {
-        text: textInput.value,
-      },
-      has_files:false,
-      files: [],
-      created_at:moment().toString(),
-      conversation_id:current_conversation.getCurrentConversation().id??0,
-      conversation_id_chat_user_id:"",
-      chat_user_id:current_conversation.current_conversation.me,
-      is_forwarded:true
-    }
-  );
+  onSuccessSend({
+    id: 0,
+    chat_user: current_conversation.getCurrentConversation().userConversation,
+    content: {
+      text: textInput.value,
+    },
+    has_files: false,
+    files: [],
+    created_at: moment().toString(),
+    conversation_id: current_conversation.getCurrentConversation().id ?? 0,
+    conversation_id_chat_user_id: "",
+    chat_user_id: current_conversation.current_conversation.me,
+    is_forwarded: true,
+  });
   let { data, error } = await supabase.functions.invoke("send-message", {
     body: {
       conversation_id,
@@ -114,7 +112,7 @@ let senMessageIfNotEmptyConversation = async ({
   textInput.value = "";
 };
 
-let senMessageIfEmptyConversation = async ({
+let sendMessageIfEmptyConversation = async ({
   conversation_type,
   chat_users_ids,
   auth_ids,
@@ -132,8 +130,10 @@ let senMessageIfEmptyConversation = async ({
     },
   });
   if (error) return;
-  textInput.value = "";
 
+  current_conversation.current_conversation.id =
+    data.message_info.first_message.conversation_id;
+  textInput.value = "";
 };
 let setCurrentConversation = () => {
   if (!current_conversation.getCurrentConversation().isEmpty) {
@@ -144,16 +144,20 @@ let setCurrentConversation = () => {
     return;
   }
 
-  if(current_conversation.getCurrentConversation().userConversation && current_conversation.getCurrentConversation().userConversation?.id){
+  if (
+    current_conversation.getCurrentConversation().userConversation &&
+    current_conversation.getCurrentConversation().userConversation?.id
+  ) {
     //@ts-ignore
-    let id =current_conversation.getCurrentConversation().userConversation?.id ;
+    let id = current_conversation.getCurrentConversation().userConversation?.id;
     //@ts-ignore
-    let uu_id =current_conversation.getCurrentConversation().userConversation?.person?.auth_id ;
-    newConversationBody.value.chat_users_ids.push(id??0);
-    newConversationBody.value.auth_ids.push(uu_id??'');
-
+    let uu_id =
+      current_conversation.getCurrentConversation().userConversation?.person
+        ?.auth_id;
+    newConversationBody.value.chat_users_ids.push(parseInt(id) ?? 0);
+    newConversationBody.value.auth_ids.push(uu_id ?? "");
+  }
 };
-}
 const setMessageSelector = () => {
   if (
     bodyMessage.value.content &&
@@ -166,7 +170,7 @@ const setMessageSelector = () => {
     senMessageIfNotEmptyConversation(bodyMessage.value);
   }
   if (current_conversation.getCurrentConversation().isEmpty) {
-    senMessageIfEmptyConversation(newConversationBody.value);
+    sendMessageIfEmptyConversation(newConversationBody.value);
   }
 };
 
