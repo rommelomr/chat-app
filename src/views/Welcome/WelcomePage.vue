@@ -9,7 +9,7 @@
           <div class="holder ion-text-center">
             <h3>Bienvenido a nuestro chat</h3>
             <div class="img-holder">
-              <img src="assets/imgs/welcome.svg" alt="" />
+              <img src="/public/assets/imgs/welcome.svg" alt="" />
               <p class="ion-text-wrap">
                 Este chat esta cifrado de extremo a extremo
               </p>
@@ -24,6 +24,12 @@
                 <div class="btn-holder ion-padding">
                   <ion-button expand="block" @click="setAccesTypeOpen(true)">
                     AGREGAR Y CONTINUAR
+                  </ion-button>
+                  <ion-button
+                    expand="block"
+                    @click="router.replace('/tabs/tab2')"
+                  >
+                    ENTRAR ARBITRARIAMENTE
                   </ion-button>
                 </div>
               </div>
@@ -45,7 +51,7 @@
         :is-open="error_alert_open"
         header="Mensaje"
         sub-header=""
-        message="Este dispositivo ya tiene un usuario asignado,vuelva a intentarlo"
+        message="Un administrador deberá confirmar su cuenta"
         :buttons="alert_buttons2"
         @didDismiss="setErrorAlertOpen(false)"
       ></ion-alert>
@@ -58,8 +64,9 @@ import { IonAlert, IonPage, onIonViewDidEnter } from "@ionic/vue";
 import "./WelcomePage.scss";
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
-
+import { useRegisterStore } from "@/stores/register-store";
 const router = useRouter();
+const register_store = useRegisterStore();
 let acces_type_open = ref(false);
 let error_alert_open = ref(false);
 
@@ -71,9 +78,7 @@ const alert_buttons2 = [
     cssClass: "alert-button-ok",
     handler: () => {
       setErrorAlertOpen(false);
-      setTimeout(() => {
-        goHome();
-      }, 200);
+      setTimeout(() => {}, 200);
     },
   },
 ];
@@ -92,19 +97,35 @@ const alert_inputs = [
 
 const is_obtain_code = router.currentRoute.value.query.isObtaincode;
 
-const goNextPage = (next_page_info: any) => {
-  let _selectedOption = next_page_info.detail.data.values;
+const NEXT_ACTION = new Map<String, Function>([
+  [
+    "sign-up",
+    async () => {
+      await register_store.registerDevice();
+      router.replace("/obtaincode");
+    },
+  ],
+  [
+    "sign-in",
+    () => {
+      router.replace("/entercode");
+    },
+  ],
+]);
 
-  _selectedOption == "sign-in"
-    ? router.replace("/entercode")
-    : router.replace("/obtaincode");
+const goNextPage = (next_page_info: any) => {
+  if (next_page_info.detail.data) {
+    let _selected_option = next_page_info.detail.data.values;
+    const func = NEXT_ACTION.get(_selected_option);
+    if (func) func();
+  }
+  setAccesTypeOpen(false);
 };
 
 const goHome = () => {
   router.replace("/tabs/tab1");
 };
 const onPageLoaded = () => {
-  console.log(is_obtain_code);
   setTimeout(() => {
     if (is_obtain_code) {
       setErrorAlertOpen(true);

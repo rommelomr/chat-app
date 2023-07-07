@@ -4,7 +4,8 @@
   {
     ion-toolbar
     {
-      --background: transparent;
+      --background: rgba(255, 255, 255, 0.115);
+      backdrop-filter: blur(12px) !important;
       position: absolute;
       width: 100%;
 
@@ -131,10 +132,11 @@ ion-footer
 {
     ion-toolbar
     {
-        --background: transparent;
-        padding: 0 10px;
+      --background: rgba(255, 255, 255, 0.168);
+      backdrop-filter: blur(12px) !important;
+        padding: 10px;
         position: absolute;
-        bottom: 10px;
+        bottom: 0;
 
         ion-item
         {
@@ -144,6 +146,7 @@ ion-footer
             border-radius: 10px;
             --border-radius: 10px;
             width: 95%;
+            margin-bottom: 10px;
 
             ion-input
             {

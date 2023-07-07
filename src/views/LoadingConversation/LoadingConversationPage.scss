@@ -1,0 +1,188 @@
+.conversation-page
+{
+  ion-header
+  {
+    ion-toolbar
+    {
+      --background: transparent;
+      position: absolute;
+      width: 100%;
+
+      ion-back-button
+      {
+        color: white;
+      }
+
+      ion-item
+      {
+        --background: transparent;
+        ion-avatar
+        {
+          --border-radius: 50%;
+          height: 3rem;
+          width: 3rem;
+        }
+
+        ion-label
+        {
+          h3
+          {
+            color: white;
+            font-family: 'Medium';
+            font-size: 16px;
+
+          
+          }
+
+          p
+          {
+            color: white;
+            font-family: 'Medium';
+            font-size: 13px;
+          }
+        }
+      }
+
+      ion-buttons
+      {
+        ion-button
+        {
+          --color: white;
+        }
+      }
+    }
+  }
+  ion-content
+  {
+    --background: #fff url('../../../public/assets/imgs/bg.png') no-repeat center center / cover;
+    --padding-top:75px;
+    
+
+    .chat-bubble
+    {
+      background: white;
+      border-radius: 7px;
+      margin-bottom: 5px;
+      padding: 10px;
+      width: fit-content;
+      
+
+      h4
+      {
+        color: var(--ion-color-primary);
+        font-size: 16px;
+        margin: 0;
+        width: fit-content;
+      }
+
+      .img-holder
+      {
+        margin-top: 10px;
+        img
+        {
+          height: 30vw;
+        }
+      }
+      
+    }
+
+    .time
+    {
+      ion-icon
+      {
+        color: #fff;
+        margin-right: 5px;
+      }
+      p
+      {
+        color: white;
+        font-size: 10px;
+        margin: 0 10px 0 0;
+      }
+    }
+
+    .reciver
+    {
+
+    }
+
+    .sender
+    {
+      .wrapper
+      {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      .chat-bubble
+      {
+        background: var(--ion-color-primary);
+        h4
+        {
+          color: white;
+        }
+      }
+    }
+  }
+
+  
+ion-footer
+{
+    ion-toolbar
+    {
+        --background: transparent;
+        padding: 0 10px;
+        position: absolute;
+        bottom: 10px;
+
+        ion-item
+        {
+            --background: transparent;
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(12px) !important;
+            border-radius: 10px;
+            --border-radius: 10px;
+            width: 95%;
+
+            ion-input
+            {
+                color: white;
+            }
+
+            ion-icon
+            {
+              color: white;
+            }
+        }
+
+        .btn
+        {
+            background: rgba(255, 255, 255, 0.3);
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px 0 0; 
+            width: 40px;
+
+            ion-icon
+            {
+              color: white;
+                font-size: 20px;
+            }
+        }
+    }
+}
+}
+
+.pop
+{
+  --padding-start:0 !important;
+  --padding-bottom:0 !important;
+  --padding-top:0 !important;
+}
+
+.scroll-y
+{
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}
