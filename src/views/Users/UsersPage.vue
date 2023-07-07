@@ -23,20 +23,20 @@
         @ionInput="handleInput($event)"
       ></ion-searchbar>
       <div class="the-list">
-        <ion-item
+          <ion-item
           v-for="(item, index) in displayedGroupList"
           :key="index"
-          @click="goLoadingConversationPage(item.access_code,item.id)"
-        >
-          <ion-avatar slot="start">
-            <img :src="item.person.photo" alt="" />
-          </ion-avatar>
-          <ion-label>
-            <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
-            <h3>{{ item.access_code }}</h3>
-            <p>{{ item.username }}</p>
-          </ion-label>
-        </ion-item>
+          @click="goLoadingConversationPage(item.access_code,item.id)" v-show="item.person.auth_id!=userAuth.id"
+          >
+            <ion-avatar slot="start" >
+              <img :src="item.person.photo" alt="" />
+            </ion-avatar>
+            <ion-label>
+              <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
+              <h3>{{ item.access_code }}</h3>
+              <p>{{ item.username }}</p>
+            </ion-label>
+          </ion-item>
       </div>
     </ion-content>
   </ion-page>
@@ -50,6 +50,7 @@ import { arrowForward, close, searchOutline } from "ionicons/icons";
 import "./UsersPage.scss";
 import { useRouter } from "vue-router";
 import { ChatUser } from "@/logic/interfaces/iChatUser";
+import { useAuthStore } from "@/stores/auth.store";
 
 const selectedList = ref(
   [] as {
@@ -62,6 +63,7 @@ const selectedList = ref(
 const showSearch = ref(false);
 const router = useRouter();
 const searchQuery = ref('');
+let userAuth = useAuthStore().getUser();
 const goLoadingConversationPage = (code: string, id: number) => {
   router.replace({
     path: `/loading-conversation/${code}/${id}/SINGLE`,

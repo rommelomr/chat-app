@@ -27,6 +27,7 @@
           v-for="(group, index) in selectedList"
           :key="index"
           @click="pushOrRemoveObject(group)"
+          
         >
           <ion-avatar>
             <img :src="group.person.photo" alt="" />
@@ -53,6 +54,7 @@
           v-for="(group, index) in displayedGroupList"
           :key="index"
           @click="pushOrRemoveObject(group)"
+          v-show="group.person.auth_id!=userAuth.id"
         >
           <ion-avatar slot="start">
             <img :src="group.person.photo" alt="" />
@@ -84,6 +86,9 @@ import { computed, onMounted, reactive, ref, Ref } from "vue";
 import { supabase } from "@/utils/SupabaseClient";
 import { ChatUser } from "@/logic/interfaces/iChatUser";
 import { useNewGroup } from "../Groups/store/new-group.store";
+import { useAuthStore } from "@/stores/auth.store";
+
+let userAuth = useAuthStore().getUser();
 let newGroup = useNewGroup();
 
 interface Group {
