@@ -178,13 +178,6 @@ const loadMesaggesFromConversation = async (
         }`,
       },
       async (event) => {
-        alert(
-          "detecte que me enviaron un mensaje: " +
-            _conversation_id +
-            "" +
-            _me +
-            ""
-        );
         let { data, error } = await supabase
           .from("messages")
           .select(
