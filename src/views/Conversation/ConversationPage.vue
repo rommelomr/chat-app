@@ -17,6 +17,7 @@
             <p>9 : 34 AM</p>
           </div>
         </div> -->
+
   
         <div v-for="(message,index) in messages" :key="index">
           <div v-if="message.chat_user_id===current_conversation.getCurrentConversation().me" class="sender">
@@ -121,11 +122,11 @@ const getMessageRequest= async (conversation:number, chat_user:number):Promise<a
     .select("*,chat_user:chat_users(*,person:people(*)),files:message_files(*)")
     .eq("conversation_id", current_conversation.getCurrentConversation().id)
     .or(
-      `chat_user_id.neq.${_me},and(chat_user_id.eq.${chat_user},deleted_for_me.eq.FALSE)`
+      `chat_user_id.neq.${_me},and(chat_user_id.eq.${_me},deleted_for_me.eq.FALSE)`
     )
     .is("message_files.deleted_at", null)
     .is("deleted_for_all", false)
-    .order("created_at", { ascending: true });   
+    .order("created_at", { ascending: true });
     return data;
   }catch(e){
     ErrorToast("Ocurrio un error!!!")
@@ -136,7 +137,7 @@ const loadMesaggesFromConversation = async (conversation:number, chat_user:numbe
   
   messages.value = await getMessageRequest(conversation,chat_user);
   let _conversation_id = current_conversation.getCurrentConversation().id
-  
+  let _me = current_conversation.getCurrentConversation().me
   channels.insert = supabase
     .channel(_conversation_id + "-insert")
     .on(
@@ -145,7 +146,7 @@ const loadMesaggesFromConversation = async (conversation:number, chat_user:numbe
         event: "INSERT",
         schema: "public",
         table: "messages",
-        filter: `conversation_id_chat_user_id=eq.${_conversation_id + ''+chat_user + ""}`,
+        filter: `conversation_id_chat_user_id=neq.${_conversation_id + ''+ _me+ ""}`,
       },
       async (event) => {
         let { data, error } = await supabase

@@ -101,6 +101,8 @@ const selectChatUserUseCase = async (id: number) => {
       me_uuid: "",
     });
   }
+ // throw new Error("Alto ahi mi loco");
+  
   router.replace({
     path: `/conversation`,
   });
@@ -108,6 +110,7 @@ const selectChatUserUseCase = async (id: number) => {
 
 const selectChatGroups = async (id: number) => {
   currentConversation.reset();
+  
   let { data, error }: { data: IChatGroup[] | null; error: any } =
     await supabase
       .from("groups")
