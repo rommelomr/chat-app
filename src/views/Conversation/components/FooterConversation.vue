@@ -13,10 +13,10 @@
         <ion-icon aria-hidden="true" :icon="attachOutline" slot="end" />
       </ion-item>
       <ion-buttons slot="end">
-        <div class="btn ion-activatable flex al-center jc-center ripple-parent">
-          <ion-icon aria-hidden="true" :icon="mic" />
-          <ion-ripple-effect type="bounded"></ion-ripple-effect>
-        </div>
+          <Recording/>
+      </ion-buttons>
+      <ion-buttons slot="end">
+          <CameraCapter/>
       </ion-buttons>
       <ion-buttons @click="setMessageSelector" slot="end">
         <div class="btn ion-activatable flex al-center jc-center ripple-parent">
@@ -32,6 +32,8 @@
 import { supabase } from "@/utils/SupabaseClient";
 import { IonPage, IonPopover, IonHeader, IonToolbar } from "@ionic/vue";
 import { set } from "@vueuse/core";
+import Recording from './Recording/Recording.vue'
+import CameraCapter from './Camera/index.vue'
 import {
   attachOutline,
   call,
