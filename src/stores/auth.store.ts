@@ -5,6 +5,7 @@ import { useStorage } from "@vueuse/core";
 import jwt_decode from "jwt-decode";
 import { useRouter } from "vue-router";
 import { supabase } from "@/utils/SupabaseClient";
+import { Device } from "@capacitor/device";
 
 export const useAuthStore = defineStore({
   id: "auth-store",
@@ -26,13 +27,16 @@ export const useAuthStore = defineStore({
 
   actions: {
     async attemptLogin(email: string, password: string) {
-      let { data, error } = await supabase.functions.invoke("customLogin", {
+      let _imei = (await Device.getId()).identifier;
+      let { data, error } = await supabase.functions.invoke("appLogin", {
         body: {
           email: `${email}@messenger.chat`,
           password: password + "..",
+          imei: _imei,
         },
       });
-
+      console.log(data);
+      throw "stop";
       if (error) {
         let error_info = await error.context.json();
         console.error(error_info);
