@@ -18,12 +18,12 @@
           <img :src="`/public/assets/imgs/avatar/${1}.png`" alt="" />
         </ion-avatar>
         <div
-                class="btn ion-activatable flex al-center jc-center ripple-parent"
-                @click="openModal"
-              >
-                <ion-icon src="/public/assets/imgs/icn-edit.svg"></ion-icon>
-                <ion-ripple-effect type="bounded"></ion-ripple-effect>
-              </div>
+          class="btn ion-activatable flex al-center jc-center ripple-parent"
+          @click="openModal"
+        >
+          <ion-icon src="/public/assets/imgs/icn-edit.svg"></ion-icon>
+          <ion-ripple-effect type="bounded"></ion-ripple-effect>
+        </div>
       </div>
 
       <div class="detail-holder">
@@ -130,7 +130,7 @@
         </ion-content>
       </ion-modal>
     </ion-content>
-    <ImageSelector/>
+    <ImageSelector />
   </ion-page>
 </template>
 
@@ -139,7 +139,7 @@ import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
 import { call, camera, ellipsisVertical, send, videocam } from "ionicons/icons";
 import "./ProfilePage.scss";
 import { useRouter } from "vue-router";
-import ImageSelector from '../profile/AvatarSelector/index.vue'
+import ImageSelector from "../Profile/AvatarSelector/index.vue";
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 let userAuth = useAuthStore().getUser();
