@@ -4,21 +4,24 @@
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-back-button
-            defaultHref="tabs/tab4"
+            defaultHref="/tabs/tab4"
             mode="ios"
             text=""
           ></ion-back-button>
         </ion-buttons>
-        <ion-title class="ion-text-center"> Perfil </ion-title>
+        <ion-title class="ion-text-center"> Perfíl </ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="dp-holder ion-text-center">
         <ion-avatar>
-          <img src="/public/assets/imgs/user.png" alt="" />
+          <img :src="`/public/assets/imgs/avatar/${1}.png`" alt="" />
         </ion-avatar>
-        <div class="btn ion-activatable flex al-center jc-center ripple-parent">
-          <ion-icon aria-hidden="true" :icon="camera" />
+        <div
+          class="btn ion-activatable flex al-center jc-center ripple-parent"
+          @click="openModal"
+        >
+          <ion-icon src="/public/assets/imgs/icn-edit.svg"></ion-icon>
           <ion-ripple-effect type="bounded"></ion-ripple-effect>
         </div>
       </div>
@@ -127,6 +130,7 @@
         </ion-content>
       </ion-modal>
     </ion-content>
+    <ImageSelector />
   </ion-page>
 </template>
 
@@ -135,7 +139,10 @@ import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
 import { call, camera, ellipsisVertical, send, videocam } from "ionicons/icons";
 import "./ProfilePage.scss";
 import { useRouter } from "vue-router";
+import ImageSelector from "../Profile/AvatarSelector/index.vue";
 import { ref } from "vue";
+import { useAuthStore } from "@/stores/auth.store";
+let userAuth = useAuthStore().getUser();
 
 const router = useRouter();
 

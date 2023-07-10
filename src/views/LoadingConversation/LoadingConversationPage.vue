@@ -13,7 +13,7 @@
         <ion-buttons slot="start">
           <ion-item lines="none" @click="goProfile">
             <ion-avatar slot="start">
-              <img src="/public/assets/imgs/giphy.gif" alt="" />
+              <img src="/public/assets/gifs/giphy.gif" alt="" />
             </ion-avatar>
             <ion-label>
               <h3>{{ $route.params.code }}</h3>
@@ -101,8 +101,8 @@ const selectChatUserUseCase = async (id: number) => {
       me_uuid: "",
     });
   }
- // throw new Error("Alto ahi mi loco");
-  
+  // throw new Error("Alto ahi mi loco");
+
   router.replace({
     path: `/conversation`,
   });
@@ -110,7 +110,7 @@ const selectChatUserUseCase = async (id: number) => {
 
 const selectChatGroups = async (id: number) => {
   currentConversation.reset();
-  
+
   let { data, error }: { data: IChatGroup[] | null; error: any } =
     await supabase
       .from("groups")

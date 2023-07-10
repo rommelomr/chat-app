@@ -55,9 +55,12 @@ import "@ionic/vue/css/display.css";
 import "./theme/variables.scss";
 
 import { createPinia } from "pinia";
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 const pinia = createPinia();
 
 const app = createApp(App).use(IonicVue).use(router);
+//@ts-ignore
+defineCustomElements(app)
 app.use(pinia);
 app.component("IonActionSheet", IonActionSheet);
 app.component("IonAlert", IonAlert);
