@@ -54,6 +54,9 @@ import { useRouter } from "vue-router";
 import { ref, reactive } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
+
 const router = useRouter();
 const auth_store = useAuthStore();
 let form_state = reactive({
@@ -61,10 +64,12 @@ let form_state = reactive({
   password: "",
 });
 const signIn = async () => {
+  app_store.setAppIsLoading(true);
   let error = await auth_store.attemptLogin(
     form_state.code,
     form_state.password
   );
+  app_store.setAppIsLoading(true);
   router.replace({
     path: "/welcome",
     query: {
