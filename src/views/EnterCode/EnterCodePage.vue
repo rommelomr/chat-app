@@ -51,7 +51,7 @@ import { IonPage } from "@ionic/vue";
 import { arrowForward, person, searchOutline } from "ionicons/icons";
 import "./EnterCodePage.scss";
 import { useRouter } from "vue-router";
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 
 import { useAppStore } from "@/stores/app-store";
@@ -78,4 +78,7 @@ const signIn = async () => {
     },
   });
 };
+onMounted(() => {
+  app_store.setAppIsLoading(false);
+});
 </script>

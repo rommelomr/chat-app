@@ -142,8 +142,10 @@ import "./ProfilePage.scss";
 import { useRouter } from "vue-router";
 import { Ref, ref, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
+
 import { useAppStore } from "@/stores/app-store";
 const app_store = useAppStore();
+
 let userAuth = useAuthStore().getUser();
 const recording = ref(false);
 const uri: Ref<string> = ref("");
