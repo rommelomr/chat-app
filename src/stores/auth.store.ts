@@ -37,6 +37,8 @@ export const useAuthStore = defineStore({
 
       if (error) {
         let error_info = await error.context.json();
+        console.log(error_info);
+        throw "stoppppppppp";
         let _messsage = error_info.verification
           ? error_info.verification.message
           : "Credenciales incorrectas";
