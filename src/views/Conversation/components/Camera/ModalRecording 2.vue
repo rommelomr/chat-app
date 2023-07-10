@@ -3,7 +3,7 @@
       <ion-modal ref="modal" :isOpen="isModalOpen" :backdropDismiss="false" @onDidDismiss="closeModal">
         <ion-content>
           <ion-toolbar>
-            <ion-title></ion-title>
+            <ion-title>Nota De Voz</ion-title>
             <ion-buttons slot="end">
               <ion-button color="light" @click="closeModal">
                 <ion-icon aria-hidden="true" :icon="trashOutline" />
@@ -43,7 +43,6 @@
     const recording = ref(false);
     let photo: Ref<string> = ref('')
     let imageSrc:Ref<string>=ref('')
-    
 
     const props = defineProps({
         uri:{

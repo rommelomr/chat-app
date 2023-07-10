@@ -19,7 +19,7 @@
         </ion-avatar>
         <div
           class="btn ion-activatable flex al-center jc-center ripple-parent"
-          @click="openModal"
+          @click="toggleModal"
         >
           <ion-icon src="/public/assets/imgs/icn-edit.svg"></ion-icon>
           <ion-ripple-effect type="bounded"></ion-ripple-effect>
@@ -130,20 +130,26 @@
         </ion-content>
       </ion-modal>
     </ion-content>
-    <ImageSelector />
+    <Modal :show="recording" :uri="uri" @onCloseModal="toggleModal"/> 
   </ion-page>
 </template>
 
 <script setup lang="ts">
+import Modal from './AvatarSelector/ModalAvatar.vue'
 import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
 import { call, camera, ellipsisVertical, send, videocam } from "ionicons/icons";
 import "./ProfilePage.scss";
 import { useRouter } from "vue-router";
-import ImageSelector from "../Profile/AvatarSelector/index.vue";
-import { ref } from "vue";
+import { Ref, ref } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
-let userAuth = useAuthStore().getUser();
 
+let userAuth = useAuthStore().getUser();
+const recording = ref(false);
+  const uri: Ref<string> = ref('');
+  const toggleModal =  (e:any) => {
+    console.log(e)
+      recording.value=!recording.value;
+  };
 const router = useRouter();
 
 const isModalOpen = ref(false);
@@ -165,3 +171,20 @@ const dismissModal1 = () => {
   isModalOpen1.value = false;
 };
 </script>
+<style>
+ion-modal {
+  --height: 90%;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+ion-modal::part(backdrop) {
+  background: rgba(209, 213, 219);
+  opacity: 1;
+}
+
+ion-modal ion-toolbar {
+  --background: rgb(14 116 144);
+  --color: white;
+}
+</style>
