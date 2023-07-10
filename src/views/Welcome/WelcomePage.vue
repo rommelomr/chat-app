@@ -51,7 +51,7 @@
         :is-open="error_alert_open"
         header="Mensaje"
         sub-header=""
-        message="Un administrador deberá confirmar su cuenta"
+        :message="message"
         :buttons="alert_buttons2"
         @didDismiss="setErrorAlertOpen(false)"
       ></ion-alert>
@@ -96,6 +96,7 @@ const alert_inputs = [
 ];
 
 const is_obtain_code = router.currentRoute.value.query.isObtaincode;
+const message = router.currentRoute.value.query.message;
 
 const NEXT_ACTION = new Map<String, Function>([
   [

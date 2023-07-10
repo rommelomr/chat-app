@@ -61,11 +61,15 @@ let form_state = reactive({
   password: "",
 });
 const signIn = async () => {
-  await auth_store.attemptLogin(form_state.code, form_state.password);
+  let error = await auth_store.attemptLogin(
+    form_state.code,
+    form_state.password
+  );
   router.replace({
     path: "/welcome",
     query: {
       isObtaincode: true.toString(),
+      message: error.message,
     },
   });
 };
