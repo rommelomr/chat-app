@@ -49,7 +49,8 @@ import { useRouter } from "vue-router";
 import { supabase } from "@/utils/SupabaseClient";
 import { useCurrentConversation } from "../Conversation/store/current-conversation.store";
 import { IChatGroup } from "../Conversation/interfaces";
-
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
 const router = useRouter();
 const currentConversation = useCurrentConversation();
 
@@ -64,11 +65,13 @@ const goProfile = () => {
   router.replace("/profile");
 };
 const selectChatUserUseCase = async (id: number) => {
+  app_store.setAppIsLoading(true);
   let messages: Array<any> = [];
   currentConversation.reset();
   let { data, error } = await supabase.rpc("get_conversation_with_chat_user", {
     partnerchatuserid: id,
   });
+  app_store.setAppIsLoading(false);
   if (data.conversation.status == 404) {
     currentConversation.setCurrentConversation({
       id: data.conversation.id ?? 0,
@@ -109,6 +112,7 @@ const selectChatUserUseCase = async (id: number) => {
 };
 
 const selectChatGroups = async (id: number) => {
+  app_store.setAppIsLoading(true);
   currentConversation.reset();
 
   let { data, error }: { data: IChatGroup[] | null; error: any } =
@@ -118,7 +122,7 @@ const selectChatGroups = async (id: number) => {
         "*,conversations(*,participants_count:chat_users_conversations(count)),chat_users(*)"
       )
       .eq("id", id);
-
+  app_store.setAppIsLoading(true);
   if (data && data?.length > 0) {
     currentConversation.setCurrentConversation({
       id: data[0].conversation_id,

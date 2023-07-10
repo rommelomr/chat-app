@@ -4,7 +4,7 @@
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-back-button
-            defaultHref="/tabs/tab4"
+            defaultHref="/tabs/tab1"
             mode="ios"
             text=""
           ></ion-back-button>
@@ -140,12 +140,14 @@
 <script setup lang="ts">
 import Modal from "./AvatarSelector/ModalAvatar.vue";
 import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
-import { call, camera, ellipsisVertical, send, videocam } from "ionicons/icons";
+import { call, camera, ellipsisVertical, send, videocam,close} from "ionicons/icons";
 import "./ProfilePage.scss";
 import { useRouter } from "vue-router";
 import { Ref, onMounted, ref } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 import { supabase } from '@/utils/SupabaseClient';
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
 
 let userAuth = useAuthStore().getUser();
 let auth = useAuthStore();
@@ -163,10 +165,12 @@ const uri: Ref<string> = ref("");
 const toggleModal = (e: any) => {
   console.log(e);
   recording.value = !recording.value;
+  changeAvatar(e.id.id)
 };
 const router = useRouter();
 
 const changeAvatar = async (id:number)=>{
+  app_store.setAppIsLoading(true);
  let { data, error } = await supabase
     .from("people")
     .update({
@@ -174,6 +178,7 @@ const changeAvatar = async (id:number)=>{
     })
     .eq("auth_id", userAuth.id)
     .select('*');
+    app_store.setAppIsLoading(false);
     profile.value= await auth.getProfile()
 }
 
@@ -196,6 +201,7 @@ const dismissModal1 = () => {
   isModalOpen1.value = false;
 };
 onMounted(async ()=>{
+  app_store.setAppIsLoading(false);
   profile.value= await auth.getProfile()
 })
 </script>

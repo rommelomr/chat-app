@@ -6,7 +6,7 @@
           <ion-title>Avatar</ion-title>
           <ion-buttons slot="end">
             <ion-button color="light" @click="closeModal">
-              <ion-icon aria-hidden="true" :icon="trashOutline" />
+              <ion-icon aria-hidden="true" :icon="close" />
             </ion-button>
           </ion-buttons>
         </ion-toolbar>
@@ -29,7 +29,7 @@ import {
     IonModal,
     IonContent,
     IonToolbar,
-    IonTitle,
+    IonTitle
   } from '@ionic/vue';
   import {
   trashOutline,
