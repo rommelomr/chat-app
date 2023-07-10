@@ -5,6 +5,7 @@ import { useStorage } from "@vueuse/core";
 import jwt_decode from "jwt-decode";
 import { useRouter } from "vue-router";
 import { supabase } from "@/utils/SupabaseClient";
+import { Device } from "@capacitor/device";
 
 export const useAuthStore = defineStore({
   id: "auth-store",
@@ -17,8 +18,6 @@ export const useAuthStore = defineStore({
       expiration: "",
       role: "",
       email: "",
-      photo: "",
-      name: "",
     }),
     user_data: {},
     role: {},
@@ -26,34 +25,44 @@ export const useAuthStore = defineStore({
 
   actions: {
     async attemptLogin(email: string, password: string) {
-      let { data, error } = await supabase.functions.invoke("customLogin", {
+      let _imei = (await Device.getId()).identifier;
+
+      let { data, error } = await supabase.functions.invoke("appLogin", {
         body: {
           email: `${email}@messenger.chat`,
           password: password + "..",
+          imei: _imei,
         },
       });
 
       if (error) {
         let error_info = await error.context.json();
-        console.error(error_info);
-        throw "stop";
+        let _messsage = error_info.verification
+          ? error_info.verification.message
+          : "Credenciales incorrectas";
+        return {
+          message: _messsage,
+        };
       }
 
       await supabase.auth.setSession({
-        refresh_token: data.refresh_token,
-        access_token: data.access_token,
+        refresh_token: data.session.refresh_token,
+        access_token: data.session.access_token,
       });
 
+      console.log(data.user);
       this.setLogin({
         id: data.user.id,
-        token: data.access_token,
-        refresh_token: data.refresh_token,
+        token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+        expiration: data.session.expiration,
         is_logged: true,
         role: data.user.role,
         email: data.user.email,
       });
-      // window.location.assign("/");
-      return;
+
+      window.location.replace("/tabs/tab1");
+      throw "stop";
     },
     setLogin(user_data: any) {
       this.$patch({
@@ -62,11 +71,9 @@ export const useAuthStore = defineStore({
           token: user_data.token,
           refresh_token: user_data.refresh_token,
           is_logged: true,
-          expiration: "",
-          role: "",
+          expiration: user_data.expiration,
+          role: user_data.role,
           email: user_data.email,
-          photo: user_data.photo,
-          name: user_data.name,
         },
       });
     },
