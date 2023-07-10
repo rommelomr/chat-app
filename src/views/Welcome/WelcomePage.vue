@@ -25,12 +25,6 @@
                   <ion-button expand="block" @click="setAccesTypeOpen(true)">
                     AGREGAR Y CONTINUAR
                   </ion-button>
-                  <ion-button
-                    expand="block"
-                    @click="router.replace('/tabs/tab2')"
-                  >
-                    ENTRAR ARBITRARIAMENTE
-                  </ion-button>
                 </div>
               </div>
             </div>
