@@ -138,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from './AvatarSelector/ModalAvatar.vue'
+import Modal from "./AvatarSelector/ModalAvatar.vue";
 import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
 import { call, camera, ellipsisVertical, send, videocam } from "ionicons/icons";
 import "./ProfilePage.scss";
@@ -159,11 +159,12 @@ let profile:any = ref({
   aux_photo: 1
 })
 const recording = ref(false);
-  const uri: Ref<string> = ref('');
-  const toggleModal =  (e:any) => {
-    recording.value=!recording.value;
-    changeAvatar(e.id.id)
-  };
+const uri: Ref<string> = ref("");
+const toggleModal = (e: any) => {
+  console.log(e);
+  recording.value = !recording.value;
+};
+const router = useRouter();
 
 const changeAvatar = async (id:number)=>{
  let { data, error } = await supabase
@@ -175,7 +176,7 @@ const changeAvatar = async (id:number)=>{
     .select('*');
     profile.value= await auth.getProfile()
 }
-const router = useRouter();
+
 const isModalOpen = ref(false);
 const isModalOpen1 = ref(false);
 
@@ -202,7 +203,8 @@ onMounted(async ()=>{
 ion-modal {
   --height: 90%;
   --border-radius: 16px;
-  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 ion-modal::part(backdrop) {

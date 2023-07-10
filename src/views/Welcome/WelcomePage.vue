@@ -59,6 +59,8 @@ import "./WelcomePage.scss";
 import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { useRegisterStore } from "@/stores/register-store";
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
 const router = useRouter();
 const register_store = useRegisterStore();
 let acces_type_open = ref(false);
@@ -109,6 +111,7 @@ const NEXT_ACTION = new Map<String, Function>([
 ]);
 
 const goNextPage = (next_page_info: any) => {
+  app_store.setAppIsLoading(true);
   if (next_page_info.detail.data) {
     let _selected_option = next_page_info.detail.data.values;
     const func = NEXT_ACTION.get(_selected_option);

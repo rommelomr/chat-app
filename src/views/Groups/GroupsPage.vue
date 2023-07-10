@@ -58,6 +58,8 @@ import { ref, reactive, onMounted, Ref, computed } from "vue";
 import { supabase } from "@/utils/SupabaseClient";
 import { getDateDifference } from "@/utils/MomentUtils";
 import moment from "moment";
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
 const showSearch = ref(false);
 const router = useRouter();
 const searchQuery = ref("");
@@ -98,7 +100,8 @@ const goNewGroup = () => {
 };
 
 onMounted(async () => {
-  fetchGroups();
+  await fetchGroups();
+  app_store.setAppIsLoading(false);
 });
 
 const handleInput = (event: CustomEvent) => {

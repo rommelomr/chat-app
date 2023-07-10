@@ -3,7 +3,11 @@
     <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/tabs/tab3" mode="ios" text=""></ion-back-button>
+          <ion-back-button
+            defaultHref="/tabs/tab3"
+            mode="ios"
+            text=""
+          ></ion-back-button>
         </ion-buttons>
         <ion-title>
           <h3>Usuarios</h3>
@@ -23,27 +27,36 @@
         @ionInput="handleInput($event)"
       ></ion-searchbar>
       <div class="the-list">
-          <ion-item
+        <ion-item
           v-for="(item, index) in displayedGroupList"
           :key="index"
-          @click="goLoadingConversationPage(item.access_code,item.id)" v-show="item.person.auth_id!=userAuth.id"
-          >
-            <ion-avatar slot="start" >
-              <img :src="item.person.photo" alt="" />
-            </ion-avatar>
-            <ion-label>
-              <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
-              <h3>{{ item.access_code }}</h3>
-              <p>{{ item.username }}</p>
-            </ion-label>
-          </ion-item>
+          @click="goLoadingConversationPage(item.access_code, item.id)"
+          v-show="item.person.auth_id != userAuth.id"
+        >
+          <ion-avatar slot="start">
+            <img :src="item.person.photo" alt="" />
+          </ion-avatar>
+          <ion-label>
+            <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
+            <h3>{{ item.access_code }}</h3>
+            <p>{{ item.username }}</p>
+          </ion-label>
+        </ion-item>
       </div>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, ref, reactive, onUpdated, Ref,computed } from "vue";
+import {
+  inject,
+  onMounted,
+  ref,
+  reactive,
+  onUpdated,
+  Ref,
+  computed,
+} from "vue";
 import { supabase } from "@/utils/SupabaseClient";
 import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
 import { arrowForward, close, searchOutline } from "ionicons/icons";
@@ -51,7 +64,8 @@ import "./UsersPage.scss";
 import { useRouter } from "vue-router";
 import { ChatUser } from "@/logic/interfaces/iChatUser";
 import { useAuthStore } from "@/stores/auth.store";
-
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
 const selectedList = ref(
   [] as {
     avatar: string;
@@ -62,7 +76,7 @@ const selectedList = ref(
 );
 const showSearch = ref(false);
 const router = useRouter();
-const searchQuery = ref('');
+const searchQuery = ref("");
 let userAuth = useAuthStore().getUser();
 const goLoadingConversationPage = (code: string, id: number) => {
   router.replace({
@@ -89,12 +103,13 @@ onMounted(async () => {
   current_chat_user = data;
   supabase.removeAllChannels();
   init();
+  app_store.setAppIsLoading(false);
 });
 
 const handleInput = (event: CustomEvent) => {
   const query = event.detail.value;
   searchQuery.value = query;
-  if (query.trim() === '') {
+  if (query.trim() === "") {
     showSearch.value = false;
   } else {
     showSearch.value = true;
@@ -106,14 +121,14 @@ const toggleSearch = () => {
   showSearch.value = !showSearch.value;
 };
 
-const displayedGroupList= computed(() => {
+const displayedGroupList = computed(() => {
   const query = searchQuery.value.toLowerCase().trim();
-  if (query === '') {
+  if (query === "") {
     return users.value;
   } else {
-    return  users.value.filter((users) =>users.access_code.toLowerCase().includes(query)
+    return users.value.filter((users) =>
+      users.access_code.toLowerCase().includes(query)
     );
   }
 });
-
 </script>

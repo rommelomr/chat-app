@@ -3,11 +3,8 @@
     <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button
-            defaultHref="tabs/tab4"
-            mode="ios"
-            text=""
-          ></ion-back-button>
+          <ion-back-button defaultHref="tabs/tab4" mode="ios" text="">
+          </ion-back-button>
         </ion-buttons>
         <ion-title class="ion-text-center">Chat</ion-title>
         <ion-buttons slot="end">
@@ -122,6 +119,8 @@ import {
 } from "@/utils/PaginationUtils";
 import { IChatGroup } from "../Conversation/interfaces";
 import { supabase } from "@/utils/SupabaseClient";
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
 const _pagination = reactive<IPaginatorObject>({
   current_page: 1,
   items_per_page: 1000,
@@ -143,7 +142,8 @@ const fetch = async () => {
   }
 };
 onMounted(async () => {
-  fetch();
+  await fetch();
+  app_store.setAppIsLoading(false);
 });
 
 const goConversation = () => {

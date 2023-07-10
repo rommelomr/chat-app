@@ -3,7 +3,7 @@
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
       <ion-tab-bar slot="bottom" className="tabs-page tab-bar-no-border">
-        <ion-tab-button tab="tab1" href="/tabs/tab1">
+        <ion-tab-button tab="tab1" @click="moveBetweenTabs('/tabs/tab1')">
           <div class="wrapper flex al-center jc-center">
             <ion-icon
               aria-hidden="true"
@@ -19,7 +19,7 @@
           <ion-label className="tab-icon-inactive">Chat</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab2" href="/tabs/tab2">
+        <ion-tab-button tab="tab2" @click="moveBetweenTabs('/tabs/tab2')">
           <div class="wrapper flex al-center jc-center">
             <ion-icon
               aria-hidden="true"
@@ -36,7 +36,7 @@
           <ion-label className="tab-icon-inactive">Usuarios</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab3" href="/tabs/tab3">
+        <ion-tab-button tab="tab3" @click="moveBetweenTabs('/tabs/tab3')">
           <div class="wrapper flex al-center jc-center">
             <ion-icon
               aria-hidden="true"
@@ -53,7 +53,7 @@
           <ion-label className="tab-icon-inactive">Grupos</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab4" href="/profile">
+        <ion-tab-button tab="tab4" @click="moveBetweenTabs('/profile')">
           <div class="wrapper flex al-center jc-center">
             <ion-icon
               aria-hidden="true"
@@ -67,7 +67,7 @@
             />
           </div>
 
-          <ion-label className="tab-icon-inactive">Pérfil</ion-label>
+          <ion-label className="tab-icon-inactive">Perfil</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -100,6 +100,15 @@ import { chatbox } from "ionicons/icons";
 import { chatboxOutline } from "ionicons/icons";
 import { ellipse, square, triangle } from "ionicons/icons";
 import { useAuthStore } from "@/stores/auth.store";
+import { useRouter } from "vue-router";
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
+const router = useRouter();
+const moveBetweenTabs = (tab: string) => {
+  app_store.setAppIsLoading(true);
+  router.replace(tab);
+};
+
 //  const login_action_testing = useAuthStore().attemptLogin;
 //  const startLogin=()=>{
 //   login_action_testing()
