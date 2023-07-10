@@ -130,26 +130,27 @@
         </ion-content>
       </ion-modal>
     </ion-content>
-    <Modal :show="recording" :uri="uri" @onCloseModal="toggleModal"/> 
+    <Modal :show="recording" :uri="uri" @onCloseModal="toggleModal" />
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import Modal from './AvatarSelector/ModalAvatar.vue'
+import Modal from "./AvatarSelector/ModalAvatar.vue";
 import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
 import { call, camera, ellipsisVertical, send, videocam } from "ionicons/icons";
 import "./ProfilePage.scss";
 import { useRouter } from "vue-router";
-import { Ref, ref } from "vue";
+import { Ref, ref, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
-
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
 let userAuth = useAuthStore().getUser();
 const recording = ref(false);
-  const uri: Ref<string> = ref('');
-  const toggleModal =  (e:any) => {
-    console.log(e)
-      recording.value=!recording.value;
-  };
+const uri: Ref<string> = ref("");
+const toggleModal = (e: any) => {
+  console.log(e);
+  recording.value = !recording.value;
+};
 const router = useRouter();
 
 const isModalOpen = ref(false);
@@ -170,12 +171,17 @@ const dismissModal = () => {
 const dismissModal1 = () => {
   isModalOpen1.value = false;
 };
+
+onMounted(() => {
+  app_store.setAppIsLoading(false);
+});
 </script>
 <style>
 ion-modal {
   --height: 90%;
   --border-radius: 16px;
-  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 ion-modal::part(backdrop) {

@@ -69,7 +69,7 @@ const signIn = async () => {
     form_state.code,
     form_state.password
   );
-  app_store.setAppIsLoading(true);
+  app_store.setAppIsLoading(false);
   router.replace({
     path: "/welcome",
     query: {
