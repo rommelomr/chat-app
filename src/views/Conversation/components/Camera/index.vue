@@ -63,7 +63,7 @@ const takePhoto = async () => {
 
     }
   } catch (error) {
-    console.error('Error capturing photo:', error);
+   // console.error('Error capturing photo:', error);
   }
 };
   onMounted(()=>{

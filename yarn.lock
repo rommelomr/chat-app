@@ -978,6 +978,11 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     "to-fast-properties" "^2.0.0"
 
+"@capacitor/android@^5.1.1":
+  "integrity" "sha512-FaDg+Igjiz6ohH7yu5TpLHGCQbsjMMy+0a+idsyadTnz/IzRZwqlCyj4Jbqsb5J39j0hE8kqD3o1e5O5Ukbm2g=="
+  "resolved" "https://registry.npmjs.org/@capacitor/android/-/android-5.1.1.tgz"
+  "version" "5.1.1"
+
 "@capacitor/app@5.0.2":
   "integrity" "sha512-TRs5Iu94+IfUJ4iiljWC0tuVsHXBOD4asADggpUH6DnwlQo3cVuRnFK+A0jJnWW9GvlFy9uTsXxytzzXP/V0vQ=="
   "resolved" "https://registry.npmjs.org/@capacitor/app/-/app-5.0.2.tgz"
@@ -1011,10 +1016,10 @@
     "tslib" "^2.4.0"
     "xml2js" "^0.5.0"
 
-"@capacitor/core@^5.0.0", "@capacitor/core@5.0.4":
-  "integrity" "sha512-BFvziz9jM87pLHW2sXPNIzwrdmI5mAP0tBsBHgXoCO2+wVdpvIMYCpcst5BuTULaMz5JBFZZ6g6nqwgfs+SMCA=="
-  "resolved" "https://registry.npmjs.org/@capacitor/core/-/core-5.0.4.tgz"
-  "version" "5.0.4"
+"@capacitor/core@^5.0.0", "@capacitor/core@^5.0.4", "@capacitor/core@^5.1.0":
+  "integrity" "sha512-17rZMGpZYQgBAmUS1uAS1GrRkPAQiUfpTfvd2wWS9z87GoTL/5vtpPAtI0/XLtr4eve2TsATY2r8BaW2NfEO6Q=="
+  "resolved" "https://registry.npmjs.org/@capacitor/core/-/core-5.1.1.tgz"
+  "version" "5.1.1"
   dependencies:
     "tslib" "^2.1.0"
 
@@ -1028,6 +1033,11 @@
   "resolved" "https://registry.npmjs.org/@capacitor/filesystem/-/filesystem-5.0.5.tgz"
   "version" "5.0.5"
 
+"@capacitor/geolocation@^5.0.5":
+  "integrity" "sha512-Z5vb1rRpDGDc3P8+Ybo/HH0upjCpGAioYmAS2mGHudZzPb2LDwuE2IJ9CiLvg3eWVhvS5lAxLQKKcKxLceBY+g=="
+  "resolved" "https://registry.npmjs.org/@capacitor/geolocation/-/geolocation-5.0.5.tgz"
+  "version" "5.0.5"
+
 "@capacitor/haptics@^5.0.2":
   "integrity" "sha512-HGkvL3a8yW26YVR7pfgMpkJrspD0+9sUrBB77SWR/GqQV+m32FTx9ECGlw+sHhwLnv0XtFx4PocIL5SlU1m3Vw=="
   "resolved" "https://registry.npmjs.org/@capacitor/haptics/-/haptics-5.0.2.tgz"
@@ -1037,6 +1047,16 @@
   "integrity" "sha512-5qauopAd9Dlltzi87i/WHMBsocCf0BJqVxRZ3H+kifQm4BLHGokrzuanddEJd6MPOnglSl3H3C9oElJB3wkVVQ=="
   "resolved" "https://registry.npmjs.org/@capacitor/keyboard/-/keyboard-5.0.2.tgz"
   "version" "5.0.2"
+
+"@capacitor/local-notifications@^5.0.5":
+  "integrity" "sha512-Gq/yj7fVEkc5gR+ZHpGqhiCHbayOqBbIuwXmLhbUr2bECQ0PVPvH6A4KITvzUhCHh7kVGg8LZelRN5atxLXmiA=="
+  "resolved" "https://registry.npmjs.org/@capacitor/local-notifications/-/local-notifications-5.0.5.tgz"
+  "version" "5.0.5"
+
+"@capacitor/push-notifications@^5.0.5":
+  "integrity" "sha512-MFoCJ0wIPQb+xlrb3wLWqAp9O2bBdZ1WJZpnoxNl8eDgCvkacDtyd6R7oV4IZq4j9uNgDWFp5xojbSe0WnSmgA=="
+  "resolved" "https://registry.npmjs.org/@capacitor/push-notifications/-/push-notifications-5.0.5.tgz"
+  "version" "5.0.5"
 
 "@capacitor/status-bar@5.0.2":
   "integrity" "sha512-5emXUQzx9WnQHnxzapghrqm8P80z7IPLM83PTsfN+NOkm3uw3ZOxB4T7qy9NBV2Zp+GCEpr1UrNBowxV7Ami3Q=="
@@ -1080,9 +1100,9 @@
     "debug" "^3.1.0"
     "lodash.once" "^4.1.1"
 
-"@esbuild/linux-x64@0.17.19":
-  "integrity" "sha512-68ngA9lg2H6zkZcyp22tsVt38mlhWde8l3eJLWkyLrp4HwMUr3c1s/M2t7+kHIhvMjglIBrFpncX1SzMckomGw=="
-  "resolved" "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.17.19.tgz"
+"@esbuild/darwin-arm64@0.17.19":
+  "integrity" "sha512-80wEoCfF/hFKM6WE1FyBHc9SfUblloAWx6FJkFWTWiCoht9Mc0ARGEM47e67W9rI09YoUxJL68WHfDRYEAvOhg=="
+  "resolved" "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.17.19.tgz"
   "version" "0.17.19"
 
 "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.3.0":
@@ -3010,6 +3030,11 @@
   "integrity" "sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw=="
   "resolved" "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   "version" "1.0.0"
+
+"fsevents@~2.3.2":
+  "integrity" "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="
+  "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
+  "version" "2.3.2"
 
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="

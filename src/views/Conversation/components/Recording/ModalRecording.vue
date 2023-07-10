@@ -138,9 +138,10 @@
 
   const cancelRecording =async()=>{
     VoiceRecorder.getCurrentStatus().then(result =>{
-       if(result.status!='NONE'){
-         VoiceRecorder.stopRecording()
-
+      console.log(result)
+      if(result.status==='RECORDING'){
+         VoiceRecorder.stopRecording();
+         timer=0;
        }
     })
   }
@@ -148,7 +149,7 @@
     if(!recording.value){
       return;
     }
-
+   
     VoiceRecorder.stopRecording().then(async(result:RecordingData)=>{
       if(result.value && result.value.recordDataBase64){
         const recordData = result.value.recordDataBase64;
@@ -198,8 +199,8 @@
   };
   
   const closeModal = () => {
-    isModalOpen.value = false;
     cancelRecording();
+    isModalOpen.value = false;
     emit('onCloseModal')
   };
 
@@ -211,7 +212,10 @@
     if(!props.record){
       sendMode.value=false;
       currentFileName.value="";
-      timer.value=0;
+      clearInterval(timer);
+    }
+    if(!props.show){
+      time.value=0
     }
   })
   </script>

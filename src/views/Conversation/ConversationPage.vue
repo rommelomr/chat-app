@@ -79,6 +79,7 @@
 </template>
 
 <script setup lang="ts">
+import { LocalNotifications } from '@capacitor/local-notifications';
 import {
   IonPage,
   IonPopover,
@@ -146,6 +147,25 @@ const deleteForMe = async (id:number) => {
     .from("messages")
     .update({ deleted_for_me: true })
     .eq("id", id);
+};
+const scheduleNotification = async (message:IMessage) => {
+  await LocalNotifications.checkPermissions().then((e)=>{
+    console.log(e)
+  });
+  await LocalNotifications.schedule({
+    notifications: [
+      {
+        title: message.chat_user.access_code??'',
+        body: message.content.text??'',
+        id: 1,
+        schedule: { at: new Date(Date.now() + 1000) }, // Programa la notificación para 1 segundo después de la invocación
+        sound: '/public/assets/mp3/glu.mp3',
+       // attachments: null,
+        actionTypeId: '',
+        extra: null,
+      },
+    ],
+  });
 };
 const presentActionSheet = async (id:number) => {
         const actionSheet = await actionSheetController.create({
@@ -246,6 +266,7 @@ const loadMesaggesFromConversation = async (
         if (error) return;
         //@ts-ignore
         messages.value.push(data[0]);
+        scheduleNotification(data[0]);
         setTimeout(() => {
           //@ts-ignore
           // scrollToBottom("#conversation");
@@ -253,6 +274,7 @@ const loadMesaggesFromConversation = async (
       }
     )
     .subscribe();
+    
 
   channels.update = await supabase
     .channel(conversation + "-update")
@@ -267,7 +289,7 @@ const loadMesaggesFromConversation = async (
       async (event) => {
         console.log(event);
         let deleted_for_owner =
-          event.new.deleted_for_me && event.new.chat_user_id == user.id;
+        event.new.deleted_for_me && event.new.chat_user_id == user.id;
         if (event.new.deleted_for_all || deleted_for_owner) {
           let _message_to_delete = messages.value.findIndex((message) => {
             //@ts-ignore
@@ -276,9 +298,10 @@ const loadMesaggesFromConversation = async (
           messages.value.splice(_message_to_delete, 1);
         }
       }
-    )
-    .subscribe();
-};
+      )
+      .subscribe();
+    };
+
 watch(
   () => current_conversation.getCurrentConversation().id,
   () => {
@@ -296,5 +319,6 @@ onMounted(() => {
     );
   }
   current_conversation.getMe();
+  
 });
 </script>
