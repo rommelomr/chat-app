@@ -4,7 +4,7 @@
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-back-button
-            defaultHref="/tabs/tab4"
+            defaultHref="/tabs/tab1"
             mode="ios"
             text=""
           ></ion-back-button>
@@ -14,8 +14,11 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="dp-holder ion-text-center">
-        <ion-avatar>
-          <img :src="`/public/assets/imgs/avatar/${1}.png`" alt="" />
+        <ion-avatar v-if="profile && profile.photo">
+          <img
+            :src="`/public/assets/imgs/avatar/${profile.photo}.png`"
+            alt=""
+          />
         </ion-avatar>
         <div
           class="btn ion-activatable flex al-center jc-center ripple-parent"
@@ -130,6 +133,9 @@
         </ion-content>
       </ion-modal>
     </ion-content>
+    <pre>
+      {{ profile }}
+    </pre>
     <Modal :show="recording" :uri="uri" @onCloseModal="toggleModal" />
   </ion-page>
 </template>
@@ -137,23 +143,56 @@
 <script setup lang="ts">
 import Modal from "./AvatarSelector/ModalAvatar.vue";
 import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
-import { call, camera, ellipsisVertical, send, videocam } from "ionicons/icons";
+import {
+  call,
+  camera,
+  ellipsisVertical,
+  send,
+  videocam,
+  close,
+} from "ionicons/icons";
 import "./ProfilePage.scss";
 import { useRouter } from "vue-router";
-import { Ref, ref, onMounted } from "vue";
+import { Ref, onMounted, ref } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
+
+import { supabase } from "@/utils/SupabaseClient";
 
 import { useAppStore } from "@/stores/app-store";
 const app_store = useAppStore();
 
 let userAuth = useAuthStore().getUser();
+let auth = useAuthStore();
+let profile: any = ref({
+  created_at: "",
+  last_name: null,
+  auth_id: "",
+  name: "",
+  deleted_at: "",
+  photo: "1",
+  aux_photo: 1,
+});
 const recording = ref(false);
 const uri: Ref<string> = ref("");
 const toggleModal = (e: any) => {
   console.log(e);
   recording.value = !recording.value;
+  changeAvatar(e.id.id);
 };
 const router = useRouter();
+
+const changeAvatar = async (id: number) => {
+  app_store.setAppIsLoading(true);
+  let { data, error } = await supabase
+    .from("people")
+    .update({
+      photo: id,
+    })
+    .eq("auth_id", userAuth.id)
+    .select("*");
+  app_store.setAppIsLoading(false);
+  profile.value = await auth.getProfile();
+};
 
 const isModalOpen = ref(false);
 const isModalOpen1 = ref(false);
@@ -173,9 +212,9 @@ const dismissModal = () => {
 const dismissModal1 = () => {
   isModalOpen1.value = false;
 };
-
-onMounted(() => {
+onMounted(async () => {
   app_store.setAppIsLoading(false);
+  profile.value = await auth.getProfile();
 });
 </script>
 <style>

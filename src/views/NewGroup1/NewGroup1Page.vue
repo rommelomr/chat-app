@@ -30,7 +30,7 @@
           
         >
           <ion-avatar>
-            <img :src="group.person.photo" alt="" />
+            <img :src="`/public/assets/imgs/avatar/${group.person.photo??1}.png`"/>
           </ion-avatar>
           <h6>{{ group.access_code }}</h6>
           <div
@@ -57,7 +57,7 @@
           v-show="group.person.auth_id!=userAuth.id"
         >
           <ion-avatar slot="start">
-            <img :src="group.person.photo" alt="" />
+            <img :src="`/public/assets/imgs/avatar/${group.person.photo??1}.png`"/>
           </ion-avatar>
           <ion-label>
             <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->

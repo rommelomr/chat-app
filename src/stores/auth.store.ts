@@ -17,10 +17,9 @@ export const useAuthStore = defineStore({
       is_logged: false,
       expiration: "",
       role: "",
-      email: "",
+      email: ""
     }),
-    user_data: {},
-    role: {},
+    user_data: useStorage("user_data",{}),
   }),
 
   actions: {
@@ -50,8 +49,6 @@ export const useAuthStore = defineStore({
         refresh_token: data.session.refresh_token,
         access_token: data.session.access_token,
       });
-
-      console.log(data.user);
       this.setLogin({
         id: data.user.id,
         token: data.session.access_token,
@@ -59,7 +56,7 @@ export const useAuthStore = defineStore({
         expiration: data.session.expiration,
         is_logged: true,
         role: data.user.role,
-        email: data.user.email,
+        email: data.user.email
       });
 
       window.location.replace("/tabs/tab1");
@@ -75,8 +72,9 @@ export const useAuthStore = defineStore({
           expiration: user_data.expiration,
           role: user_data.role,
           email: user_data.email,
-        },
+        }
       });
+      this.getProfile();
     },
     setUserProperty(property: any, value: any) {
       let _user = this.getProperty("user");
@@ -92,5 +90,17 @@ export const useAuthStore = defineStore({
     setProperty(property: any, value: any) {
       console.log(property);
     },
+    async getProfile(){
+      let { data, error } = await supabase
+      .from("people")
+      .select('*')
+      .eq("auth_id", this.user.id).single();
+      this.$patch({
+        user_data:{
+          ...data
+        }
+      });
+      return data;
+    }
   },
 });

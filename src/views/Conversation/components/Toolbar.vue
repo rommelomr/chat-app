@@ -6,7 +6,7 @@
     <ion-buttons slot="start">
       <ion-item lines="none" @click="open_modal = true">
         <ion-avatar slot="start" >
-          <img :src="currentConversation.label_image" alt="" />
+         <img :src="`/public/assets/imgs/avatar/${currentConversation.label_image??1}.png`"/>
         </ion-avatar>
         <ion-label>
           <h3>{{ currentConversation.label }}</h3>
