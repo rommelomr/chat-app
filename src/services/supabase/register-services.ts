@@ -70,7 +70,7 @@ const createChatUser = async (
   os_id: number,
   os_version_id: number
 ) => {
-  let { data, error } = await supabase.rpc("register_chat_user", {
+  let { data, error } = await supabase.rpc("register_chat_user_test", {
     authid: new_user.id,
     accesscode: access_code,
     brandid: brand_id,
@@ -80,6 +80,9 @@ const createChatUser = async (
     operatingsystemid: os_id,
     osversionid: os_version_id,
   });
+
+  console.log(data);
+
   if (error) {
     console.log("chat user not created: ", error);
     throw "stop";
@@ -125,5 +128,17 @@ export default {
         },
       },
     });
+  },
+  getChatUserByPhoneImei: async (imei: string) => {
+    let { data, error } = await supabase.rpc("get_chat_user_by_phone_imei", {
+      phoneimei: imei,
+    });
+    if (error) {
+      throw "stop: get_chat_user_by_phone_imei error at register-services, line 135";
+    }
+    return {
+      success: data ? true : false,
+      chat_user: data,
+    };
   },
 };

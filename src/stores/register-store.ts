@@ -108,5 +108,10 @@ export const useRegisterStore = defineStore({
         data: { password: password + ".." },
       });
     },
+    async getChatUserByPhoneImei() {
+      let _imei = await this.obtainImei();
+      let _chat_user = await RegisterServices.getChatUserByPhoneImei(_imei);
+      return _chat_user;
+    },
   },
 });

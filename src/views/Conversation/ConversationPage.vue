@@ -70,23 +70,19 @@
         </ion-content>
       </ion-modal>
     </ion-content>
-    <FooterConversation
-      :key="current_conversation.getCurrentConversation().id"
-      @onSuccessSend="onSuccessSend"
-    />
-    
+    <FooterConversation @onSuccessSend="onSuccessSend" />
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { LocalNotifications } from '@capacitor/local-notifications';
+import { LocalNotifications } from "@capacitor/local-notifications";
 import {
   IonPage,
   IonPopover,
   IonHeader,
   IonToolbar,
   toastController,
-actionSheetController,
+  actionSheetController,
 } from "@ionic/vue";
 import {
   attachOutline,
@@ -97,8 +93,8 @@ import {
   searchOutline,
   send,
   videocam,
-} from "ionicons/icons"
-import { IonActionSheet, IonButton } from '@ionic/vue';
+} from "ionicons/icons";
+import { IonActionSheet, IonButton } from "@ionic/vue";
 import "./ConversationPage.scss";
 import { useRouter } from "vue-router";
 import { onMounted, reactive, Ref, ref, watch } from "vue";
@@ -135,76 +131,75 @@ let channels = reactive({
   update: {},
 });
 
-const deleteForAll = async (id:number) => {
+const deleteForAll = async (id: number) => {
   let { data, error } = await supabase
     .from("messages")
     .update({ deleted_for_all: true })
-    .eq("id",id );
+    .eq("id", id);
 };
 
-const deleteForMe = async (id:number) => {
+const deleteForMe = async (id: number) => {
   let { data, error } = await supabase
     .from("messages")
     .update({ deleted_for_me: true })
     .eq("id", id);
 };
-const scheduleNotification = async (message:IMessage) => {
-  await LocalNotifications.checkPermissions().then((e)=>{
-    console.log(e)
+const scheduleNotification = async (message: IMessage) => {
+  await LocalNotifications.checkPermissions().then((e) => {
+    console.log(e);
   });
   await LocalNotifications.schedule({
     notifications: [
       {
-        title: message.chat_user.access_code??'',
-        body: message.content.text??'',
+        title: message.chat_user.access_code ?? "",
+        body: message.content.text ?? "",
         id: 1,
         schedule: { at: new Date(Date.now() + 1000) }, // Programa la notificación para 1 segundo después de la invocación
-        sound: '/public/assets/mp3/glu.mp3',
-       // attachments: null,
-        actionTypeId: '',
+        sound: "/public/assets/mp3/glu.mp3",
+        // attachments: null,
+        actionTypeId: "",
         extra: null,
       },
     ],
   });
 };
-const presentActionSheet = async (id:number) => {
-        const actionSheet = await actionSheetController.create({
-          header: 'Borarr',
-          buttons: [
-            {
-              text: 'Borrar para mi',
-              role: 'destructive',
-              data: {
-                action: 'delete',
-              },
-            },
-            {
-              text: 'Borarr para todos',
-              role: 'destructive',
-              data: {
-                action: 'delete_all',
-              },
-            },
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              data: {
-                action: 'cancel',
-              },
-            },
-          ],
-        });
+const presentActionSheet = async (id: number) => {
+  const actionSheet = await actionSheetController.create({
+    header: "Borarr",
+    buttons: [
+      {
+        text: "Borrar para mi",
+        role: "destructive",
+        data: {
+          action: "delete",
+        },
+      },
+      {
+        text: "Borarr para todos",
+        role: "destructive",
+        data: {
+          action: "delete_all",
+        },
+      },
+      {
+        text: "Cancel",
+        role: "cancel",
+        data: {
+          action: "cancel",
+        },
+      },
+    ],
+  });
 
-        await actionSheet.present();
-        const { data } = await actionSheet.onDidDismiss();
-        if(data.action==='delete_all'){
-          deleteForAll(id)
-        }
-        if(data.action==='delete'){
-          deleteForMe(id)
-        }
-      };
-
+  await actionSheet.present();
+  const { data } = await actionSheet.onDidDismiss();
+  if (data.action === "delete_all") {
+    deleteForAll(id);
+  }
+  if (data.action === "delete") {
+    deleteForMe(id);
+  }
+};
 
 const onSuccessSend = (message: IMessage) => {
   messages.value.push(message);
@@ -215,6 +210,7 @@ const getMessageRequest = async (
   chat_user: number
 ): Promise<any | undefined> => {
   let _me = current_conversation.getCurrentConversation().me;
+
   try {
     let { data, error } = await supabase
       .from("messages")
@@ -249,11 +245,10 @@ const loadMesaggesFromConversation = async (
         event: "INSERT",
         schema: "public",
         table: "messages",
-        filter: `conversation_id_chat_user_id=neq.${
-          _conversation_id + "" + _me + ""
-        }`,
+        filter: `conversation_id=eq.${_conversation_id}`,
       },
       async (event) => {
+        if (event.new.chat_user_id == _me) return;
         let { data, error } = await supabase
           .from("messages")
           .select(
@@ -274,7 +269,6 @@ const loadMesaggesFromConversation = async (
       }
     )
     .subscribe();
-    
 
   channels.update = await supabase
     .channel(conversation + "-update")
@@ -289,7 +283,7 @@ const loadMesaggesFromConversation = async (
       async (event) => {
         console.log(event);
         let deleted_for_owner =
-        event.new.deleted_for_me && event.new.chat_user_id == user.id;
+          event.new.deleted_for_me && event.new.chat_user_id == user.id;
         if (event.new.deleted_for_all || deleted_for_owner) {
           let _message_to_delete = messages.value.findIndex((message) => {
             //@ts-ignore
@@ -298,9 +292,9 @@ const loadMesaggesFromConversation = async (
           messages.value.splice(_message_to_delete, 1);
         }
       }
-      )
-      .subscribe();
-    };
+    )
+    .subscribe();
+};
 
 watch(
   () => current_conversation.getCurrentConversation().id,
@@ -318,7 +312,5 @@ onMounted(() => {
       current_conversation.getCurrentConversation().userConversation?.id ?? 0
     );
   }
-  current_conversation.getMe();
-  
 });
 </script>

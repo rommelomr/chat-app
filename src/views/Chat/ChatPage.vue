@@ -21,72 +21,20 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="the-list">
-        <ion-item @click="goConversation">
+        <ion-item
+          v-for="(conversation, i) in conversations"
+          :key="'conversation_' + conversation.id"
+          @click="goConversation"
+        >
           <ion-avatar slot="start">
             <img src="/public/assets/imgs/user.png" alt="" />
           </ion-avatar>
           <ion-label>
-            <h3>123456 <span>5m</span></h3>
+            <h3>
+              {{ partnerName(conversation) }}
+              <span>5m</span>
+            </h3>
             <p>Hola como estas</p>
-          </ion-label>
-          <ion-badge slot="end" class="flex al-center jc-center"> 3 </ion-badge>
-        </ion-item>
-        <ion-item @click="goConversation">
-          <ion-avatar slot="start">
-            <img src="/public/assets/imgs/user.png" alt="" />
-          </ion-avatar>
-          <ion-label>
-            <h3>123456 <span>5m</span></h3>
-            <div class="flex al-center">
-              <img src="/public/assets/imgs/icn-attachment.svg" alt="" />
-              <p>Hola como estas</p>
-            </div>
-          </ion-label>
-          <ion-badge slot="end" class="flex al-center jc-center"> 3 </ion-badge>
-        </ion-item>
-        <ion-item>
-          <ion-avatar slot="start">
-            <img src="/public/assets/imgs/user.png" alt="" />
-          </ion-avatar>
-          <ion-label>
-            <h3>123456 <span>5m</span></h3>
-            <p>Hola como estas</p>
-          </ion-label>
-          <ion-badge slot="end" class="flex al-center jc-center"> 3 </ion-badge>
-        </ion-item>
-        <ion-item>
-          <ion-avatar slot="start">
-            <img src="/public/assets/imgs/user.png" alt="" />
-          </ion-avatar>
-          <ion-label>
-            <h3>123456 <span>5m</span></h3>
-            <div class="flex al-center">
-              <img src="/public/assets/imgs/icn-attachment.svg" alt="" />
-              <p>Hola como estas</p>
-            </div>
-          </ion-label>
-          <ion-badge slot="end" class="flex al-center jc-center"> 3 </ion-badge>
-        </ion-item>
-        <ion-item>
-          <ion-avatar slot="start">
-            <img src="/public/assets/imgs/user.png" alt="" />
-          </ion-avatar>
-          <ion-label>
-            <h3>123456 <span>5m</span></h3>
-            <p>Hola como estas</p>
-          </ion-label>
-          <ion-badge slot="end" class="flex al-center jc-center"> 3 </ion-badge>
-        </ion-item>
-        <ion-item>
-          <ion-avatar slot="start">
-            <img src="/public/assets/imgs/user.png" alt="" />
-          </ion-avatar>
-          <ion-label>
-            <h3>123456 <span>5m</span></h3>
-            <div class="flex al-center">
-              <img src="/public/assets/imgs/icn-attachment.svg" alt="" />
-              <p>Hola como estas</p>
-            </div>
           </ion-label>
           <ion-badge slot="end" class="flex al-center jc-center"> 3 </ion-badge>
         </ion-item>
@@ -120,6 +68,8 @@ import {
 import { IChatGroup } from "../Conversation/interfaces";
 import { supabase } from "@/utils/SupabaseClient";
 import { useAppStore } from "@/stores/app-store";
+import { useAuthStore } from "@/stores/auth.store";
+
 const app_store = useAppStore();
 const _pagination = reactive<IPaginatorObject>({
   current_page: 1,
@@ -127,26 +77,48 @@ const _pagination = reactive<IPaginatorObject>({
   total_pages: 0,
   total_items: 0,
 });
-let conversation: Ref<any[]> = ref([]);
+let conversations: Ref<any[]> = ref([]);
 const router = useRouter();
-const fetch = async () => {
+const fetchCurrentUserConversation = async () => {
+  let { data: conversation_ids, error: conversation_ids_error } =
+    await supabase.rpc("get_current_chat_user_conversation_ids");
+  if (conversation_ids_error) return;
+
+  const auth_store = useAuthStore();
+
   let { left, right } = getRangeForPagination(_pagination);
 
   let { data, error }: { data: any[] | null; error: any } = await supabase
     .from("conversations")
-    .select("*,chat_users(*)")
-    .order("created_at", { ascending: true })
+    .select("*,chat_users_conversations(*,chat_users(*))")
+    .eq("type", 1)
+    .in("id", conversation_ids ?? [])
     .range(left, right);
+  console.log(data);
   if (data) {
-    conversation.value = data;
+    conversations.value = data;
   }
 };
-onMounted(async () => {
-  await fetch();
-  app_store.setAppIsLoading(false);
-});
 
 const goConversation = () => {
   router.replace("/conversation");
 };
+
+const partnerName = (conversation: any) => {
+  const auth_store = useAuthStore();
+  let _name = "unknown";
+  conversation.chat_users_conversations.map((chat_user_conversation: any) => {
+    let _my_access_code = auth_store.getUser().email.split("@")[0];
+
+    if (chat_user_conversation.chat_users.access_code != _my_access_code) {
+      _name = chat_user_conversation.chat_users.access_code;
+    }
+  });
+  return _name;
+};
+
+onMounted(async () => {
+  await fetchCurrentUserConversation();
+  app_store.setAppIsLoading(false);
+});
 </script>

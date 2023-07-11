@@ -30,11 +30,13 @@
         <ion-item
           v-for="(item, index) in displayedGroupList"
           :key="index"
-          @click="goLoadingConversationPage(item.access_code, item.id)"
+          @click="selectChatUserUseCase(item.access_code, item.id)"
           v-show="item.person.auth_id != userAuth.id"
         >
           <ion-avatar slot="start">
-            <img :src="`/public/assets/imgs/avatar/${item.person.photo??1}.png`"/>
+            <img
+              :src="`/public/assets/imgs/avatar/${item.person.photo ?? 1}.png`"
+            />
           </ion-avatar>
           <ion-label>
             <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
@@ -65,6 +67,8 @@ import { useRouter } from "vue-router";
 import { ChatUser } from "@/logic/interfaces/iChatUser";
 import { useAuthStore } from "@/stores/auth.store";
 import { useAppStore } from "@/stores/app-store";
+import { useCurrentConversation } from "../Conversation/store/current-conversation.store";
+const currentConversation = useCurrentConversation();
 const app_store = useAppStore();
 const selectedList = ref(
   [] as {
@@ -78,11 +82,55 @@ const showSearch = ref(false);
 const router = useRouter();
 const searchQuery = ref("");
 let userAuth = useAuthStore().getUser();
-const goLoadingConversationPage = (code: string, id: number) => {
+const selectChatUserUseCase = async (access_code: string, id: number) => {
+  app_store.setAppIsLoading(true);
+  let messages: Array<any> = [];
+  //currentConversation.reset();
+  let { data, error } = await supabase.rpc("get_conversation_with_chat_user", {
+    partnerchatuserid: id,
+  });
+  app_store.setAppIsLoading(false);
+
+  if (data.conversation.status == 404) {
+    currentConversation.setCurrentConversation({
+      id: data.conversation.id ?? 0,
+      type: "SINGLE",
+      label: access_code,
+      isEmpty: true,
+      userConversation: data.chat_user,
+      group: undefined,
+      label_image: data.chat_user.person.photo,
+      me: 0,
+      me_uuid: "",
+    });
+  }
+  if (data.conversation.status == 200) {
+    currentConversation.setCurrentConversation({
+      id: data.conversation.id,
+      type: "SINGLE",
+      label: `${
+        data.chat_user.access_code ??
+        router.currentRoute.value.params.code.toString()
+      }`,
+      isEmpty: false,
+      userConversation: data.chat_user,
+      group: undefined,
+      label_image: data.chat_user.person.photo,
+      me: 0,
+      me_uuid: "",
+    });
+  }
+
   router.replace({
-    path: `/loading-conversation/${code}/${id}/SINGLE`,
+    path: `/conversation`,
   });
 };
+
+// const goLoadingConversationPage = (code: string, id: number) => {
+//   router.replace({
+//     path: `/loading-conversation/${code}/${id}/SINGLE`,
+//   });
+// };
 ////// VARS //////
 let current_chat_user = reactive({});
 let users: Ref<Array<ChatUser> | null> = ref([]);

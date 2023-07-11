@@ -170,7 +170,11 @@ import "./ObtainCodePage.scss";
 import { useRouter } from "vue-router";
 import { arrowForward, copyOutline } from "ionicons/icons";
 import { useRegisterStore } from "@/stores/register-store";
-import { reactive } from "vue";
+import { reactive, onMounted } from "vue";
+
+import { useAppStore } from "@/stores/app-store";
+const app_store = useAppStore();
+
 const register_store = useRegisterStore();
 const router = useRouter();
 let password = reactive({
@@ -207,4 +211,7 @@ const updatePassword = async () => {
     alert("las contraseñas no coinciden");
   }
 };
+onMounted(async () => {
+  app_store.setAppIsLoading(false);
+});
 </script>

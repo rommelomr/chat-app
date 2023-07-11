@@ -67,11 +67,12 @@ const goProfile = () => {
 const selectChatUserUseCase = async (id: number) => {
   app_store.setAppIsLoading(true);
   let messages: Array<any> = [];
-  currentConversation.reset();
+  //currentConversation.reset();
   let { data, error } = await supabase.rpc("get_conversation_with_chat_user", {
     partnerchatuserid: id,
   });
   app_store.setAppIsLoading(false);
+  alert(data.conversation.status);
   if (data.conversation.status == 404) {
     currentConversation.setCurrentConversation({
       id: data.conversation.id ?? 0,
@@ -104,7 +105,6 @@ const selectChatUserUseCase = async (id: number) => {
       me_uuid: "",
     });
   }
-  // throw new Error("Alto ahi mi loco");
 
   router.replace({
     path: `/conversation`,

@@ -19,6 +19,7 @@
               <ion-icon aria-hidden="true" :icon="person" slot="start" />
               <ion-label position="inline"> Code </ion-label>
               <ion-input
+                readonly
                 v-model="form_state.code"
                 class="ion-text-center"
                 label="Codigo de usuario"
@@ -55,6 +56,9 @@ import { ref, reactive, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 
 import { useAppStore } from "@/stores/app-store";
+import { useRegisterStore } from "@/stores/register-store";
+const register_store = useRegisterStore();
+
 const app_store = useAppStore();
 
 const router = useRouter();
@@ -78,7 +82,23 @@ const signIn = async () => {
     },
   });
 };
+const setAccessCode = (chat_user: any) => {
+  form_state.code = chat_user.access_code;
+};
+const getPhoneChatUser = async () => {
+  let response = await register_store.getChatUserByPhoneImei();
+  response.success
+    ? setAccessCode(response.chat_user)
+    : router.replace({
+        path: "/welcome",
+        query: {
+          isObtaincode: true.toString(),
+          message: "Este dispositivo no tiene una cuenta registrada",
+        },
+      });
+};
 onMounted(() => {
   app_store.setAppIsLoading(false);
+  getPhoneChatUser();
 });
 </script>

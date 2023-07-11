@@ -60,9 +60,9 @@ import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { useRegisterStore } from "@/stores/register-store";
 import { useAppStore } from "@/stores/app-store";
+const register_store = useRegisterStore();
 const app_store = useAppStore();
 const router = useRouter();
-const register_store = useRegisterStore();
 let acces_type_open = ref(false);
 let error_alert_open = ref(false);
 
