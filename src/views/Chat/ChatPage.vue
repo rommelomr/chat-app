@@ -65,7 +65,7 @@ import {
 import "./ChatPage.scss";
 import { personAddOutline, searchOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
-import { Ref, onMounted, reactive, ref } from "vue";
+import { Ref, onMounted, reactive, ref, watch } from "vue";
 import {
   IPaginatorObject,
   getRangeForPagination,
@@ -74,7 +74,9 @@ import { IChatGroup } from "../Conversation/interfaces";
 import { supabase } from "@/utils/SupabaseClient";
 import { useAppStore } from "@/stores/app-store";
 import { useAuthStore } from "@/stores/auth.store";
-
+import { useConversationsStore } from "@/stores/conversations-store";
+import Utils from "@/utils/Utils";
+const conversations_store = useConversationsStore();
 const app_store = useAppStore();
 const _pagination = reactive<IPaginatorObject>({
   current_page: 1,
@@ -117,7 +119,6 @@ const partnerName = (conversation: any) => {
   let _name = "unknown";
   conversation.chat_users_conversations.map((chat_user_conversation: any) => {
     let _my_access_code = auth_store.getUser().email.split("@")[0];
-    console.log(chat_user_conversation.chat_users.access_code);
     if (chat_user_conversation.chat_users.access_code != _my_access_code) {
       _name = chat_user_conversation.chat_users.access_code;
     }
@@ -131,9 +132,30 @@ const showLastMessageText = (conversation: any) => {
   }
   return last_message;
 };
+
+const placeConversationAtFirst = (conversation: any) => {
+  let _conversation_id = conversations.value.findIndex((c: any) => {
+    return c.id == conversation.id;
+  });
+  conversations.value[_conversation_id] = conversation;
+  conversations.value = Utils.placeElementAtBeginning(
+    conversations.value,
+    _conversation_id
+  );
+};
+watch(
+  () => conversations_store.getMyConversationsRealtime().conversation,
+  (conversation) => {
+    placeConversationAtFirst(conversation);
+  }
+);
 onMounted(async () => {
+  const auth_store = useAuthStore();
   app_store.setAppIsLoading(true);
   await fetchCurrentUserConversation();
+  conversations_store.suscribeToMyConversations(
+    auth_store.getUser().chat_user_id
+  );
   app_store.setAppIsLoading(false);
 });
 </script>
