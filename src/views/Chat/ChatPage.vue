@@ -32,11 +32,16 @@
           <ion-label>
             <h3>
               {{ partnerName(conversation) }}
-              <span>5m</span>
+              <!-- <span>5m</span> -->
             </h3>
-            <p>Hola como estas</p>
+            <p>{{ showLastMessageText(conversation) }}</p>
           </ion-label>
-          <ion-badge slot="end" class="flex al-center jc-center"> 3 </ion-badge>
+          <!-- <ion-badge slot="end" class="flex al-center jc-center"> 3 </ion-badge> -->
+          <!-- <ion-badge
+            v-if="conversation.pending"
+            slot="end"
+            class="flex al-center jc-center"
+          ></ion-badge> -->
         </ion-item>
       </div>
 
@@ -87,12 +92,15 @@ const fetchCurrentUserConversation = async () => {
   const auth_store = useAuthStore();
 
   let { left, right } = getRangeForPagination(_pagination);
-
   let { data, error }: { data: any[] | null; error: any } = await supabase
     .from("conversations")
-    .select("*,chat_users_conversations(*,chat_users(*))")
+    .select(
+      "*,last_message:messages(*),flag:chat_users_conversations(id),chat_users_conversations(*,chat_users(*))"
+    )
     .eq("type", 1)
-    .in("id", conversation_ids ?? [])
+    .is("messages.is_last", true)
+    .eq("flag.chat_user_id", auth_store.getUser().chat_user_id)
+    .order("updated_at", { ascending: false })
     .range(left, right);
   console.log(data);
   if (data) {
@@ -109,14 +117,20 @@ const partnerName = (conversation: any) => {
   let _name = "unknown";
   conversation.chat_users_conversations.map((chat_user_conversation: any) => {
     let _my_access_code = auth_store.getUser().email.split("@")[0];
-
+    console.log(chat_user_conversation.chat_users.access_code);
     if (chat_user_conversation.chat_users.access_code != _my_access_code) {
       _name = chat_user_conversation.chat_users.access_code;
     }
   });
   return _name;
 };
-
+const showLastMessageText = (conversation: any) => {
+  let last_message = "¡Envia un saludo!";
+  if (conversation.last_message.length > 0) {
+    last_message = conversation.last_message[0].content.text;
+  }
+  return last_message;
+};
 onMounted(async () => {
   app_store.setAppIsLoading(true);
   await fetchCurrentUserConversation();

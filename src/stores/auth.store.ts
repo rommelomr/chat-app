@@ -13,13 +13,14 @@ export const useAuthStore = defineStore({
     user: useStorage("auth", {
       id: "",
       token: "",
+      chat_user_id: -1,
       refresh_token: "",
       is_logged: false,
       expiration: "",
       role: "",
-      email: ""
+      email: "",
     }),
-    user_data: useStorage("user_data",{}),
+    user_data: useStorage("user_data", {}),
   }),
 
   actions: {
@@ -49,16 +50,25 @@ export const useAuthStore = defineStore({
         refresh_token: data.session.refresh_token,
         access_token: data.session.access_token,
       });
+      let { data: current_chat_user_data, error: current_chat_user_error } =
+        await supabase.rpc("get_all_current_chat_user_info");
+
+      if (current_chat_user_error) {
+        alert("Ha ocurrido un error inesperado. Vuelva a intentarlo");
+        window.location.replace("/");
+        throw "stop";
+      }
+      console.log(current_chat_user_data);
       this.setLogin({
         id: data.user.id,
+        chat_user_id: current_chat_user_data.id,
         token: data.session.access_token,
         refresh_token: data.session.refresh_token,
         expiration: data.session.expiration,
         is_logged: true,
         role: data.user.role,
-        email: data.user.email
+        email: data.user.email,
       });
-
       window.location.replace("/tabs/tab1");
       throw "stop";
     },
@@ -67,12 +77,13 @@ export const useAuthStore = defineStore({
         user: {
           id: user_data.id,
           token: user_data.token,
+          chat_user_id: user_data.chat_user_id,
           refresh_token: user_data.refresh_token,
           is_logged: true,
           expiration: user_data.expiration,
           role: user_data.role,
           email: user_data.email,
-        }
+        },
       });
       this.getProfile();
     },
@@ -90,17 +101,18 @@ export const useAuthStore = defineStore({
     setProperty(property: any, value: any) {
       console.log(property);
     },
-    async getProfile(){
+    async getProfile() {
       let { data, error } = await supabase
-      .from("people")
-      .select('*')
-      .eq("auth_id", this.user.id).single();
+        .from("people")
+        .select("*")
+        .eq("auth_id", this.user.id)
+        .single();
       this.$patch({
-        user_data:{
-          ...data
-        }
+        user_data: {
+          ...data,
+        },
       });
       return data;
-    }
+    },
   },
 });
