@@ -105,7 +105,6 @@ import { useAppStore } from "@/stores/app-store";
 const app_store = useAppStore();
 const router = useRouter();
 const moveBetweenTabs = (tab: string) => {
-  app_store.setAppIsLoading(true);
   router.replace(tab);
 };
 

@@ -133,9 +133,7 @@
         </ion-content>
       </ion-modal>
     </ion-content>
-    <pre>
-      {{ profile }}
-    </pre>
+
     <Modal :show="recording" :uri="uri" @onCloseModal="toggleModal" />
   </ion-page>
 </template>
@@ -213,7 +211,6 @@ const dismissModal1 = () => {
   isModalOpen1.value = false;
 };
 onMounted(async () => {
-  app_store.setAppIsLoading(false);
   profile.value = await auth.getProfile();
 });
 </script>

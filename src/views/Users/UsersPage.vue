@@ -147,6 +147,7 @@ const init = async () => {
 };
 ////// Methods //////
 onMounted(async () => {
+  app_store.setAppIsLoading(true);
   let { data, error } = await supabase.rpc("get_all_current_chat_user_info");
   current_chat_user = data;
   supabase.removeAllChannels();

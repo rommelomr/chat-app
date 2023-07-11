@@ -118,6 +118,7 @@ const partnerName = (conversation: any) => {
 };
 
 onMounted(async () => {
+  app_store.setAppIsLoading(true);
   await fetchCurrentUserConversation();
   app_store.setAppIsLoading(false);
 });

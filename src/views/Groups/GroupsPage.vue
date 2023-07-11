@@ -100,6 +100,7 @@ const goNewGroup = () => {
 };
 
 onMounted(async () => {
+  app_store.setAppIsLoading(true);
   await fetchGroups();
   app_store.setAppIsLoading(false);
 });
