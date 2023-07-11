@@ -92,8 +92,8 @@ const selectChatUserUseCase = async (access_code: string, id: number) => {
   app_store.setAppIsLoading(false);
 
   if (data.conversation.status == 404) {
-    currentConversation.setCurrentConversation({
-      id: data.conversation.id ?? 0,
+    await currentConversation.setCurrentConversation({
+      id: 0,
       type: "SINGLE",
       label: access_code,
       isEmpty: true,
@@ -105,7 +105,7 @@ const selectChatUserUseCase = async (access_code: string, id: number) => {
     });
   }
   if (data.conversation.status == 200) {
-    currentConversation.setCurrentConversation({
+    await currentConversation.setCurrentConversation({
       id: data.conversation.id,
       type: "SINGLE",
       label: `${

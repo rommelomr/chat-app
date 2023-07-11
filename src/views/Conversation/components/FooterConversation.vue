@@ -1,17 +1,4 @@
 <template>
-  <div
-    style="
-      margin-top: 40%;
-      position: absolute;
-      width: 100%;
-      height: 60vh;
-      background: white;
-      z-index: 999;
-      color: black;
-    "
-  >
-    <pre>{{ newConversationBody }}</pre>
-  </div>
   <ion-footer
     v-if="current_conversation.getCurrentConversation()"
     class="conversation-footer"
@@ -57,7 +44,7 @@ import {
   send,
   videocam,
 } from "ionicons/icons";
-import { Ref, ref, onMounted } from "vue";
+import { Ref, ref, onMounted, reactive } from "vue";
 import {
   IBodyMessage,
   IMessage,
@@ -79,14 +66,14 @@ const onSuccessSend = (messageSender: IMessage) => {
 
 const currentConversation: Ref<ICurrentConversation | undefined> = ref();
 let textInput: Ref<string> = ref("");
-let bodyMessage: Ref<IBodyMessage> = ref({
+let bodyMessage = reactive({
   conversation_id: current_conversation.getCurrentConversation().id ?? 0,
   chat_user_id: current_conversation.getCurrentConversation().me ?? 0,
   content: {
     text: "",
   },
 });
-let newConversationBody: Ref<INewConversation> = ref({
+let newConversationBody = reactive({
   conversation_name: "",
   conversation_type: 1,
   chat_users_ids: [],
@@ -133,7 +120,6 @@ let sendMessageIfEmptyConversation = async ({
   auth_ids,
   conversation_name,
 }: INewConversation) => {
-  console.log(conversation_type, chat_users_ids, auth_ids, conversation_name);
   let { data, error } = await supabase.functions.invoke("send-message", {
     body: {
       conversation_type,
@@ -153,41 +139,37 @@ let sendMessageIfEmptyConversation = async ({
   textInput.value = "";
 };
 let setCurrentConversation = () => {
-  alert("buenas");
-  let _convesation_exist =
-    !current_conversation.getCurrentConversation().isEmpty;
+  let _current_conversation = current_conversation.getCurrentConversation();
+
+  let _convesation_exist = !_current_conversation.isEmpty;
   if (_convesation_exist) {
-    bodyMessage.value.conversation_id =
-      current_conversation.getCurrentConversation().id ?? 0;
-    bodyMessage.value.chat_user_id =
-      current_conversation.getCurrentConversation().me ?? 0;
+    bodyMessage.conversation_id = _current_conversation?.id ?? 0;
+    bodyMessage.chat_user_id = _current_conversation?.me ?? 0;
     return;
   }
 
-  console.log(current_conversation.getCurrentConversation());
   let id = current_conversation.getCurrentConversation().userConversation?.id;
-  alert(id);
   //@ts-ignore
   let uu_id =
     current_conversation.getCurrentConversation().userConversation?.person
       ?.auth_id;
-  newConversationBody.value.chat_users_ids.push(parseInt(id) ?? 0);
-  newConversationBody.value.auth_ids.push(uu_id ?? "");
+  newConversationBody.chat_users_ids.push(parseInt(id) ?? 0);
+  newConversationBody.auth_ids.push(uu_id ?? "");
   //}
 };
 const setMessageSelector = () => {
   if (
-    bodyMessage.value.content &&
-    bodyMessage.value.content.text &&
-    bodyMessage.value.content.text?.length < 1
+    bodyMessage.content &&
+    bodyMessage.content.text &&
+    bodyMessage.content.text?.length < 1
   ) {
     return;
   }
   if (!current_conversation.getCurrentConversation().isEmpty) {
-    senMessageIfNotEmptyConversation(bodyMessage.value);
+    senMessageIfNotEmptyConversation(bodyMessage);
   }
   if (current_conversation.getCurrentConversation().isEmpty) {
-    sendMessageIfEmptyConversation(newConversationBody.value);
+    sendMessageIfEmptyConversation(newConversationBody);
   }
 };
 onMounted(() => {
