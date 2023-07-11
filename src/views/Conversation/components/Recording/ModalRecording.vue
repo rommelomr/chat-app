@@ -32,7 +32,7 @@
               <ion-icon aria-hidden="true" :icon="play" />
    
             </ion-button>
-            <ion-button color="danger" @click="stopRecording" class="centered-text"  >
+            <ion-button color="danger" @click="sendSetFiles(currentFileName)" class="centered-text"  >
               <ion-icon aria-hidden="true" :icon="sendSharp" />
 
             </ion-button>
@@ -43,34 +43,26 @@
   </template>
   
   <script setup lang="ts">
-  import { Directory, Filesystem } from '@capacitor/filesystem';
+  import lamejs from 'lamejs';
+  import { Directory, Encoding, Filesystem} from '@capacitor/filesystem';
   import { RecordingData, VoiceRecorder } from 'capacitor-voice-recorder';
   import Player from './AudioReproductor.vue'
   import { Plugins } from '@capacitor/core';
   import {
       IonButton,
       IonModal,
-      IonHeader,
       IonContent,
       IonToolbar,
       IonTitle,
-      IonItem,
-      IonList,
-      IonAvatar,
-      IonImg,
-      IonLabel,
     } from '@ionic/vue';
     import {
-    save,
-    close,
     trashOutline,
-    sendOutline,
     play,
     sendSharp,
     stopCircle,
-    send
     } from "ionicons/icons";
     import { Ref, computed, onMounted, ref, watch } from 'vue';
+import { supabase } from '@/utils/SupabaseClient';
     const { AudioRecorder } = Plugins;
     const storeFiles:Ref<Array<any>> = ref([]);
     const recording = ref(false);
@@ -91,9 +83,9 @@
     const emit = defineEmits(['onCloseModal'])
 
     const formatTime = computed(() => {
-    const minutes = Math.floor(time.value / 60);
-    const seconds = time.value % 60;
-    return `${padZero(minutes)}:${padZero(seconds)}`;
+        const minutes = Math.floor(time.value / 60);
+        const seconds = time.value % 60;
+        return `${padZero(minutes)}:${padZero(seconds)}`;
     });
     const padZero = (num:number) => {
         return num.toString().padStart(2, '0');
@@ -153,7 +145,6 @@
     VoiceRecorder.stopRecording().then(async(result:RecordingData)=>{
       if(result.value && result.value.recordDataBase64){
         const recordData = result.value.recordDataBase64;
-        console.log("saved")
         const fileName = new Date().getTime()+'.wav';
          await Filesystem.writeFile({
           path:fileName,
@@ -166,6 +157,7 @@
       }
     })
     recording.value= false;
+    loadFiles();
   }
 
   const toggleRecording = async () => {
@@ -176,7 +168,6 @@
     }
   };
   const playFile= async (filename:string)=>{
-
     const audioFile = await Filesystem.readFile({
       path:filename,
       directory:Directory.Data
@@ -188,22 +179,19 @@
     audioRef.load();
     currentFileName.value=filename;
   }
+  
   onMounted(() => {
     VoiceRecorder.requestAudioRecordingPermission();
     loadFiles();
   });
-
-
   const openModal = () => {
     isModalOpen.value = true;
   };
-  
   const closeModal = () => {
     cancelRecording();
     isModalOpen.value = false;
     emit('onCloseModal')
   };
-
   watch(()=>props.show,()=>{
     isModalOpen.value = props.show;
     if(props.record){
@@ -217,7 +205,97 @@
     if(!props.show){
       time.value=0
     }
-  })
+  });
+  const sendSetFiles=async(filename:string)=>{ 
+    const audioFile = await Filesystem.readFile({
+      path:filename,
+      directory:Directory.Data
+    });
+    sendFiles(758,759,audioFile.data)
+  }
+ 
+  const sendFiles = async (message_id=758, last_message_index=759,dataFile:any) => {
+  //cada archivo se envia independientemente en un ciclo mas adelante
+
+  //array que va a guardar en success las respuestas de cada solicitud
+  //success para los que se subieron correctamente
+  //error para los que no
+  let files = {
+    success: [],
+    errors: [],
+  };
+  let _files= []
+  //_files es un array que se usará para
+   _files.push(storeFiles.value[storeFiles.value.length-1])
+  console.log(_files)
+  //ciclo que itera el array de archivos en bruto para subirlos uno por uno usando la funcion de supabase
+  for (let i in _files) {
+    let _file = _files[i];
+
+    const audioFile = await Filesystem.readFile({
+      path:currentFileName.value,
+      directory:Directory.Data,
+      encoding:Encoding.UTF8
+    });
+
+    const formData = new FormData();
+    formData.append('file', new Blob([audioFile.data], { type: 'audio/wav' }), 'audio.wav');
+      const { data , error } = await supabase.storage
+        .from("users-files")
+        .upload('00003' + "/" + Date.now()+'.wav', formData, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+        
+
+      return
+    //si hay error se pushea a files.errors
+    if (error) {
+      console.log(error)
+    } else {
+      
+      //si no hay error se pushea a files.success solo el path
+     // files.success.push(data.path);
+
+      /*y se agrega al array _files el objeto
+        {
+          name: string,
+          metadata: {
+            mimetype: string
+          }
+        }
+      */
+      _files.push({
+        name: data.path,
+        metadata: {
+          mimetype: _file.type,
+        },
+      });
+    }
+  }
+  /*
+    si al menos un archivo se subió correctamente, se agregan al campo
+    files del mensaje que se muestra en pantalla  
+  */
+  //if (files.success.length > 0) {
+   // messages.value[last_message_index - 1].has_files = true;
+  //  messages.value[last_message_index - 1].files = _files;
+ // }
+
+  /*
+    Cuando se sube un archivo, se dispara un trigger que crea un registro en la tabla
+    message_files. La siguiente consulta le pone a cada registro su chat_user_id, message_id, y conversation_id correspondientes
+
+  */
+  const { data, error } = await supabase
+    .from("message_files")
+    .update({
+      chat_user_id: 125,
+      message_id,
+      conversation_id: 237,
+    })
+    .in("name", files.success);
+};
   </script>
   <style scoped>
 .text-container {

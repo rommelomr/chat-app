@@ -50,13 +50,15 @@
           :key="index"
         >
           <ion-avatar>
-            <img :src="group.person.photo" alt="" />
+ 
+            <img :src="`/public/assets/imgs/avatar/${group.person.photo??1}.png`"/>
           </ion-avatar>
           <h6>{{ group.access_code }}</h6>
         </div>
       </div>
      
       <ion-fab
+        v-if="users.length>0 && newConversationBody.description && newConversationBody.conversation_name"
         slot="fixed"
         vertical="bottom"
         horizontal="end"
