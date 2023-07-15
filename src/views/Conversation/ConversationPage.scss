@@ -4,8 +4,7 @@
   {
     ion-toolbar
     {
-      --background: rgba(255, 255, 255, 0.115);
-      backdrop-filter: blur(12px) !important;
+      --background: transparent;
       position: absolute;
       width: 100%;
 
@@ -126,55 +125,51 @@
       }
     }
   }
+  ion-footer
+  {
+      ion-toolbar
+      {
+          --background: transparent;
+          padding: 0 10px;
+          position: absolute;
+          bottom: 10px;
 
-  
-ion-footer
-{
-    ion-toolbar
-    {
-      --background: rgba(255, 255, 255, 0.168);
-      backdrop-filter: blur(12px) !important;
-        padding: 10px;
-        position: absolute;
-        bottom: 0;
+          ion-item
+          {
+              --background: transparent;
+              background: rgba(255, 255, 255, 0.35);
+              backdrop-filter: blur(12px) !important;
+              border-radius: 10px;
+              --border-radius: 10px;
+              width: 95%;
 
-        ion-item
-        {
-            --background: transparent;
-            background: rgba(255, 255, 255, 0.35);
-            backdrop-filter: blur(12px) !important;
-            border-radius: 10px;
-            --border-radius: 10px;
-            width: 95%;
-            margin-bottom: 10px;
+              ion-input
+              {
+                  color: white;
+              }
 
-            ion-input
-            {
+              ion-icon
+              {
                 color: white;
-            }
+              }
+          }
 
-            ion-icon
-            {
-              color: white;
-            }
-        }
+          .btn
+          {
+              background: rgba(255, 255, 255, 0.3);
+              height: 40px;
+              border-radius: 50%;
+              margin: 0 10px 0 0; 
+              width: 40px;
 
-        .btn
-        {
-            background: rgba(255, 255, 255, 0.3);
-            height: 40px;
-            border-radius: 50%;
-            margin: 0 10px 0 0; 
-            width: 40px;
-
-            ion-icon
-            {
-              color: white;
-                font-size: 20px;
-            }
-        }
-    }
-}
+              ion-icon
+              {
+                color: white;
+                  font-size: 20px;
+              }
+          }
+      }
+  }
 }
 
 .pop

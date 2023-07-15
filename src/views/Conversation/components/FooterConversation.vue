@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import { supabase } from "@/utils/SupabaseClient";
+
 import { IonPage, IonPopover, IonHeader, IonToolbar } from "@ionic/vue";
 import { set } from "@vueuse/core";
 import Recording from "./Recording/Recording.vue";

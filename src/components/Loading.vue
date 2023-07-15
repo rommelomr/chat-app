@@ -1,15 +1,30 @@
 <template>
   <div id="loading-page" align="center">
-    <img src="../../public/assets/gifs/giphy.gif" alt="" />
-    <h1>Cargando</h1>
+    <p style="margin-top: 40%; font-size: 30px"><b>Cargando</b></p>
   </div>
+  <Vue3Lottie
+    style=""
+    id="lottie"
+    :animationData="Loading"
+    :height="200"
+    :width="200"
+  />
 </template>
+<script setup lang="ts">
+import { Vue3Lottie } from "vue3-lottie";
+import Loading from "../../public/assets/lottie-files/loading.json";
+</script>
 <style>
 #loading-page {
   position: fixed;
-  background: black;
-  opacity: 0.7;
+  color: black;
+  background: rgb(255, 255, 255);
+  opacity: 0.8;
   width: 100vw;
   height: 100vh;
+}
+#lottie {
+  margin-top: 50%;
+  opacity: 1;
 }
 </style>

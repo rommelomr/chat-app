@@ -3,8 +3,11 @@
     <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="tabs/tab4" mode="ios" text="">
-          </ion-back-button>
+          <ion-back-button
+            defaultHref="tabs/tab4"
+            mode="ios"
+            text=""
+          ></ion-back-button>
         </ion-buttons>
         <ion-title class="ion-text-center">Chat</ion-title>
         <ion-buttons slot="end">
@@ -20,6 +23,14 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
+      <div
+        v-if="conversations.length == 0"
+        align="center"
+        style="margin-top: 20%"
+      >
+        <Vue3Lottie :animationData="Empty" :height="250" :width="250" />
+        <p>No tienes conversaciones</p>
+      </div>
       <div class="the-list">
         <ion-item
           v-for="(conversation, i) in conversations"
@@ -76,6 +87,9 @@ import { useAppStore } from "@/stores/app-store";
 import { useAuthStore } from "@/stores/auth.store";
 import { useConversationsStore } from "@/stores/conversations-store";
 import Utils from "@/utils/Utils";
+import { Vue3Lottie } from "vue3-lottie";
+
+import Empty from "../../../public/assets/lottie-files/empty.json";
 const conversations_store = useConversationsStore();
 const app_store = useAppStore();
 const _pagination = reactive<IPaginatorObject>({

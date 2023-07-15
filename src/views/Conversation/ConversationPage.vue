@@ -16,6 +16,10 @@
           </div>
         </div> -->
 
+        <div v-if="messages.length == 0" align="center" style="margin-top: 20%">
+          <Vue3Lottie :animationData="Hello" :height="200" :width="200" />
+          <p style="color: white">Envia un saludo!</p>
+        </div>
         <div v-for="(message, index) in messages" :key="index">
           <div
             v-if="
@@ -49,18 +53,18 @@
       </div>
       <ion-modal
         class="ion-modall"
-        :is-open="isModalOpen"
+        :is-open="openModal"
         @dismiss="dismissModal"
       >
         <ion-content class="modall ion-padding">
           <div class="holder">
             <div class="section">
-              <h3>Ingrese Nick Name</h3>
+              <h3>Ingrese Nick Nameeee</h3>
               <ion-item>
                 <ion-input value="Pedrito" />
               </ion-item>
               <div class="btns-holder flex al-center jc-end">
-                <ion-button fill="clear" @ionPress="dismissModal"
+                <ion-button fill="clear" @click="dismissModal"
                   >Cancelar</ion-button
                 >
                 <ion-button fill="clear">Guardar</ion-button>
@@ -70,6 +74,7 @@
         </ion-content>
       </ion-modal>
     </ion-content>
+
     <FooterConversation @onSuccessSend="onSuccessSend" />
   </ion-page>
 </template>
@@ -95,7 +100,6 @@ import {
   videocam,
 } from "ionicons/icons";
 import { IonActionSheet, IonButton } from "@ionic/vue";
-import "./ConversationPage.scss";
 import { useRouter } from "vue-router";
 import { onMounted, reactive, Ref, ref, watch } from "vue";
 import {
@@ -110,7 +114,11 @@ import { get } from "@vueuse/core";
 import { ErrorToast, SuccessToast } from "@/utils/ShowToast";
 import { IMessage } from "./interfaces";
 import { getDateDifference } from "@/utils/MomentUtils";
-
+import { useAppStore } from "@/stores/app-store";
+import { Vue3Lottie } from "vue3-lottie";
+import Hello from "../../../public/assets/lottie-files/hello.json";
+import "./ConversationPage.scss";
+const app_store = useAppStore();
 const current_conversation = useCurrentConversation();
 const { user } = useAuthStore();
 const router = useRouter();
@@ -305,12 +313,14 @@ watch(
     );
   }
 );
-onMounted(() => {
+
+onMounted(async () => {
   if (!current_conversation.getCurrentConversation().isEmpty) {
-    loadMesaggesFromConversation(
+    await loadMesaggesFromConversation(
       current_conversation.getCurrentConversation().id,
       current_conversation.getCurrentConversation().userConversation?.id ?? 0
     );
   }
+  app_store.setAppIsLoading(false);
 });
 </script>

@@ -2,6 +2,13 @@
   <ion-page class="groups-page">
     <ion-header class="ion-no-border">
       <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-back-button
+            defaultHref="/tabs/tab3"
+            mode="ios"
+            text=""
+          ></ion-back-button>
+        </ion-buttons>
         <ion-title> Grupos </ion-title>
         <ion-buttons slot="end">
           <ion-button solt="icon-only" @click="toggleSearch">

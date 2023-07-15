@@ -11,4 +11,11 @@ export default class Utils {
     array.unshift(element);
     return array;
   }
+  static handleErrors(error: any) {
+    console.log(error);
+    if (error) {
+      console.log(error.message);
+      throw "error";
+    }
+  }
 }
