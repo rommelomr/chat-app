@@ -45,7 +45,7 @@ import {
   send,
   videocam,
 } from "ionicons/icons";
-import { Ref, ref, onMounted, reactive } from "vue";
+import { Ref, ref, onMounted, reactive, watch } from "vue";
 import {
   IBodyMessage,
   IMessage,
@@ -83,7 +83,12 @@ let newConversationBody = reactive({
     text: "",
   },
 });
-
+watch(
+  () => current_conversation.getCurrentConversation().id,
+  () => {
+    setCurrentConversation();
+  }
+);
 let senMessageIfNotEmptyConversation = async ({
   conversation_id,
   chat_user_id,
@@ -103,16 +108,17 @@ let senMessageIfNotEmptyConversation = async ({
     chat_user_id: current_conversation.current_conversation.me,
     is_forwarded: true,
   });
+  let _text_input_aux = textInput.value;
+  textInput.value = "";
   let { data, error } = await supabase.functions.invoke("send-message", {
     body: {
       conversation_id,
       chat_user_id,
       content: {
-        text: textInput.value,
+        text: _text_input_aux,
       },
     },
   });
-  textInput.value = "";
 };
 
 let sendMessageIfEmptyConversation = async ({
@@ -121,6 +127,8 @@ let sendMessageIfEmptyConversation = async ({
   auth_ids,
   conversation_name,
 }: INewConversation) => {
+  let _aux_text_input = textInput.value;
+  textInput.value = "";
   let { data, error } = await supabase.functions.invoke("send-message", {
     body: {
       conversation_type,
@@ -128,16 +136,15 @@ let sendMessageIfEmptyConversation = async ({
       chat_users_ids,
       auth_ids,
       content: {
-        text: textInput.value,
+        text: _aux_text_input,
       },
     },
   });
   if (error) return;
 
+  current_conversation.current_conversation.isEmpty = false;
   current_conversation.current_conversation.id =
     data.message_info.first_message.conversation_id;
-
-  textInput.value = "";
 };
 let setCurrentConversation = () => {
   let _current_conversation = current_conversation.getCurrentConversation();
@@ -159,6 +166,7 @@ let setCurrentConversation = () => {
   //}
 };
 const setMessageSelector = () => {
+  if (textInput.value == "") return;
   if (
     bodyMessage.content &&
     bodyMessage.content.text &&
@@ -166,6 +174,7 @@ const setMessageSelector = () => {
   ) {
     return;
   }
+
   if (!current_conversation.getCurrentConversation().isEmpty) {
     senMessageIfNotEmptyConversation(bodyMessage);
   }

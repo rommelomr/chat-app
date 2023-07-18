@@ -13,11 +13,21 @@ export const useProfileStore = defineStore({
       let response = await ProfileServices.getProfile(auth_store.getUser().id);
       return response.data;
     },
-    async updateProfile(profile_data: any): any {
+    async updateProfile(profile_data: any): Promise<any> {
       const auth_store = useAuthStore();
       let response = await ProfileServices.updateProfile(
         auth_store.getUser().id,
         profile_data
+      );
+      return response.data;
+    },
+    async updatePassword(
+      current_password: string,
+      password: string
+    ): Promise<any> {
+      let response = await ProfileServices.updatePassword(
+        current_password,
+        password
       );
       return response.data;
     },

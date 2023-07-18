@@ -2,7 +2,7 @@
   <ion-toolbar v-if="currentConversation">
     <ion-buttons slot="start">
       <ion-back-button
-        defaultHref="/tabs/tab2"
+        defaultHref="/tabs/tab1"
         mode="ios"
         text=""
       ></ion-back-button>
@@ -22,7 +22,7 @@
         </ion-label>
       </ion-item>
     </ion-buttons>
-    <ion-buttons slot="end">
+    <!-- <ion-buttons slot="end">
       <ion-button id="end-btn">
         <ion-icon aria-hidden="true" :icon="call" />
       </ion-button>
@@ -31,7 +31,7 @@
       <ion-button id="end-btn">
         <ion-icon aria-hidden="true" :icon="videocam" />
       </ion-button>
-    </ion-buttons>
+    </ion-buttons> -->
     <ion-buttons slot="end">
       <ion-button id="click-trigger">
         <ion-icon aria-hidden="true" :icon="ellipsisVertical" />

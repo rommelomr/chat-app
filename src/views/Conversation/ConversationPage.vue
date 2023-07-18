@@ -43,6 +43,10 @@
           </div>
           <div v-else class="reciver">
             <div class="chat-bubble">
+              <span class="partner-name">{{
+                message.chat_user.access_code
+              }}</span
+              ><br /><br />
               <h4>{{ message.content.text }}</h4>
             </div>
             <div class="time">
@@ -118,8 +122,10 @@ import { useAppStore } from "@/stores/app-store";
 import { Vue3Lottie } from "vue3-lottie";
 import Hello from "../../../public/assets/lottie-files/hello.json";
 import "./ConversationPage.scss";
+import { useConversationsStore } from "@/stores/conversations-store";
 const app_store = useAppStore();
 const current_conversation = useCurrentConversation();
+const conversation_store = useConversationsStore();
 const { user } = useAuthStore();
 const router = useRouter();
 const isModalOpen = ref(false);
@@ -208,11 +214,9 @@ const presentActionSheet = async (id: number) => {
     deleteForMe(id);
   }
 };
-
 const onSuccessSend = (message: IMessage) => {
   messages.value.push(message);
 };
-
 const getMessageRequest = async (
   conversation: number,
   chat_user: number
@@ -237,7 +241,6 @@ const getMessageRequest = async (
     ErrorToast("Ocurrio un error!!!");
   }
 };
-
 const loadMesaggesFromConversation = async (
   conversation: number,
   chat_user: number
@@ -314,12 +317,31 @@ watch(
   }
 );
 
+watch(
+  () => conversation_store.getMyConversationsRealtime().new_conversation,
+  (private_conversation) => {
+    current_conversation.current_conversation.isEmpty = false;
+
+    current_conversation.current_conversation.id =
+      private_conversation.conversation_id;
+  }
+);
+
+const suscribeToNewConversation = () => {
+  const auth_store = useAuthStore();
+  conversation_store.suscribeToNewConversation(
+    current_conversation.getCurrentConversation().userConversation?.id ?? 0,
+    auth_store.getUser().chat_user_id
+  );
+};
 onMounted(async () => {
   if (!current_conversation.getCurrentConversation().isEmpty) {
     await loadMesaggesFromConversation(
       current_conversation.getCurrentConversation().id,
       current_conversation.getCurrentConversation().userConversation?.id ?? 0
     );
+  } else {
+    //suscribeToNewConversation();
   }
   app_store.setAppIsLoading(false);
 });

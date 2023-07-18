@@ -31,6 +31,7 @@
     "@ionic/vue-router": "^7.0.0",
     "@supabase/supabase-js": "^2.25.0",
     "@vueuse/core": "^10.2.1",
+    "bcryptjs": "^2.4.3",
     "capacitor-voice-recorder": "^5.0.0",
     "cordova-plugin-nativeaudio": "^3.0.9",
     "ionicons": "^7.0.0",

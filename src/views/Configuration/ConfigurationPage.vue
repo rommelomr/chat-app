@@ -62,9 +62,21 @@
 import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
 import "./ConfigurationPage.scss";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
-
+import { ref, reactive, onMounted } from "vue";
+import { useProfileStore } from "@/stores/profile-store";
+import { useAuthStore } from "@/stores/auth.store";
+const auth_store = useAuthStore();
+const profile_store = useProfileStore();
 const router = useRouter();
+
+let profile_info = reactive({
+  description: "",
+});
+
+const loadProfile = async () => {
+  let _info = profile_store.getProfile();
+  profile_info.description = _info.description;
+};
 
 const goProfile = () => {
   router.replace("/profile");
@@ -73,4 +85,8 @@ const goProfile = () => {
 const goAccount = () => {
   router.replace("/Account");
 };
+
+onMounted(() => {
+  loadProfile();
+});
 </script>

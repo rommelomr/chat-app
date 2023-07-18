@@ -35,14 +35,14 @@
         <ion-item
           v-for="(conversation, i) in conversations"
           :key="'conversation_' + conversation.id"
-          @click="goConversation"
+          @click="goConversation(conversation)"
         >
           <ion-avatar slot="start">
             <img src="/public/assets/imgs/user.png" alt="" />
           </ion-avatar>
           <ion-label>
             <h3>
-              {{ partnerName(conversation) }}
+              {{ getPartner(conversation).access_code }}
               <!-- <span>5m</span> -->
             </h3>
             <p>{{ showLastMessageText(conversation) }}</p>
@@ -111,7 +111,7 @@ const fetchCurrentUserConversation = async () => {
   let { data, error }: { data: any[] | null; error: any } = await supabase
     .from("conversations")
     .select(
-      "*,last_message:messages(*),flag:chat_users_conversations(id),chat_users_conversations(*,chat_users(*))"
+      "*,last_message:messages(*),flag:chat_users_conversations!inner(id),chat_users_conversations(*,chat_users(*, person:people(*)))"
     )
     .eq("type", 1)
     .is("messages.is_last", true)
@@ -123,21 +123,32 @@ const fetchCurrentUserConversation = async () => {
     conversations.value = data;
   }
 };
-
-const goConversation = () => {
+const goConversation = async (conversation: any) => {
+  let _partner = getPartner(conversation);
+  const auth_store = useAuthStore();
+  conversations_store.setCurrentConversation({
+    id: conversation.id,
+    type: "SINGLE",
+    label: _partner.access_code,
+    label_image: _partner.person.aux_photo,
+    userConversation: _partner,
+    isEmpty: false,
+    group: false,
+    me: auth_store.getUser().chat_user_id,
+    me_uuid: auth_store.getUser().id,
+  });
   router.replace("/conversation");
 };
-
-const partnerName = (conversation: any) => {
+const getPartner = (conversation: any): any => {
   const auth_store = useAuthStore();
-  let _name = "unknown";
+  let _partner = {};
   conversation.chat_users_conversations.map((chat_user_conversation: any) => {
     let _my_access_code = auth_store.getUser().email.split("@")[0];
     if (chat_user_conversation.chat_users.access_code != _my_access_code) {
-      _name = chat_user_conversation.chat_users.access_code;
+      _partner = chat_user_conversation.chat_users;
     }
   });
-  return _name;
+  return _partner;
 };
 const showLastMessageText = (conversation: any) => {
   let last_message = "¡Envia un saludo!";
@@ -146,7 +157,6 @@ const showLastMessageText = (conversation: any) => {
   }
   return last_message;
 };
-
 const placeConversationAtFirst = (conversation: any) => {
   let _conversation_id = conversations.value.findIndex((c: any) => {
     return c.id == conversation.id;
@@ -164,6 +174,7 @@ watch(
   }
 );
 onMounted(async () => {
+  conversations_store.resetCurrentConverstion();
   const auth_store = useAuthStore();
   app_store.setAppIsLoading(true);
   await fetchCurrentUserConversation();

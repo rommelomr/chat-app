@@ -53,21 +53,21 @@
           <ion-label className="tab-icon-inactive">Grupos</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab4" href="/profile">
+        <ion-tab-button tab="tab4" href="/tabs/tab4">
           <div class="wrapper flex al-center jc-center">
             <ion-icon
               aria-hidden="true"
-              :icon="happyOutline"
+              :icon="ellipsisHorizontal"
               className="tab-icon-inactive"
             />
             <ion-icon
               aria-hidden="true"
-              :icon="happyOutline"
+              :icon="ellipsisHorizontalOutline"
               className="tab-icon-active"
             />
           </div>
 
-          <ion-label className="tab-icon-inactive">Perfil</ion-label>
+          <ion-label className="tab-icon-inactive">Mas</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -89,6 +89,7 @@ import {
   person,
   personCircle,
   personCircleOutline,
+  ellipsisHorizontalOutline,
   personOutline,
 } from "ionicons/icons";
 import { people } from "ionicons/icons";

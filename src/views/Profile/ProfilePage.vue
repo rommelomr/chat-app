@@ -202,10 +202,6 @@ const updateProfile = async () => {
   let _profile_data = await profile_store.updateProfile(profile_form_state);
   console.log(_profile_data);
 };
-const isEmpty = (data: string) => {
-  let _is_empty = data == undefined || data == "";
-  return _is_empty;
-};
 
 onMounted(() => {
   loadProfileInfo();

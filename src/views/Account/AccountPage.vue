@@ -38,13 +38,13 @@
 
         <div class="detail flex al-start jc-between">
           <div class="left">
-            <h4>Conformación de lectura</h4>
+            <h4>Confirmación de lectura</h4>
             <h6 class="ion-text-wrap">
               Si tienes habilitada esta opción, las demás personas no podrán ver
               cuando leas sus mensajes
             </h6>
           </div>
-          <ion-toggle checked mode="md"></ion-toggle>
+          <ion-toggle disabled checked mode="md"></ion-toggle>
         </div>
       </div>
 

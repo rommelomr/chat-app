@@ -25,6 +25,14 @@
         @ionInput="handleInput($event)"
       ></ion-searchbar>
       <div
+        v-if="displayedGroupList.length == 0"
+        align="center"
+        style="margin-top: 20%"
+      >
+        <Vue3Lottie :animationData="Empty" :height="250" :width="250" />
+        <p>No tienes grupos</p>
+      </div>
+      <div
         class="the-list"
         v-for="(item, index) in displayedGroupList"
         :key="index"
@@ -66,6 +74,8 @@ import { supabase } from "@/utils/SupabaseClient";
 import { getDateDifference } from "@/utils/MomentUtils";
 import moment from "moment";
 import { useAppStore } from "@/stores/app-store";
+import { Vue3Lottie } from "vue3-lottie";
+import Empty from "@/../public/assets/lottie-files/empty.json";
 const app_store = useAppStore();
 const showSearch = ref(false);
 const router = useRouter();

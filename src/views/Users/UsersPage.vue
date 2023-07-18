@@ -89,6 +89,7 @@ const selectChatUserUseCase = async (access_code: string, id: number) => {
   let { data, error } = await supabase.rpc("get_conversation_with_chat_user", {
     partnerchatuserid: id,
   });
+
   app_store.setAppIsLoading(false);
 
   if (data.conversation.status == 404) {
@@ -105,6 +106,7 @@ const selectChatUserUseCase = async (access_code: string, id: number) => {
     });
   }
   if (data.conversation.status == 200) {
+    console.log(data);
     await currentConversation.setCurrentConversation({
       id: data.conversation.id,
       type: "SINGLE",

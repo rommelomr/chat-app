@@ -1,3 +1,4 @@
+import { IResponse } from "@/logic/interfaces/IResponse";
 import { supabase } from "@/utils/SupabaseClient";
 import Utils from "@/utils/Utils";
 
@@ -30,6 +31,22 @@ export default {
       action: "UPDATE_PROFILE",
       message: "Profile data updated successfuly",
       entity: "PEOPLE",
+      data,
+    };
+  },
+  updatePassword: async (
+    current_password: string,
+    password: string
+  ): Promise<IResponse> => {
+    let { data, error } = await supabase.auth.updateUser({
+      password,
+    });
+    Utils.handleErrors(error);
+    return {
+      status: 200,
+      action: "UPDATE_PASSWORD",
+      message: "Profile data updated successfuly",
+      entity: "AUTH.USERS",
       data,
     };
   },
