@@ -76,7 +76,15 @@ import {
 import "./ChatPage.scss";
 import { personAddOutline, searchOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
-import { Ref, onMounted, reactive, ref, watch } from "vue";
+import {
+  Ref,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  onActivated,
+  onDeactivated,
+} from "vue";
 import {
   IPaginatorObject,
   getRangeForPagination,
@@ -118,7 +126,6 @@ const fetchCurrentUserConversation = async () => {
     .eq("flag.chat_user_id", auth_store.getUser().chat_user_id)
     .order("updated_at", { ascending: false })
     .range(left, right);
-  console.log(data);
   if (data) {
     conversations.value = data;
   }
@@ -173,14 +180,21 @@ watch(
     placeConversationAtFirst(conversation);
   }
 );
+watch(
+  () => conversations_store.getMyConversationsRealtime().new_conversation,
+  (conversation) => {
+    let _is_private_conversation = conversation.private_conversation.length > 0;
+    if (_is_private_conversation) {
+      conversations.value.unshift(conversation);
+    }
+  }
+);
 onMounted(async () => {
   conversations_store.resetCurrentConverstion();
   const auth_store = useAuthStore();
   app_store.setAppIsLoading(true);
   await fetchCurrentUserConversation();
-  conversations_store.suscribeToMyConversations(
-    auth_store.getUser().chat_user_id
-  );
+
   app_store.setAppIsLoading(false);
 });
 </script>

@@ -24,8 +24,9 @@
         placeholder="Buscar..."
         @ionInput="handleInput($event)"
       ></ion-searchbar>
+
       <div
-        v-if="displayedGroupList.length == 0"
+        v-if="displayedGroupList.length < 1"
         align="center"
         style="margin-top: 20%"
       >
@@ -37,17 +38,25 @@
         v-for="(item, index) in displayedGroupList"
         :key="index"
       >
-        <ion-item @click="goLoadingConversationPage(item.name, item.id)">
+        <ion-item
+          @click="goLoadingConversationPage(item.name, item.groups[0].id)"
+        >
           <ion-avatar slot="start">
-            <img :src="item.photo" alt="" />
+            <img :src="item.groups[0].photo" alt="" />
           </ion-avatar>
           <ion-label>
-            <h3>{{ item.name }}<span>5m</span></h3>
-            <p>{{ getDateDifference(item.created_at) }}</p>
+            <h3>
+              {{ item.name }}
+              <!-- <span>5m</span> -->
+            </h3>
+            <p>
+              {{ getLastMessage(item) }}
+              {{ getDateDifference(item.updated_at) }}
+            </p>
           </ion-label>
-          <ion-badge slot="end" class="flex al-center jc-center">
+          <!-- <ion-badge slot="end" class="flex al-center jc-center">
             {{ item.conversations.participants_count[0].count }}
-          </ion-badge>
+          </ion-badge> -->
         </ion-item>
       </div>
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
@@ -69,13 +78,17 @@ import {
   getRangeForPagination,
 } from "@/utils/PaginationUtils";
 import { useRouter } from "vue-router";
-import { ref, reactive, onMounted, Ref, computed } from "vue";
+import { ref, reactive, onMounted, Ref, computed, watch } from "vue";
 import { supabase } from "@/utils/SupabaseClient";
 import { getDateDifference } from "@/utils/MomentUtils";
 import moment from "moment";
 import { useAppStore } from "@/stores/app-store";
 import { Vue3Lottie } from "vue3-lottie";
 import Empty from "@/../public/assets/lottie-files/empty.json";
+import { useAuthStore } from "@/stores/auth.store";
+import { useConversationsStore } from "@/stores/conversations-store";
+import Utils from "@/utils/Utils";
+const conversations_store = useConversationsStore();
 const app_store = useAppStore();
 const showSearch = ref(false);
 const router = useRouter();
@@ -92,20 +105,24 @@ const _pagination = reactive<IPaginatorObject>({
   total_pages: 0,
   total_items: 0,
 });
-let group: Ref<IChatGroup[]> = ref([]);
+let conversations = ref([]);
 
 const fetchGroups = async () => {
+  const auth_store = useAuthStore();
   let { left, right } = getRangeForPagination(_pagination);
   let { data, error }: { data: IChatGroup[] | null; error: any } =
     await supabase
-      .from("groups")
+      .from("conversations")
       .select(
-        "*,conversations(*,participants_count:chat_users_conversations(count)),chat_users(*)"
+        "*,flag:chat_users_conversations!inner(id),last_message:messages(*),participants_count:chat_users_conversations(count),groups(*,chat_users(*))"
       )
-      .order("created_at", { ascending: true })
+      .eq("type", 2)
+      .is("messages.is_last", true)
+      .eq("flag.chat_user_id", auth_store.getUser().chat_user_id)
+      .order("updated_at", { ascending: false })
       .range(left, right);
   if (data) {
-    group.value = data;
+    conversations.value = data;
   }
 };
 
@@ -115,7 +132,12 @@ const toggleSearch = () => {
 const goNewGroup = () => {
   router.replace("/newgroup1");
 };
-
+const suscribeToMyConversations = () => {
+  const auth_store = useAuthStore();
+  conversations_store.suscribeToMyConversations(
+    auth_store.getUser().chat_user_id
+  );
+};
 onMounted(async () => {
   app_store.setAppIsLoading(true);
   await fetchGroups();
@@ -136,11 +158,51 @@ const handleInput = (event: CustomEvent) => {
 const displayedGroupList = computed(() => {
   const query = searchQuery.value.toLowerCase().trim();
   if (query === "") {
-    return group.value;
+    return conversations.value;
   } else {
-    return group.value.filter((users) =>
+    return conversations.value.filter((users: any) =>
       users.name.toLowerCase().includes(query)
     );
   }
 });
+const getLastMessage = (conversation: any) => {
+  console.log(conversation.last_message.length);
+  if (conversation.last_message.length == 0) return "¡Saluda!";
+
+  return conversation.last_message[0].content.text ?? "[archivo]";
+};
+const updateGroupInfo = (conversation: any, group_id: number) => {
+  conversations.value[group_id].conversations = conversation;
+  conversations.value[group_id].conversations = conversation;
+};
+const placeGroupAtFirst = (conversation: any) => {
+  let _conversation_id = conversations.value.findIndex((c: any) => {
+    return c.id == conversation.id;
+  });
+  console.log(conversation);
+  conversations.value[_conversation_id] = conversation;
+  conversations.value = Utils.placeElementAtBeginning(
+    conversations.value,
+    _conversation_id
+  );
+};
+watch(
+  () => conversations_store.getMyConversationsRealtime().conversation,
+  (conversation) => {
+    let _is_private_conversation = conversation.groups.length > 0;
+    if (_is_private_conversation) {
+      placeGroupAtFirst(conversation);
+    }
+  }
+);
+watch(
+  () => conversations_store.getMyConversationsRealtime().new_conversation,
+  (conversation) => {
+    console.log(conversation);
+    let _is_private_conversation = conversation.groups.length > 0;
+    if (_is_private_conversation) {
+      conversations.value.unshift(conversation);
+    }
+  }
+);
 </script>

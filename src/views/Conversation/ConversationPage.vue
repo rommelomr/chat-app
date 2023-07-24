@@ -158,25 +158,7 @@ const deleteForMe = async (id: number) => {
     .update({ deleted_for_me: true })
     .eq("id", id);
 };
-const scheduleNotification = async (message: IMessage) => {
-  await LocalNotifications.checkPermissions().then((e) => {
-    console.log(e);
-  });
-  await LocalNotifications.schedule({
-    notifications: [
-      {
-        title: message.chat_user.access_code ?? "",
-        body: message.content.text ?? "",
-        id: 1,
-        schedule: { at: new Date(Date.now() + 1000) }, // Programa la notificación para 1 segundo después de la invocación
-        sound: "/public/assets/mp3/glu.mp3",
-        // attachments: null,
-        actionTypeId: "",
-        extra: null,
-      },
-    ],
-  });
-};
+const scheduleNotification = async (message: IMessage) => {};
 const presentActionSheet = async (id: number) => {
   const actionSheet = await actionSheetController.create({
     header: "Borarr",
@@ -335,13 +317,14 @@ const suscribeToNewConversation = () => {
   );
 };
 onMounted(async () => {
+  conversation_store.unsuscribeFromConversationEvents();
   if (!current_conversation.getCurrentConversation().isEmpty) {
     await loadMesaggesFromConversation(
       current_conversation.getCurrentConversation().id,
       current_conversation.getCurrentConversation().userConversation?.id ?? 0
     );
   } else {
-    //suscribeToNewConversation();
+    suscribeToNewConversation();
   }
   app_store.setAppIsLoading(false);
 });

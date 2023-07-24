@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-tabs>
-      <ion-router-outlet></ion-router-outlet>
+      <ion-router-outlet :key="rerender_router"></ion-router-outlet>
       <ion-tab-bar slot="bottom" className="tabs-page tab-bar-no-border">
         <ion-tab-button tab="tab1" href="/tabs/tab1">
           <div class="wrapper flex al-center jc-center">
@@ -84,6 +84,7 @@ import {
   IonPage,
   IonRouterOutlet,
 } from "@ionic/vue";
+import { onBeforeRouteUpdate } from "vue-router";
 import {
   call,
   person,
@@ -101,10 +102,66 @@ import { chatbox } from "ionicons/icons";
 import { chatboxOutline } from "ionicons/icons";
 import { ellipse, square, triangle } from "ionicons/icons";
 import { useAuthStore } from "@/stores/auth.store";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { ref, onMounted, watch } from "vue";
 import { useAppStore } from "@/stores/app-store";
+import { useRealtimeStore } from "@/stores/realtime-store";
+import { useConversationsStore } from "@/stores/conversations-store";
+const conversations_store = useConversationsStore();
+const realtime_store = useRealtimeStore();
 const app_store = useAppStore();
 const router = useRouter();
+const route = useRoute();
+let rerender_router = ref(0);
+
+const REALTIME_CONVERSATION_EVENTS = new Map<string, Function>([
+  //tabs/tab1
+  [
+    "/tabs/tab1",
+    () => {
+      const auth_store = useAuthStore();
+      conversations_store.suscribeToMyConversations(
+        auth_store.getUser().chat_user_id
+      );
+      conversations_store.suscribeToNewConversations(
+        auth_store.getUser().chat_user_id
+      );
+    },
+  ],
+  //tabs/tab3
+  [
+    "/tabs/tab3",
+    () => {
+      const auth_store = useAuthStore();
+      conversations_store.suscribeToMyConversations(
+        auth_store.getUser().chat_user_id
+      );
+      conversations_store.suscribeToNewConversations(
+        auth_store.getUser().chat_user_id
+      );
+    },
+  ],
+]);
+
+const suscribeToEvents = () => {
+  let _tab = router.currentRoute.value.path;
+  let func = REALTIME_CONVERSATION_EVENTS.get(_tab);
+  if (func) func();
+};
+onMounted(() => {
+  suscribeToEvents();
+});
+
+watch(
+  () => router.currentRoute.value.path,
+  () => {
+    suscribeToEvents();
+    rerender_router.value++;
+  }
+);
+onBeforeRouteUpdate(() => {
+  realtime_store.unsuscribeFromAllChannels();
+});
 
 //  const login_action_testing = useAuthStore().attemptLogin;
 //  const startLogin=()=>{
