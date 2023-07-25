@@ -122,7 +122,7 @@ const selectChatGroups = async (id: number) => {
         "*,conversations(*,participants_count:chat_users_conversations(count)),chat_users(*)"
       )
       .eq("id", id);
-  app_store.setAppIsLoading(true);
+  app_store.setAppIsLoading(false);
   if (data && data?.length > 0) {
     currentConversation.setCurrentConversation({
       id: data[0].conversation_id,
@@ -140,6 +140,8 @@ const selectChatGroups = async (id: number) => {
     path: `/conversation`,
   });
 };
+
+
 
 onMounted(() => {
   if (router.currentRoute.value.params.type === "SINGLE") {

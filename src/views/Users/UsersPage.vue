@@ -177,6 +177,7 @@ const displayedGroupList = computed(() => {
   if (query === "") {
     return users.value;
   } else {
+    //@ts-ignore
     return users.value.filter((users) =>
       users.access_code.toLowerCase().includes(query)
     );

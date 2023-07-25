@@ -69,7 +69,7 @@
         </ion-item>
       </div>
       <ion-fab slot="fixed" vertical="bottom" horizontal="end" @click="goNew">
-        <ion-fab-button>
+        <ion-fab-button v-if="selectedList.length>0">
           <ion-icon aria-hidden="true" :icon="arrowForward" />
         </ion-fab-button>
       </ion-fab>
