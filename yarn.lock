@@ -3570,6 +3570,12 @@
   "resolved" "https://registry.npmjs.org/kleur/-/kleur-4.1.5.tgz"
   "version" "4.1.5"
 
+"lamejs@zhuker/lamejs":
+  "resolved" "git+ssh://git@github.com/zhuker/lamejs.git#582bbba6a12f981b984d8fb9e1874499fed85675"
+  "version" "1.2.1"
+  dependencies:
+    "use-strict" "1.0.1"
+
 "lazy-ass@^1.6.0":
   "integrity" "sha512-cc8oEVoctTvsFZ/Oje/kGnHbpWHYBe8IAJe4C0QNc3t8uM/0Y8+erSz/7Y1ALuXTEZTMvxXwO6YbX1ey3ujiZw=="
   "resolved" "https://registry.npmjs.org/lazy-ass/-/lazy-ass-1.6.0.tgz"
@@ -4916,6 +4922,11 @@
   dependencies:
     "querystringify" "^2.1.1"
     "requires-port" "^1.0.0"
+
+"use-strict@1.0.1":
+  "integrity" "sha512-IeiWvvEXfW5ltKVMkxq6FvNf2LojMKvB2OCeja6+ct24S1XOmQw2dGr2JyndwACWAGJva9B7yPHwAmeA9QCqAQ=="
+  "resolved" "https://registry.npmjs.org/use-strict/-/use-strict-1.0.1.tgz"
+  "version" "1.0.1"
 
 "utf-8-validate@^5.0.2", "utf-8-validate@>=5.0.2":
   "integrity" "sha512-Z6czzLq4u8fPOyx7TU6X3dvUZVvoJmxSQ+IcrlmagKhilxlhZgxPK6C5Jqbkw1IDUmFTM+cz9QDnnLTwDz/2gQ=="

@@ -7,228 +7,193 @@
   >
     <ion-content>
       <ion-toolbar>
-        <ion-title>Nota De Voz</ion-title>
+        <ion-title></ion-title>
         <ion-buttons slot="end">
           <ion-button color="light" @click="closeModal">
             <ion-icon aria-hidden="true" :icon="trashOutline" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
-
-      <div class="text-container">
-        <!-- <ion-card-subtitle class="centered-text">{{ formatTime }}</ion-card-subtitle> -->
-      </div>
-
-      <div class="image-container" v-if="!sendMode">
-        <img
-          alt="Silhouette of mountains"
-          class="centered-image"
-          src="/public/assets/gifs/circle-sound.gif"
-        />
-      </div>
-      <div class="image-container" v-if="sendMode">
-        <img
-          alt="Silhouette of mountains"
-          class="centered-image"
-          src="/public/assets/gifs/sound.gif"
-        />
-      </div>
-      <div class="text-container" v-show="!sendMode">
-        <ion-button @click="stopRecording" color="danger" class="centered-text">
-          <ion-icon aria-hidden="true" :icon="stopCircle" />
-          <ion-ripple-effect type="bounded"></ion-ripple-effect>
-        </ion-button>
-      </div>
-      <div class="text-container" v-show="sendMode">
-        <ion-button
-          color="success"
-          @click="playFile(currentFileName)"
-          class="centered-text"
-        >
-          <ion-icon aria-hidden="true" :icon="play" />
-        </ion-button>
-        <ion-button color="danger" @click="stopRecording" class="centered-text">
-          <ion-icon aria-hidden="true" :icon="sendSharp" />
-        </ion-button>
+      <div class="image-container">
+        <img class="centered-image" v-if="imageSrc" :src="imageSrc" />
       </div>
     </ion-content>
   </ion-modal>
 </template>
 
 <script setup lang="ts">
-import { Directory, Filesystem } from "@capacitor/filesystem";
+import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
 import { RecordingData, VoiceRecorder } from "capacitor-voice-recorder";
-import Player from "./AudioReproductor.vue";
 import { Plugins } from "@capacitor/core";
+import { defineCustomElements } from "@ionic/pwa-elements/loader";
 import {
   IonButton,
   IonModal,
-  IonHeader,
   IonContent,
   IonToolbar,
   IonTitle,
-  IonItem,
-  IonList,
-  IonAvatar,
-  IonImg,
-  IonLabel,
 } from "@ionic/vue";
-import {
-  save,
-  close,
-  trashOutline,
-  sendOutline,
-  play,
-  sendSharp,
-  stopCircle,
-  send,
-} from "ionicons/icons";
+import { trashOutline, play, sendSharp, stopCircle } from "ionicons/icons";
 import { Ref, computed, onMounted, ref, watch } from "vue";
-const { AudioRecorder } = Plugins;
+import { supabase } from "@/utils/SupabaseClient";
 const storeFiles: Ref<Array<any>> = ref([]);
 const recording = ref(false);
+let photo: Ref<string> = ref("");
+let imageSrc: Ref<string> = ref("");
+
 const props = defineProps({
-  record: {
-    type: Boolean,
+  uri: {
+    type: String,
   },
   show: {
     type: Boolean,
   },
 });
 const sendMode = ref(false);
-const currentFileName = ref("");
-const running = ref(false);
-const time = ref(0);
-let timer: any;
-
 const emit = defineEmits(["onCloseModal"]);
-
-const formatTime = computed(() => {
-  const minutes = Math.floor(time.value / 60);
-  const seconds = time.value % 60;
-  return `${padZero(minutes)}:${padZero(seconds)}`;
-});
-const padZero = (num: number) => {
-  return num.toString().padStart(2, "0");
-};
-const start = () => {
-  if (!running.value) {
-    running.value = true;
-    timer = setInterval(() => {
-      time.value++;
-    }, 1000);
-  }
-};
-const stop = () => {
-  if (running.value) {
-    running.value = false;
-    clearInterval(timer);
-  }
-};
-const reset = () => {
-  time.value = 0;
-};
 const isModalOpen = ref(false);
-const loadFiles = () => {
-  Filesystem.readdir({
-    path: "",
-    directory: Directory.Data,
-  }).then((result) => {
-    console.log(result);
-    storeFiles.value = result.files;
-  });
-};
-const startRecording = async () => {
-  if (recording.value) {
-    return;
+
+const loadImage = async (name: string) => {
+  try {
+    const file = await Filesystem.readFile({
+      path: name,
+      directory: Directory.Data,
+    });
+    // Obtener los datos de la imagen en formato base64
+    const imageBase64 = file.data;
+    // Crear una URL válida para la imagen
+    const imageUrl = `data:image/jpeg;base64,${imageBase64}`;
+    // Establecer la URL de la imagen para mostrarla
+    imageSrc.value = imageUrl;
+    sendFiles(758, 759, name);
+  } catch (error) {
+    console.error("Error al cargar la imagen:", error);
   }
-  start();
-  recording.value = true;
-  VoiceRecorder.startRecording().then((result) => {
-    console.log(result);
-  });
 };
 
-const cancelRecording = async () => {
-  VoiceRecorder.getCurrentStatus().then((result) => {
-    console.log(result);
-    if (result.status === "RECORDING") {
-      VoiceRecorder.stopRecording();
-      timer = 0;
-    }
-  });
-};
-const stopRecording = async () => {
-  if (!recording.value) {
-    return;
-  }
+const sendFiles = async (
+  message_id = 758,
+  last_message_index = 759,
+  name: string
+) => {
+  //cada archivo se envia independientemente en un ciclo mas adelante
 
-  VoiceRecorder.stopRecording().then(async (result: RecordingData) => {
-    if (result.value && result.value.recordDataBase64) {
-      const recordData = result.value.recordDataBase64;
-      console.log("saved");
-      const fileName = new Date().getTime() + ".wav";
-      await Filesystem.writeFile({
-        path: fileName,
-        directory: Directory.Data,
-        data: recordData,
+  //array que va a guardar en success las respuestas de cada solicitud
+  //success para los que se subieron correctamente
+  //error para los que no
+  let files = {
+    success: [],
+    errors: [],
+  };
+  let _files = [];
+  //_files es un array que se usará para
+  _files.push(storeFiles.value[storeFiles.value.length - 1]);
+  console.log(_files);
+  //ciclo que itera el array de archivos en bruto para subirlos uno por uno usando la funcion de supabase
+  for (let i in _files) {
+    let _file = _files[i];
+    console.log(name);
+    const audioFile = await Filesystem.readFile({
+      path: name,
+      directory: Directory.Data,
+    });
+
+    const base64Data = audioFile.data;
+    const blobData = b64toBlob(base64Data, "image/jpeg");
+
+    const { data, error } = await supabase.storage
+      .from("users-files")
+      .upload("00003" + "/" + Date.now() + ".jpeg", blobData, {
+        cacheControl: "3600",
+        upsert: false,
       });
-      playFile(fileName);
-      stop();
-      sendMode.value = true;
+
+    return;
+    //si hay error se pushea a files.errors
+    if (error) {
+      console.log(error);
+    } else {
+      //si no hay error se pushea a files.success solo el path
+      // files.success.push(data.path);
+      /*y se agrega al array _files el objeto
+    {
+      name: string,
+      metadata: {
+        mimetype: string
+      }
     }
-  });
-  recording.value = false;
-};
-
-const toggleRecording = async () => {
-  if (recording.value) {
-    stopRecording();
-  } else {
-    startRecording();
+  */
+      //   _files.push({
+      //     name: data.path,
+      //     metadata: {
+      //       mimetype: _file.type,
+      //     },
+      //   });
+    }
   }
-};
-const playFile = async (filename: string) => {
-  const audioFile = await Filesystem.readFile({
-    path: filename,
-    directory: Directory.Data,
-  });
-  console.log("file");
-  const base64Sound = audioFile.data;
-  const audioRef = new Audio(`data:audio/aac;base64,${base64Sound}`);
-  audioRef.oncanplaythrough = () => audioRef.play();
-  audioRef.load();
-  currentFileName.value = filename;
-};
-onMounted(() => {
-  VoiceRecorder.requestAudioRecordingPermission();
-  loadFiles();
-});
+  /*
+si al menos un archivo se subió correctamente, se agregan al campo
+files del mensaje que se muestra en pantalla
+*/
+  //if (files.success.length > 0) {
+  // messages.value[last_message_index - 1].has_files = true;
+  //  messages.value[last_message_index - 1].files = _files;
+  // }
 
+  /*
+Cuando se sube un archivo, se dispara un trigger que crea un registro en la tabla
+message_files. La siguiente consulta le pone a cada registro su chat_user_id, message_id, y conversation_id correspondientes
+
+*/
+  // const { data, error } = await supabase
+  //   .from("message_files")
+  //   .update({
+  //     chat_user_id: 125,
+  //     message_id,
+  //     conversation_id: 237,
+  //   })
+  //   .in("name", files.success);
+};
+
+function b64toBlob(base64Data: any, contentType = "", sliceSize = 512) {
+  const byteCharacters = atob(base64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+    const byteNumbers = new Array(slice.length);
+
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
+}
+
+onMounted(() => {});
 const openModal = () => {
   isModalOpen.value = true;
 };
 
 const closeModal = () => {
-  cancelRecording();
   isModalOpen.value = false;
   emit("onCloseModal");
 };
 
 watch(
-  () => props.show,
+  () => props.uri,
   () => {
     isModalOpen.value = props.show;
-    if (props.record) {
-      startRecording();
+    if (props.uri) {
+      photo.value = props.uri;
     }
-    if (!props.record) {
-      sendMode.value = false;
-      currentFileName.value = "";
-      clearInterval(timer);
-    }
-    if (!props.show) {
-      time.value = 0;
+    if (props.uri) {
+      loadImage(props.uri);
     }
   }
 );
@@ -248,7 +213,8 @@ watch(
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 30%;
+  height: 100%;
+  widows: 100%;
 }
 
 .centered-image {
