@@ -32,6 +32,7 @@ const FILES_FOLDER = "chat-taked-photos";
 const storeFiles: Ref<Array<any>> = ref([]);
 const taking_photo = ref(false);
 const uri: Ref<string> = ref("");
+const emit = defineEmits(["onSendPhoto"]);
 const runPhotoCamera = async () => {
   await takePhoto();
 };
@@ -49,7 +50,11 @@ const takePhoto = async () => {
       //@ts-ignore
       const { data, error } = Utils.b64toBlob(image.dataUrl);
       if (data) {
-        conversation_store.sendFilesToConversation([data.blob]);
+        emit("onSendPhoto", {
+          name: "CameraButton.onSendPhoto",
+          data: [data.blob],
+        });
+        //conversation_store.sendFilesToConversation([data.blob]);
       }
     }
 
@@ -74,18 +79,6 @@ const loadFiles = () => {
     console.log(result);
     storeFiles.value = result.files;
   });
-};
-
-const storeImageLocally = async (image: any) => {
-  const file_name = new Date().getTime().toString();
-  await Filesystem.writeFile({
-    path: `${FILES_FOLDER}/${file_name}`,
-    data: image.dataUrl,
-    directory: Directory.Cache,
-  });
-  return {
-    file_name,
-  };
 };
 
 onMounted(() => {

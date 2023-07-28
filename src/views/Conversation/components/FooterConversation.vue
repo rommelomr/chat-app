@@ -16,7 +16,7 @@
         <VoiceRecordingButton />
       </ion-buttons>
       <ion-buttons slot="end">
-        <CameraButton />
+        <CameraButton @onSendPhoto="onSendPhoto" />
       </ion-buttons>
       <ion-buttons @click="setMessageSelector" slot="end">
         <div class="btn ion-activatable flex al-center jc-center ripple-parent">
@@ -57,7 +57,9 @@ import {
   ICurrentConversation,
 } from "../store/current-conversation.store";
 import moment from "moment";
+import { useConversationsStore } from "@/stores/conversations-store";
 
+const conversation_store = useConversationsStore();
 const current_conversation = useCurrentConversation();
 const emit = defineEmits(["onSuccessSend"]);
 
@@ -100,7 +102,6 @@ let senMessageIfNotEmptyConversation = async ({
     content: {
       text: textInput.value,
     },
-    has_files: false,
     files: [],
     created_at: moment().toString(),
     conversation_id: current_conversation.getCurrentConversation().id ?? 0,
@@ -110,6 +111,7 @@ let senMessageIfNotEmptyConversation = async ({
   });
 
   let _text_input_aux = textInput.value;
+
   textInput.value = "";
 
   let { data, error } = await supabase.functions.invoke("send-message", {
@@ -184,6 +186,36 @@ const setMessageSelector = () => {
     sendMessageIfEmptyConversation(newConversationBody);
   }
 };
+const onSendPhoto = async (emitted: any) => {
+  console.log({
+    id: 0,
+    chat_user: current_conversation.getCurrentConversation().userConversation,
+    content: {
+      text: "",
+    },
+    files: [],
+    created_at: moment().toString(),
+    conversation_id: current_conversation.getCurrentConversation().id ?? 0,
+    conversation_id_chat_user_id: "",
+    chat_user_id: current_conversation.current_conversation.me,
+    is_forwarded: true,
+  });
+  onSuccessSend({
+    id: 0,
+    chat_user: current_conversation.getCurrentConversation().userConversation,
+    content: {
+      text: "",
+    },
+    files: [{ id: "" }],
+    created_at: moment().toString(),
+    conversation_id: current_conversation.getCurrentConversation().id ?? 0,
+    conversation_id_chat_user_id: "",
+    chat_user_id: current_conversation.current_conversation.me,
+    is_forwarded: true,
+  });
+  await conversation_store.sendFilesToConversation(emitted.data);
+};
+
 onMounted(() => {
   setCurrentConversation();
 });

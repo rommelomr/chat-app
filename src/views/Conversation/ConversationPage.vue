@@ -20,59 +20,71 @@
           <Vue3Lottie :animationData="Hello" :height="200" :width="200" />
           <p style="color: white">Envia un saludo!</p>
         </div>
-        <div v-for="(message, index) in messages" :key="index">
-          <div
-            v-if="
-              message.chat_user_id ===
-              current_conversation.getCurrentConversation().me
-            "
-            class="sender"
-            @touchstart="startHold"
-            @touchend="clearHold"
-            @touchcancel="clearHold"
-          >
-            <div class="message flex al-center jc-end">
-              <div class="wrapper">
-                <div class="chat-bubble">
-                  <Vue3Lottie
-                    @click="seeFiles(message)"
-                    v-if="message.files.length > 0"
-                    :animationData="File"
-                    :height="70"
-                    :width="70"
-                  />
-                  <h4>{{ message.content.text }}</h4>
-                </div>
-                <div class="time flex al-center">
-                  <ion-icon aria-hidden="true" :icon="checkmarkDone" />
-                  <p>{{ getDateDifference(message.created_at) }}</p>
+        <div id="conversation-content">
+          <div v-for="(message, index) in messages" :key="index">
+            <div
+              v-if="
+                message.chat_user_id ===
+                current_conversation.getCurrentConversation().me
+              "
+              class="sender"
+              @touchstart="startHold"
+              @touchend="clearHold"
+              @touchcancel="clearHold"
+            >
+              <div class="message flex al-center jc-end">
+                <div class="wrapper">
+                  <div class="chat-bubble">
+                    <Vue3Lottie
+                      @click="seeFiles(message)"
+                      v-if="
+                        message.files.length > 0 && message.files[0].id != ''
+                      "
+                      :animationData="File"
+                      :height="70"
+                      :width="70"
+                    />
+
+                    <Vue3Lottie
+                      v-else-if="message.files.length > 0"
+                      :animationData="SendingFile"
+                      :height="70"
+                      :width="70"
+                    />
+
+                    <h4>{{ message.content.text }}</h4>
+                  </div>
+                  <div class="time flex al-center">
+                    <ion-icon aria-hidden="true" :icon="checkmarkDone" />
+                    <p>{{ getDateDifference(message.created_at) }}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div
-            v-else
-            class="reciver"
-            @touchstart="startHold"
-            @touchend="clearHold"
-            @touchcancel="clearHold"
-          >
-            <div class="chat-bubble">
-              <span class="partner-name">{{
-                message.chat_user.access_code
-              }}</span
-              ><br /><br />
-              <Vue3Lottie
-                @click="seeFiles(message)"
-                v-if="message.files.length > 0"
-                :animationData="File"
-                :height="100"
-                :width="100"
-              />
-              <h4>{{ message.content.text }}</h4>
-            </div>
-            <div class="time">
-              <p>{{ getDateDifference(message.created_at) }}</p>
+            <div
+              v-else
+              class="reciver"
+              @touchstart="startHold"
+              @touchend="clearHold"
+              @touchcancel="clearHold"
+            >
+              <div class="chat-bubble">
+                <span class="partner-name">{{
+                  message.chat_user.access_code
+                }}</span
+                ><br /><br />
+                <Vue3Lottie
+                  @click="seeFiles(message)"
+                  v-if="message.files.length > 0"
+                  :animationData="File"
+                  :height="100"
+                  :width="100"
+                />
+                <h4>{{ message.content.text }}</h4>
+              </div>
+              <div class="time">
+                <p>{{ getDateDifference(message.created_at) }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -144,6 +156,7 @@ import { useAppStore } from "@/stores/app-store";
 import { Vue3Lottie } from "vue3-lottie";
 import Hello from "../../../public/assets/lottie-files/hello.json";
 import File from "../../../public/assets/lottie-files/file.json";
+import SendingFile from "../../../public/assets/lottie-files/sending-file.json";
 import "./ConversationPage.scss";
 import { useConversationsStore } from "@/stores/conversations-store";
 const conversation_store = useConversationsStore();
@@ -219,9 +232,11 @@ const presentActionSheet = async (id: number) => {
     deleteForMe(id);
   }
 };
+
 const onSuccessSend = (message: IMessage) => {
   messages.value.push(message);
 };
+
 const getMessageRequest = async (
   conversation: number,
   chat_user: number
@@ -246,6 +261,7 @@ const getMessageRequest = async (
     ErrorToast("Ocurrio un error!!!");
   }
 };
+
 const loadMesaggesFromConversation = async (
   conversation: number,
   chat_user: number
@@ -342,9 +358,11 @@ const suscribeToNewConversation = () => {
 
 const seeFiles = async (message: any) => {
   let _files = [] as Array<string>;
+
   message.files.map((file: any) => {
     _files.push(file.name);
   });
+
   let response = await conversation_store.getSignedUrls(_files);
 
   console.log(response.data);
@@ -367,6 +385,12 @@ const handleClick = () => {
   console.log("Click detectado.");
   // Coloca aquí el código que deseas ejecutar cuando se realiza un clic simple.
 };
+const scrollToBottom = (selector: String) => {
+  let element = document.querySelector(selector);
+  console.log(element.scrollTop);
+  console.log(element.scrollHeight);
+  element.scrollTop = element.scrollHeight;
+};
 onMounted(async () => {
   await conversation_store.unsuscribeFromConversationEvents();
   if (!current_conversation.getCurrentConversation().isEmpty) {
@@ -377,6 +401,13 @@ onMounted(async () => {
   } else {
     suscribeToNewConversation();
   }
+  scrollToBottom("#conversation-content");
   app_store.setAppIsLoading(false);
 });
 </script>
+<style scoped>
+#conversation-content {
+  overflow-y: scroll;
+  height: 100vh;
+}
+</style>

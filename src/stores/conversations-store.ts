@@ -55,7 +55,7 @@ export const useConversationsStore = defineStore({
     ) {
       let _private_conversation_code =
         partner_chat_user_id + "" + current_chat_user_id;
-      alert(`chat_user_ids=eq.${_private_conversation_code}`);
+
       this.my_conversations_realtime.channels.new_current_conversation =
         supabase
           .channel(_private_conversation_code + "-new-conversations")
@@ -68,7 +68,6 @@ export const useConversationsStore = defineStore({
               filter: `chat_user_ids=eq.${_private_conversation_code}`,
             },
             async (event) => {
-              alert("epa te escribieron");
               this.my_conversations_realtime.new_conversation = event.new;
               const local_notifications = useLocalNotificationsStore();
               local_notifications.display({
@@ -184,6 +183,7 @@ export const useConversationsStore = defineStore({
       await supabase.removeAllChannels();
     },
     async sendFirstMessage(text: String = "") {
+      //se guarda el mensaje en la bd
       let { data, error } = await supabase.functions.invoke("send-message", {
         body: {
           conversation_type: 1,
@@ -228,19 +228,21 @@ export const useConversationsStore = defineStore({
     async sendFilesToConversation(files: Array<any>) {
       let conversation_id;
       let message_id;
-      this.getCurrentConversation().isEmpty
-        ? (async () => {
-            let response = await this.sendFirstMessage();
-            conversation_id =
-              response.data.message_info.first_message.conversation_id;
-
-            message_id = response.data.message_info.first_message.id;
-          })()
-        : (async () => {
-            let { data } = await this.sendNotFirstMessage();
-            conversation_id = this.getCurrentConversation().id;
-            message_id = data.message_info.conversation_answer.id;
-          })();
+      if (this.getCurrentConversation().isEmpty) {
+        let { data } = await this.sendFirstMessage();
+        console.log(data);
+        conversation_id = data.message_info.first_message.conversation_id;
+        message_id = data.message_info.first_message.id;
+        this.setCurrentConversation({
+          id: conversation_id,
+          isEmpty: false,
+        });
+      }
+      if (!this.getCurrentConversation().isEmpty) {
+        let { data } = await this.sendNotFirstMessage();
+        conversation_id = this.getCurrentConversation().id;
+        message_id = data.message_info.conversation_answer.id;
+      }
 
       let _files_status = {
         success: [],
@@ -282,7 +284,11 @@ export const useConversationsStore = defineStore({
           });
         }
       }
-
+      console.log(_files_status.success);
+      console.log({
+        message_id,
+        conversation_id,
+      });
       const { data, error } = await supabase
         .from("message_files")
         .update({
@@ -290,20 +296,33 @@ export const useConversationsStore = defineStore({
           message_id,
           conversation_id,
         })
-        .in("name", _files_status.success);
-      return;
+        .in("name", _files_status.success)
+        .select("*")
+        .single();
+
+      console.log(data);
+      Utils.handleErrors(error);
+      return {
+        data,
+      };
     },
     setCurrentConversation(conversations_data: any) {
       this.current_conversation = {
-        id: conversations_data.id,
-        type: conversations_data.type,
-        label: conversations_data.label,
-        label_image: conversations_data.label_image,
-        userConversation: conversations_data.userConversation,
-        isEmpty: conversations_data.isEmpty,
-        group: conversations_data.group,
-        me: conversations_data.me,
-        me_uuid: conversations_data.me_uuid,
+        id: conversations_data.id ?? this.current_conversation.id,
+        type: conversations_data.type ?? this.current_conversation.type,
+        label: conversations_data.label ?? this.current_conversation.label,
+        label_image:
+          conversations_data.label_image ??
+          this.current_conversation.label_image,
+        userConversation:
+          conversations_data.userConversation ??
+          this.current_conversation.userConversation,
+        isEmpty:
+          conversations_data.isEmpty ?? this.current_conversation.isEmpty,
+        group: conversations_data.group ?? this.current_conversation.group,
+        me: conversations_data.me ?? this.current_conversation.me,
+        me_uuid:
+          conversations_data.me_uuid ?? this.current_conversation.me_uuid,
       };
     },
     async getSignedUrls(files: Array<string>) {
