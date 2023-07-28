@@ -43,4 +43,64 @@ export default class Utils {
       }
     });
   }
+  static b64toBlob(base64: String, sliceSize = 512) {
+    let base64Data = base64.split(",");
+    let { data } = Utils.getMimetypeFromBase64(base64);
+
+    console.log(base64Data[1]);
+    if (data) {
+      const byteCharacters = atob(base64Data[1]);
+      const byteArrays = [];
+
+      for (
+        let offset = 0;
+        offset < byteCharacters.length;
+        offset += sliceSize
+      ) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+        const byteNumbers = new Array(slice.length);
+
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+
+      const blob = new Blob(byteArrays, { type: data.mimetype });
+      return {
+        status: 1,
+        data: { blob },
+      };
+    }
+    return {
+      status: 0,
+      error: {
+        message: "error converting base 64 to blob",
+      },
+    };
+  }
+  static getMimetypeFromBase64(base_64: String) {
+    let _prefix: Array<String> = base_64.split(";");
+    if (_prefix.length != 2)
+      return {
+        status: 0,
+        message: "invalid base 64 string",
+      };
+
+    let data_type: Array<String> = _prefix[0].split(":");
+    if (data_type.length != 2)
+      return {
+        status: 0,
+        message: "invalid base 64 string",
+      };
+
+    return {
+      status: 1,
+      data: {
+        mimetype: data_type[1],
+      },
+    };
+  }
 }

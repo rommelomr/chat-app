@@ -110,49 +110,47 @@ const sendFiles = async (
 
     return;
     //si hay error se pushea a files.errors
-    if (error) {
-      console.log(error);
-    } else {
-      //si no hay error se pushea a files.success solo el path
-      // files.success.push(data.path);
-      /*y se agrega al array _files el objeto
-        {
-          name: string,
-          metadata: {
-            mimetype: string
-          }
-        }
-      */
-      // _files.push({
-      //   name: data.path,
-      //   metadata: {
-      //     mimetype: _file.type,
-      //   },
-      // });
+
+    //si no hay error se pushea a files.success solo el path
+    // files.success.push(data.path);
+    /*y se agrega al array _files el objeto
+    {
+      name: string,
+      metadata: {
+        mimetype: string
+      }
     }
-  }
-  /*
-    si al menos un archivo se subió correctamente, se agregan al campo
-    files del mensaje que se muestra en pantalla  
   */
+    //   _files.push({
+    //     name: data.path,
+    //     metadata: {
+    //       mimetype: _file.type,
+    //     },
+    //   });
+  }
+
+  /*
+si al menos un archivo se subió correctamente, se agregan al campo
+files del mensaje que se muestra en pantalla
+*/
   //if (files.success.length > 0) {
   // messages.value[last_message_index - 1].has_files = true;
   //  messages.value[last_message_index - 1].files = _files;
   // }
 
   /*
-    Cuando se sube un archivo, se dispara un trigger que crea un registro en la tabla
-    message_files. La siguiente consulta le pone a cada registro su chat_user_id, message_id, y conversation_id correspondientes
+Cuando se sube un archivo, se dispara un trigger que crea un registro en la tabla
+message_files. La siguiente consulta le pone a cada registro su chat_user_id, message_id, y conversation_id correspondientes
 
-  */
-  const { data, error } = await supabase
-    .from("message_files")
-    .update({
-      chat_user_id: 125,
-      message_id,
-      conversation_id: 237,
-    })
-    .in("name", files.success);
+*/
+  // const { data, error } = await supabase
+  //   .from("message_files")
+  //   .update({
+  //     chat_user_id: 125,
+  //     message_id,
+  //     conversation_id: 237,
+  //   })
+  //   .in("name", files.success);
 };
 
 function b64toBlob(base64Data: any, contentType = "", sliceSize = 512) {

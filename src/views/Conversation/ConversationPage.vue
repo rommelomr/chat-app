@@ -27,11 +27,20 @@
               current_conversation.getCurrentConversation().me
             "
             class="sender"
-            @click="presentActionSheet(message.id)"
+            @touchstart="startHold"
+            @touchend="clearHold"
+            @touchcancel="clearHold"
           >
             <div class="message flex al-center jc-end">
               <div class="wrapper">
                 <div class="chat-bubble">
+                  <Vue3Lottie
+                    @click="seeFiles(message)"
+                    v-if="message.files.length > 0"
+                    :animationData="File"
+                    :height="70"
+                    :width="70"
+                  />
                   <h4>{{ message.content.text }}</h4>
                 </div>
                 <div class="time flex al-center">
@@ -41,12 +50,25 @@
               </div>
             </div>
           </div>
-          <div v-else class="reciver">
+          <div
+            v-else
+            class="reciver"
+            @touchstart="startHold"
+            @touchend="clearHold"
+            @touchcancel="clearHold"
+          >
             <div class="chat-bubble">
               <span class="partner-name">{{
                 message.chat_user.access_code
               }}</span
               ><br /><br />
+              <Vue3Lottie
+                @click="seeFiles(message)"
+                v-if="message.files.length > 0"
+                :animationData="File"
+                :height="100"
+                :width="100"
+              />
               <h4>{{ message.content.text }}</h4>
             </div>
             <div class="time">
@@ -121,11 +143,12 @@ import { getDateDifference } from "@/utils/MomentUtils";
 import { useAppStore } from "@/stores/app-store";
 import { Vue3Lottie } from "vue3-lottie";
 import Hello from "../../../public/assets/lottie-files/hello.json";
+import File from "../../../public/assets/lottie-files/file.json";
 import "./ConversationPage.scss";
 import { useConversationsStore } from "@/stores/conversations-store";
-const app_store = useAppStore();
-const current_conversation = useCurrentConversation();
 const conversation_store = useConversationsStore();
+const current_conversation = useCurrentConversation();
+const app_store = useAppStore();
 const { user } = useAuthStore();
 const router = useRouter();
 const isModalOpen = ref(false);
@@ -316,8 +339,36 @@ const suscribeToNewConversation = () => {
     auth_store.getUser().chat_user_id
   );
 };
+
+const seeFiles = async (message: any) => {
+  let _files = [] as Array<string>;
+  message.files.map((file: any) => {
+    _files.push(file.name);
+  });
+  let response = await conversation_store.getSignedUrls(_files);
+
+  console.log(response.data);
+};
+const holdTimer = ref(null);
+
+const startHold = (message: any) => {
+  holdTimer.value = setTimeout(() => {
+    console.log('Evento "on-hold" detectado.');
+    presentActionSheet(message.id);
+    // Coloca aquí el código que deseas ejecutar durante el evento "on-hold".
+  }, 500); // Ajusta el tiempo en milisegundos según la duración deseada para el "on-hold".
+};
+
+const clearHold = () => {
+  clearTimeout(holdTimer.value);
+};
+
+const handleClick = () => {
+  console.log("Click detectado.");
+  // Coloca aquí el código que deseas ejecutar cuando se realiza un clic simple.
+};
 onMounted(async () => {
-  conversation_store.unsuscribeFromConversationEvents();
+  await conversation_store.unsuscribeFromConversationEvents();
   if (!current_conversation.getCurrentConversation().isEmpty) {
     await loadMesaggesFromConversation(
       current_conversation.getCurrentConversation().id,

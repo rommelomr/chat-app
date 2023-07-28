@@ -13,10 +13,10 @@
         <ion-icon aria-hidden="true" :icon="attachOutline" slot="end" />
       </ion-item>
       <ion-buttons slot="end">
-        <Recording />
+        <VoiceRecordingButton />
       </ion-buttons>
       <ion-buttons slot="end">
-        <CameraCapter />
+        <CameraButton />
       </ion-buttons>
       <ion-buttons @click="setMessageSelector" slot="end">
         <div class="btn ion-activatable flex al-center jc-center ripple-parent">
@@ -32,9 +32,9 @@
 import { supabase } from "@/utils/SupabaseClient";
 
 import { IonPage, IonPopover, IonHeader, IonToolbar } from "@ionic/vue";
-import { set } from "@vueuse/core";
-import Recording from "./Recording/Recording.vue";
-import CameraCapter from "./Camera/index.vue";
+//import { set } from "@vueuse/core";
+import VoiceRecordingButton from "./Recording/VoiceRecordingButton.vue";
+import CameraButton from "./Camera/CameraButton.vue";
 import {
   attachOutline,
   call,
@@ -108,8 +108,10 @@ let senMessageIfNotEmptyConversation = async ({
     chat_user_id: current_conversation.current_conversation.me,
     is_forwarded: true,
   });
+
   let _text_input_aux = textInput.value;
   textInput.value = "";
+
   let { data, error } = await supabase.functions.invoke("send-message", {
     body: {
       conversation_id,
