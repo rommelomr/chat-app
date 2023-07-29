@@ -30,6 +30,7 @@
               class="sender"
               @touchstart="startHold"
               @touchend="clearHold"
+              @touchmove="clearHold"
               @touchcancel="clearHold"
             >
               <div class="message flex al-center jc-end">
@@ -66,6 +67,7 @@
               class="reciver"
               @touchstart="startHold"
               @touchend="clearHold"
+              @touchmove="clearHold"
               @touchcancel="clearHold"
             >
               <div class="chat-bubble">
@@ -112,8 +114,11 @@
         </ion-content>
       </ion-modal>
     </ion-content>
-
+    <img id="current-image" :src="image_url" />
     <FooterConversation @onSuccessSend="onSuccessSend" />
+    <MediaLayout :is-active="media_layout_open" @onExit="exitMedia">
+      <img :src="image_url" />
+    </MediaLayout>
   </ion-page>
 </template>
 
@@ -355,8 +360,14 @@ const suscribeToNewConversation = () => {
     auth_store.getUser().chat_user_id
   );
 };
-
+let image_url = ref("");
+const openImage = (url: string) => {
+  image_url.value = url;
+  toggleMediaLayout();
+};
 const seeFiles = async (message: any) => {
+  const app_store = useAppStore();
+  app_store.setAppIsLoading(true);
   let _files = [] as Array<string>;
 
   message.files.map((file: any) => {
@@ -366,6 +377,8 @@ const seeFiles = async (message: any) => {
   let response = await conversation_store.getSignedUrls(_files);
 
   console.log(response.data);
+  openImage(response.data[0].signedUrl);
+  app_store.setAppIsLoading(false);
 };
 const holdTimer = ref(null);
 
@@ -385,13 +398,34 @@ const handleClick = () => {
   console.log("Click detectado.");
   // Coloca aquí el código que deseas ejecutar cuando se realiza un clic simple.
 };
+const detectScroll = () => {
+  let div = document.getElementById("conversation-content");
+
+  if (div) {
+    div.addEventListener("scroll", function () {
+      //@ts-ignore
+      var scrollTop = div.scrollTop;
+      // Hacer algo con ese valor, por ejemplo mostrarlo en la consola
+      console.log("La posición del scroll es: " + scrollTop);
+    });
+  }
+};
 const scrollToBottom = (selector: String) => {
   let element = document.querySelector(selector);
   console.log(element.scrollTop);
   console.log(element.scrollHeight);
   element.scrollTop = element.scrollHeight;
 };
+let media_layout_open = ref(false);
+const exitMedia = () => {
+  image_url.value = "";
+  toggleMediaLayout();
+};
+const toggleMediaLayout = () => {
+  media_layout_open.value = !media_layout_open.value;
+};
 onMounted(async () => {
+  detectScroll();
   await conversation_store.unsuscribeFromConversationEvents();
   if (!current_conversation.getCurrentConversation().isEmpty) {
     await loadMesaggesFromConversation(

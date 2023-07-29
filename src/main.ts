@@ -35,6 +35,8 @@ import {
   IonicVue,
 } from "@ionic/vue";
 
+import MediaLayout from "./components/MediaLayout.vue";
+
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/vue/css/core.css";
 
@@ -91,6 +93,7 @@ app.component("IonToggle", IonToggle);
 app.component("IonSelect", IonSelect);
 app.component("IonSearchbar", IonSearchbar);
 app.component("IonSelectOption", IonSelectOption);
+app.component("MediaLayout", MediaLayout);
 router.isReady().then(() => {
   app.mount("#app");
 });

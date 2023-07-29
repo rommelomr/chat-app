@@ -237,8 +237,7 @@ export const useConversationsStore = defineStore({
           id: conversation_id,
           isEmpty: false,
         });
-      }
-      if (!this.getCurrentConversation().isEmpty) {
+      } else {
         let { data } = await this.sendNotFirstMessage();
         conversation_id = this.getCurrentConversation().id;
         message_id = data.message_info.conversation_answer.id;
