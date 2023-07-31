@@ -48,6 +48,7 @@ const takePhoto = async () => {
 
     if (image.dataUrl) {
       //@ts-ignore
+      console.log(image.dataUrl)
       const { data, error } = Utils.b64toBlob(image.dataUrl);
       if (data) {
         emit("onSendPhoto", {

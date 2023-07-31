@@ -13,10 +13,10 @@
         <ion-icon aria-hidden="true" :icon="attachOutline" slot="end" />
       </ion-item>
       <ion-buttons slot="end">
-        <VoiceRecordingButton />
+        <VoiceRecordingButton @onSendAudio="onSendFile" :is-recording="conversation_store.getIsRecordingVoice()" />
       </ion-buttons>
       <ion-buttons slot="end">
-        <CameraButton @onSendPhoto="onSendPhoto" />
+        <CameraButton @onSendPhoto="onSendFile" />
       </ion-buttons>
       <ion-buttons @click="setMessageSelector" slot="end">
         <div class="btn ion-activatable flex al-center jc-center ripple-parent">
@@ -61,6 +61,9 @@ import { useConversationsStore } from "@/stores/conversations-store";
 
 const conversation_store = useConversationsStore();
 const current_conversation = useCurrentConversation();
+
+let is_recording_voice = ref(false)
+
 const emit = defineEmits(["onSuccessSend"]);
 
 const onSuccessSend = (messageSender: IMessage) => {
@@ -186,20 +189,7 @@ const setMessageSelector = () => {
     sendMessageIfEmptyConversation(newConversationBody);
   }
 };
-const onSendPhoto = async (emitted: any) => {
-  console.log({
-    id: 0,
-    chat_user: current_conversation.getCurrentConversation().userConversation,
-    content: {
-      text: "",
-    },
-    files: [],
-    created_at: moment().toString(),
-    conversation_id: current_conversation.getCurrentConversation().id ?? 0,
-    conversation_id_chat_user_id: "",
-    chat_user_id: current_conversation.current_conversation.me,
-    is_forwarded: true,
-  });
+const pushPrevMessage = () => {
   onSuccessSend({
     id: 0,
     chat_user: current_conversation.getCurrentConversation().userConversation,
@@ -213,6 +203,9 @@ const onSendPhoto = async (emitted: any) => {
     chat_user_id: current_conversation.current_conversation.me,
     is_forwarded: true,
   });
+};
+const onSendFile = async (emitted: any) => {
+  pushPrevMessage();
   await conversation_store.sendFilesToConversation(emitted.data);
 };
 

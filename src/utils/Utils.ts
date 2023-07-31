@@ -45,9 +45,9 @@ export default class Utils {
   }
   static b64toBlob(base64: String, sliceSize = 512) {
     let base64Data = base64.split(",");
+
     let { data } = Utils.getMimetypeFromBase64(base64);
 
-    console.log(base64Data[1]);
     if (data) {
       const byteCharacters = atob(base64Data[1]);
       const byteArrays = [];

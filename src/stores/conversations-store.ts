@@ -30,9 +30,16 @@ export const useConversationsStore = defineStore({
       me: 0,
       me_uuid: "_",
     }),
+    is_recording_voice: false,
   }),
 
   actions: {
+    toggleRecordingVoice(){
+      this.is_recording_voice = !this.is_recording_voice;
+    },
+    getIsRecordingVoice(): Boolean{
+      return this.is_recording_voice;
+    },
     getCurrentConversation() {
       return this.current_conversation;
     },

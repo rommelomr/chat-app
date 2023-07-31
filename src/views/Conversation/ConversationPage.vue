@@ -114,10 +114,13 @@
         </ion-content>
       </ion-modal>
     </ion-content>
-    <img id="current-image" :src="image_url" />
     <FooterConversation @onSuccessSend="onSuccessSend" />
     <MediaLayout :is-active="media_layout_open" @onExit="exitMedia">
-      <img :src="image_url" />
+      <img v-if="media == 'image'" :src="file_url" />
+      <audio id="audio-player" v-else-if="media == 'audio'" controls :src="file_url" autoplay></audio>
+      <div v-else>
+        <p>Este archivo no puede ser reconocido</p>
+      </div>
     </MediaLayout>
   </ion-page>
 </template>
@@ -144,7 +147,7 @@ import {
 } from "ionicons/icons";
 import { IonActionSheet, IonButton } from "@ionic/vue";
 import { useRouter } from "vue-router";
-import { onMounted, reactive, Ref, ref, watch } from "vue";
+import { computed, onMounted, reactive, Ref, ref, watch } from "vue";
 import {
   ICurrentConversation,
   useCurrentConversation,
@@ -164,6 +167,7 @@ import File from "../../../public/assets/lottie-files/file.json";
 import SendingFile from "../../../public/assets/lottie-files/sending-file.json";
 import "./ConversationPage.scss";
 import { useConversationsStore } from "@/stores/conversations-store";
+import Mimetypes from '@/utils/Mimetypes'
 const conversation_store = useConversationsStore();
 const current_conversation = useCurrentConversation();
 const app_store = useAppStore();
@@ -360,10 +364,29 @@ const suscribeToNewConversation = () => {
     auth_store.getUser().chat_user_id
   );
 };
-let image_url = ref("");
-const openImage = (url: string) => {
-  image_url.value = url;
-  toggleMediaLayout();
+let file_url = ref("");
+let media = ref("")
+const playAudio = () => {
+  let _audio = document.getElementById('audio-player');
+  console.log(_audio)
+
+}
+const openFile = async (files: Array<string>) => {
+  const response = await conversation_store.getSignedUrls(files);
+  const fetch_response = await fetch(response.data[0].signedUrl, { // hacer una petición HEAD
+    method: 'GET'
+  });
+
+  let {data,error} = Mimetypes(fetch_response.headers.get('Content-Type') ?? '');
+  if(error) alert('Tipo de archivo no reconocido')
+  if(data){
+    media.value = data.name
+    file_url.value = response.data[0].signedUrl;
+    toggleMediaLayout();
+    playAudio()
+  } 
+
+  // openFile(response.data[0].signedUrl);
 };
 const seeFiles = async (message: any) => {
   const app_store = useAppStore();
@@ -373,11 +396,7 @@ const seeFiles = async (message: any) => {
   message.files.map((file: any) => {
     _files.push(file.name);
   });
-
-  let response = await conversation_store.getSignedUrls(_files);
-
-  console.log(response.data);
-  openImage(response.data[0].signedUrl);
+  openFile(_files);
   app_store.setAppIsLoading(false);
 };
 const holdTimer = ref(null);
@@ -398,18 +417,7 @@ const handleClick = () => {
   console.log("Click detectado.");
   // Coloca aquí el código que deseas ejecutar cuando se realiza un clic simple.
 };
-const detectScroll = () => {
-  let div = document.getElementById("conversation-content");
 
-  if (div) {
-    div.addEventListener("scroll", function () {
-      //@ts-ignore
-      var scrollTop = div.scrollTop;
-      // Hacer algo con ese valor, por ejemplo mostrarlo en la consola
-      console.log("La posición del scroll es: " + scrollTop);
-    });
-  }
-};
 const scrollToBottom = (selector: String) => {
   let element = document.querySelector(selector);
   console.log(element.scrollTop);
@@ -418,14 +426,15 @@ const scrollToBottom = (selector: String) => {
 };
 let media_layout_open = ref(false);
 const exitMedia = () => {
-  image_url.value = "";
+  file_url.value = "";
   toggleMediaLayout();
 };
 const toggleMediaLayout = () => {
   media_layout_open.value = !media_layout_open.value;
 };
+
 onMounted(async () => {
-  detectScroll();
+  
   await conversation_store.unsuscribeFromConversationEvents();
   if (!current_conversation.getCurrentConversation().isEmpty) {
     await loadMesaggesFromConversation(

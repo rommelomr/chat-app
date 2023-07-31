@@ -11,22 +11,55 @@
   <RecordingModal
     :show="recording"
     :record="recording"
+    @onAcceptAudio="onAcceptAudio"
     @onCloseModal="toggleRecording"
   />
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, ref } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 import RecordingModal from "./RecordingModal.vue";
 import { Plugins } from "@capacitor/core";
 import { mic, star } from "ionicons/icons";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { RecordingData, VoiceRecorder } from "capacitor-voice-recorder";
-const { AudioRecorder } = Plugins;
+import Utils from "@/utils/Utils";
+import { useConversationsStore } from "@/stores/conversations-store";
+
+const conversation_store = useConversationsStore()
 const storeFiles: Ref<Array<any>> = ref([]);
-const recording = ref(false);
+let recording = ref(false);
+
+const props = defineProps({
+  isRecording: {
+    type: Boolean,
+  }
+})
+
+watch(
+  ()=>props.isRecording,
+  (value)=>{
+    recording.value = value
+  }
+)
 const toggleRecording = () => {
+  conversation_store.toggleRecordingVoice()
   recording.value = !recording.value;
+};
+
+const emit = defineEmits(["onSendAudio"]);
+const onAcceptAudio = (emitted: any) => {
+  conversation_store.toggleRecordingVoice()
+  const { data, error } = Utils.b64toBlob(emitted.data.audio);
+  if(error){
+    Utils.handleErrors(error)
+  }
+  if (data) {
+    emit("onSendAudio", {
+      name: `VoiceRecordingButton.${emitted.name}`,
+      data: [data.blob],
+    });
+  }
 };
 </script>
 <style>
