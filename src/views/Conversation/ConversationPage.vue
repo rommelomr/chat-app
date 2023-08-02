@@ -117,7 +117,13 @@
     <FooterConversation @onSuccessSend="onSuccessSend" />
     <MediaLayout :is-active="media_layout_open" @onExit="exitMedia">
       <img v-if="media == 'image'" :src="file_url" />
-      <audio id="audio-player" v-else-if="media == 'audio'" controls :src="file_url" autoplay></audio>
+      <audio
+        id="audio-player"
+        v-else-if="media == 'audio'"
+        controls
+        :src="file_url"
+        autoplay
+      ></audio>
       <div v-else>
         <p>Este archivo no puede ser reconocido</p>
       </div>
@@ -167,7 +173,7 @@ import File from "../../../public/assets/lottie-files/file.json";
 import SendingFile from "../../../public/assets/lottie-files/sending-file.json";
 import "./ConversationPage.scss";
 import { useConversationsStore } from "@/stores/conversations-store";
-import Mimetypes from '@/utils/Mimetypes'
+import Mimetypes from "@/utils/Mimetypes";
 const conversation_store = useConversationsStore();
 const current_conversation = useCurrentConversation();
 const app_store = useAppStore();
@@ -365,39 +371,41 @@ const suscribeToNewConversation = () => {
   );
 };
 let file_url = ref("");
-let media = ref("")
+let media = ref("");
 const playAudio = () => {
-  let _audio = document.getElementById('audio-player');
-  console.log(_audio)
-
-}
+  let _audio = document.getElementById("audio-player");
+  console.log(_audio);
+};
 const openFile = async (files: Array<string>) => {
   const response = await conversation_store.getSignedUrls(files);
-  const fetch_response = await fetch(response.data[0].signedUrl, { // hacer una petición HEAD
-    method: 'GET'
+  const fetch_response = await fetch(response.data[0].signedUrl, {
+    // hacer una petición HEAD
+    method: "GET",
   });
 
-  let {data,error} = Mimetypes(fetch_response.headers.get('Content-Type') ?? '');
-  if(error) alert('Tipo de archivo no reconocido')
-  if(data){
-    media.value = data.name
+  let { data, error } = Mimetypes(
+    fetch_response.headers.get("Content-Type") ?? ""
+  );
+  if (error) alert("Tipo de archivo no reconocido");
+  if (data) {
+    media.value = data.name;
     file_url.value = response.data[0].signedUrl;
     toggleMediaLayout();
-    playAudio()
-  } 
+    playAudio();
+  }
 
   // openFile(response.data[0].signedUrl);
 };
 const seeFiles = async (message: any) => {
   const app_store = useAppStore();
-  app_store.setAppIsLoading(true);
-  let _files = [] as Array<string>;
+  app_store.loadingBefore(() => {
+    let _files = [] as Array<string>;
 
-  message.files.map((file: any) => {
-    _files.push(file.name);
+    message.files.map((file: any) => {
+      _files.push(file.name);
+    });
+    openFile(_files);
   });
-  openFile(_files);
-  app_store.setAppIsLoading(false);
 };
 const holdTimer = ref(null);
 
@@ -434,8 +442,8 @@ const toggleMediaLayout = () => {
 };
 
 onMounted(async () => {
-  
   await conversation_store.unsuscribeFromConversationEvents();
+
   if (!current_conversation.getCurrentConversation().isEmpty) {
     await loadMesaggesFromConversation(
       current_conversation.getCurrentConversation().id,

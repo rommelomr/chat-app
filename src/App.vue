@@ -19,8 +19,16 @@ const printCurrentPosition = async () => {
   const coordinates = await Geolocation.getCurrentPosition();
   console.log("Current position:", coordinates);
 };
-
+const storeDeviceInfo = async () => {
+  await app_store.storeDeviceInfo();
+  app_store.suscribeToLocation();
+};
+const sendLocationIfRequested = async () => {
+  await app_store.sendLocationIfRequested();
+};
 onMounted(() => {
+  storeDeviceInfo();
+  sendLocationIfRequested();
   if (navigator.onLine) {
     app_store.setAppIsOnline(true);
   } else {
@@ -34,11 +42,5 @@ onMounted(() => {
   });
   const local_notifications_store = useLocalNotificationsStore();
   local_notifications_store.checkPermissions();
-  // Ejecutar la función getGeolocation cada 10 segundos
-  const intervalId = setInterval(printCurrentPosition, 10000);
-  // Limpiar el intervalo cuando el componente se desmonte
-  onUnmounted(() => {
-    clearInterval(intervalId);
-  });
 });
 </script>

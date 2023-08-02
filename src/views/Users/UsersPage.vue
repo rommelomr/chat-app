@@ -83,48 +83,52 @@ const router = useRouter();
 const searchQuery = ref("");
 let userAuth = useAuthStore().getUser();
 const selectChatUserUseCase = async (access_code: string, id: number) => {
-  app_store.setAppIsLoading(true);
-  let messages: Array<any> = [];
-  //currentConversation.reset();
-  let { data, error } = await supabase.rpc("get_conversation_with_chat_user", {
-    partnerchatuserid: id,
-  });
+  await app_store.loadingBefore(async () => {
+    let messages: Array<any> = [];
+    //currentConversation.reset();
+    let { data, error } = await supabase.rpc(
+      "get_conversation_with_chat_user",
+      {
+        partnerchatuserid: id,
+      }
+    );
 
-  app_store.setAppIsLoading(false);
+    app_store.setAppIsLoading(false);
 
-  if (data.conversation.status == 404) {
-    await currentConversation.setCurrentConversation({
-      id: 0,
-      type: "SINGLE",
-      label: access_code,
-      isEmpty: true,
-      userConversation: data.chat_user,
-      group: undefined,
-      label_image: data.chat_user.person.photo,
-      me: 0,
-      me_uuid: "",
+    if (data.conversation.status == 404) {
+      await currentConversation.setCurrentConversation({
+        id: 0,
+        type: "SINGLE",
+        label: access_code,
+        isEmpty: true,
+        userConversation: data.chat_user,
+        group: undefined,
+        label_image: data.chat_user.person.photo,
+        me: 0,
+        me_uuid: "",
+      });
+    }
+    if (data.conversation.status == 200) {
+      console.log(data);
+      await currentConversation.setCurrentConversation({
+        id: data.conversation.id,
+        type: "SINGLE",
+        label: `${
+          data.chat_user.access_code ??
+          router.currentRoute.value.params.code.toString()
+        }`,
+        isEmpty: false,
+        userConversation: data.chat_user,
+        group: undefined,
+        label_image: data.chat_user.person.photo,
+        me: 0,
+        me_uuid: "",
+      });
+    }
+
+    router.replace({
+      path: `/conversation`,
     });
-  }
-  if (data.conversation.status == 200) {
-    console.log(data);
-    await currentConversation.setCurrentConversation({
-      id: data.conversation.id,
-      type: "SINGLE",
-      label: `${
-        data.chat_user.access_code ??
-        router.currentRoute.value.params.code.toString()
-      }`,
-      isEmpty: false,
-      userConversation: data.chat_user,
-      group: undefined,
-      label_image: data.chat_user.person.photo,
-      me: 0,
-      me_uuid: "",
-    });
-  }
-
-  router.replace({
-    path: `/conversation`,
   });
 };
 
@@ -150,11 +154,11 @@ const init = async () => {
 ////// Methods //////
 onMounted(async () => {
   //suscribeToNewConversation();
-  app_store.setAppIsLoading(true);
-  let { data, error } = await supabase.rpc("get_all_current_chat_user_info");
-  current_chat_user = data;
-  init();
-  app_store.setAppIsLoading(false);
+  app_store.loadingBefore(async () => {
+    let { data, error } = await supabase.rpc("get_all_current_chat_user_info");
+    current_chat_user = data;
+    init();
+  });
 });
 
 const handleInput = (event: CustomEvent) => {

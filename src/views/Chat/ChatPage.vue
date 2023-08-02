@@ -191,6 +191,7 @@ watch(
 );
 onMounted(async () => {
   conversations_store.resetCurrentConverstion();
+  conversations_store.resetConversationDetails();
   const auth_store = useAuthStore();
   app_store.setAppIsLoading(true);
   await fetchCurrentUserConversation();

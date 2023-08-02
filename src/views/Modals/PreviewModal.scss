@@ -1,0 +1,72 @@
+.preview-modal
+{
+    --background: black;
+
+    .holder
+    {
+        width: 100%;
+
+        .toolbar
+        {
+            right: 0;
+            position: absolute;
+            top: 0;
+            height: fit-content;
+            width: fit-content;
+
+            .btn
+            {
+            border-radius: 50%;
+            height: 40px;
+            margin-top: 10px;
+            width: 60px;
+
+            ion-icon
+            {
+              color: white;
+                font-size: 40px;
+            }
+        }
+        }
+    }
+
+    .preview-holder
+    {
+        img
+        {
+            height: 80vw;
+            width: 100%;
+        }
+    }
+
+    p
+    {
+        color: white;
+    }
+
+    .previews
+    {
+        bottom: 0;
+        position: absolute;
+        overflow-x: scroll !important;
+        overflow-y: hidden !important;
+        white-space: nowrap !important;
+        width: 100%;
+        &::-webkit-scrollbar
+        {
+          display: none !important;
+        }
+
+        .image-holder
+        {
+            background: red;
+            display: inline-block;
+            width: fit-content;
+            img
+            {
+                height: 100px;
+                width: 100px;
+            }
+        }
+    }
+}

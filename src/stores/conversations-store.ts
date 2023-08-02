@@ -4,8 +4,9 @@ import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
 import { supabase } from "@/utils/SupabaseClient";
 import Utils from "@/utils/Utils";
 import { IResponse } from "@/logic/interfaces/IResponse";
-import { useLocalNotificationsStore } from "./local-notifications-store";
+//import { useLocalNotificationsStore } from "./local-notifications-store";
 import { useAuthStore } from "./auth.store";
+import Mimetypes from "@/utils/Mimetypes";
 
 export const useConversationsStore = defineStore({
   id: "conversations-store",
@@ -24,20 +25,24 @@ export const useConversationsStore = defineStore({
       type: "SINGLE",
       label: "xxx",
       label_image: "https://i.pravatar.cc/300",
-      userConversation: undefined,
+      userConversation: {},
       isEmpty: true,
-      group: undefined,
+      group: false,
       me: 0,
       me_uuid: "_",
+    }),
+    conversation_details: useStorage("conversation-details", {
+      data: {},
+      url_files: [],
     }),
     is_recording_voice: false,
   }),
 
   actions: {
-    toggleRecordingVoice(){
+    toggleRecordingVoice() {
       this.is_recording_voice = !this.is_recording_voice;
     },
-    getIsRecordingVoice(): Boolean{
+    getIsRecordingVoice(): Boolean {
       return this.is_recording_voice;
     },
     getCurrentConversation() {
@@ -76,11 +81,11 @@ export const useConversationsStore = defineStore({
             },
             async (event) => {
               this.my_conversations_realtime.new_conversation = event.new;
-              const local_notifications = useLocalNotificationsStore();
-              local_notifications.display({
-                title: "Tienes una nueva conversación",
-                content: "¡Abrela ahora!",
-              });
+              // const local_notifications = useLocalNotificationsStore();
+              // local_notifications.display({
+              //   title: "Tienes una nueva conversación",
+              //   content: "¡Abrela ahora!",
+              // });
             }
           )
           .subscribe();
@@ -114,17 +119,16 @@ export const useConversationsStore = defineStore({
             if (error) {
               throw "stop: error updating conversations order";
             }
-            const local_notifications = useLocalNotificationsStore();
-            local_notifications.display({
-              title: "Has recibido un nuevo mensaje",
-              content: "¡Contesta ahora!",
-            });
+            // const local_notifications = useLocalNotificationsStore();
+            // local_notifications.display({
+            //   title: "Has recibido un nuevo mensaje",
+            //   content: "¡Contesta ahora!",
+            // });
             this.my_conversations_realtime.conversation = data;
           }
         )
         .subscribe();
     },
-
     /**
      * @param chat_user_id
      * Function that listens when someone writes to the
@@ -132,7 +136,6 @@ export const useConversationsStore = defineStore({
      * writes in a group to which the current user belongs,
      * and the current user is in the conversations tab (not inside the conversation page)
      */
-
     async suscribeToNewConversations(chat_user_id: number) {
       this.my_conversations_realtime.channels.new_conversations = supabase
         .channel(chat_user_id + "-conversations-insert")
@@ -157,11 +160,11 @@ export const useConversationsStore = defineStore({
             if (error) {
               throw "stop: error updating conversations order";
             }
-            const local_notifications = useLocalNotificationsStore();
-            local_notifications.display({
-              title: "Has recibido un nuevo mensaje",
-              content: "¡Contesta ahora!",
-            });
+            // const local_notifications = useLocalNotificationsStore();
+            // local_notifications.display({
+            //   title: "Has recibido un nuevo mensaje",
+            //   content: "¡Contesta ahora!",
+            // });
             this.my_conversations_realtime.new_conversation = data;
           }
         )
@@ -346,12 +349,77 @@ export const useConversationsStore = defineStore({
         type: "SINGLE",
         label: "xxx",
         label_image: "https://i.pravatar.cc/300",
-        userConversation: undefined,
+        userConversation: {},
         isEmpty: true,
-        group: undefined,
+        group: false,
         me: 0,
         me_uuid: "_",
       });
+    },
+    setConversationDetails(conversation_details: any) {
+      this.conversation_details = conversation_details;
+    },
+    resetConversationDetails(conversation_details: any) {
+      this.setConversationDetails({});
+    },
+
+    getConversationDetails() {
+      return this.conversation_details;
+    },
+    async loadConversationDetails(conversation: any) {
+      const auth_store = useAuthStore();
+      let { data, error } = await supabase
+        .from("conversations")
+        .select(
+          "*,message_files(*),private_conversation:private_conversations(*),group:groups(*),chat_users_conversations(*,chat_user:chat_users(*,person:people(*)))"
+        )
+        .eq("id", conversation.id)
+        .neq(
+          "chat_users_conversations.chat_user_id",
+          auth_store.getUser().chat_user_id
+        );
+      Utils.handleErrors(error);
+      if (data) {
+        let _file_names: Array<string> = [];
+        let _files: Array<any> = [];
+        if (data[0].message_files.length > 0) {
+          data[0].message_files.map((message_file: any) => {
+            _file_names.push(message_file.name);
+          });
+
+          const { data: files_data, error: files_error } =
+            await supabase.storage
+              .from("users-files")
+              .createSignedUrls(_file_names, 60);
+
+          if (files_data) {
+            files_data.map((file_data) => {
+              let _is_valid_path = file_data.error == null && file_data.path;
+              if (_is_valid_path) {
+                //@ts-ignore
+                let _mimetype = Mimetypes(file_data.path);
+                _files.push({
+                  url: file_data.signedUrl,
+                  mimetype: _mimetype,
+                });
+              }
+            });
+          }
+        }
+        this.setConversationDetails({
+          data: data[0],
+          files: _files,
+        });
+
+        return {
+          status: 200,
+          action: "LOAD_CONVERSATION_DETAILS",
+          message: "Conversation details obtained successfuly",
+          entity: "CONVERSATIONS",
+          data: data[0],
+          files: _files,
+        };
+      }
     },
   },
 });

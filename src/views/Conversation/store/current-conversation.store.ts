@@ -31,9 +31,9 @@ export const useCurrentConversation = defineStore({
       type: "SINGLE",
       label: "xxx",
       label_image: "https://i.pravatar.cc/300",
-      userConversation: undefined,
+      userConversation: {},
       isEmpty: true,
-      group: undefined,
+      group: false,
       me: 0,
       me_uuid: "_",
     }),
@@ -82,7 +82,6 @@ export const useCurrentConversation = defineStore({
         },
       });
     },
-    ////////GETTERS///////
     getCurrentConversation(): ICurrentConversation {
       return this.current_conversation;
     },
@@ -102,5 +101,6 @@ export const useCurrentConversation = defineStore({
         };
       }
     },
+    ////////GETTERS///////
   },
 });

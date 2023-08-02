@@ -14,7 +14,7 @@ import EnterPassPage from "../views/EnterPass/EnterPassPage.vue";
 import ObtainCodePage from "../views/ObtainCode/ObtainCodePage.vue";
 import NewGroupPage from "../views/NewGroup/NewGroupPage.vue";
 import NewGroupPage1 from "../views/NewGroup1/NewGroup1Page.vue";
-import MainViewGroup from "../views/MainViewGroup/MainViewGroupPage.vue";
+import ConversationDetails from "../views/ConversationDetails/ConversationDetails.vue";
 import { useAuthStore } from "@/stores/auth.store";
 const routes: Array<RouteRecordRaw> = [
   {
@@ -78,13 +78,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "entercode",
     component: EnterCodePage,
   },
-
   {
     path: "/enterpass",
     name: "enterpass",
     component: EnterPassPage,
   },
-
   {
     path: "/groups",
     name: "groups",
@@ -103,9 +101,9 @@ const routes: Array<RouteRecordRaw> = [
   },
 
   {
-    path: "/mainviewgroup",
-    name: "mainviewgroup",
-    component: MainViewGroup,
+    path: "/conversationdetails",
+    name: "conversationdetails",
+    component: ConversationDetails,
   },
   {
     path: "/obtaincode",

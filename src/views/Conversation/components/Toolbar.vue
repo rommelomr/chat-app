@@ -8,7 +8,7 @@
       ></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="start">
-      <ion-item lines="none" @click="open_modal = true">
+      <ion-item lines="none" @click="goToConversationDetails">
         <ion-avatar slot="start">
           <img
             :src="`/public/assets/imgs/avatar/${
@@ -54,7 +54,7 @@
           <div class="section">
             <h3>Ingrese Nick Name</h3>
             <ion-item>
-              <ion-input value="Pedrito" />
+              <ion-input value="Pedito" />
             </ion-item>
             <div class="btns-holder flex al-center jc-end">
               <ion-button fill="clear" @ionPress="dismissModal"
@@ -121,6 +121,22 @@ import {
 } from "../store/current-conversation.store";
 import ModalGeneric from "@/components/ModalGeneric.vue";
 import Details from "./Details.vue";
+import { useRouter } from "vue-router";
+import { useAppStore } from "@/stores/app-store";
+import { useConversationsStore } from "@/stores/conversations-store";
+const app_store = useAppStore();
+
+const router = useRouter();
+const goToConversationDetails = async () => {
+  await app_store.loadingBefore(async () => {
+    const conversations_store = useConversationsStore();
+    let store_response = await conversations_store.loadConversationDetails({
+      id: conversations_store.getCurrentConversation().id,
+    });
+
+    router.replace("/conversationdetails");
+  });
+};
 const isModalOpen = ref(false);
 
 const { getCurrentConversation } = useCurrentConversation();

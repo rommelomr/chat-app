@@ -1,4 +1,7 @@
 import bcrypt from "bcryptjs";
+import Mimetypes from "@/utils/Mimetypes";
+import { IResponse } from "@/logic/interfaces/IResponse";
+
 export default class Utils {
   static random(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -102,5 +105,28 @@ export default class Utils {
         mimetype: data_type[1],
       },
     };
+  }
+  static async fetchFileWithInfo(url: string) {
+    const fetch_response = await fetch(url, {
+      method: "GET",
+    });
+
+    let { data, error } = Mimetypes(
+      fetch_response.headers.get("Content-Type") ?? ""
+    );
+    if (error) {
+      return {
+        status: 0,
+        error,
+      };
+    }
+    if (data) {
+      return {
+        status: 1,
+        data: {
+          mimetype: data.name,
+        },
+      };
+    }
   }
 }
