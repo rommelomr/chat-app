@@ -366,6 +366,41 @@ export const useConversationsStore = defineStore({
     getConversationDetails() {
       return this.conversation_details;
     },
+    async parseFiles(data: any) {
+      let _file_names: Array<string> = [];
+      let _files: Array<any> = [];
+      if (data[0].message_files.length > 0) {
+        data[0].message_files.map((message_file: any) => {
+          _file_names.push(message_file.name);
+        });
+
+        const { data: files_data, error: files_error } = await supabase.storage
+          .from("users-files")
+          .createSignedUrls(_file_names, 60);
+
+        if (files_data) {
+          for (let i = 0; i < files_data.length; i++) {
+            let file_data = files_data[i];
+            let _is_valid_path = file_data.error == null && file_data.path;
+            if (_is_valid_path) {
+              //@ts-ignore
+
+              let { data, error } = await Utils.fetchFileWithInfo(
+                file_data.signedUrl
+              );
+              if (data) {
+                _files.push({
+                  url: file_data.signedUrl,
+                  mimetype: data.mimetype,
+                });
+              }
+            }
+          }
+        }
+
+        return _files;
+      }
+    },
     async loadConversationDetails(conversation: any) {
       const auth_store = useAuthStore();
       let { data, error } = await supabase
@@ -380,37 +415,11 @@ export const useConversationsStore = defineStore({
         );
       Utils.handleErrors(error);
       if (data) {
-        let _file_names: Array<string> = [];
-        let _files: Array<any> = [];
-        if (data[0].message_files.length > 0) {
-          data[0].message_files.map((message_file: any) => {
-            _file_names.push(message_file.name);
-          });
-
-          const { data: files_data, error: files_error } =
-            await supabase.storage
-              .from("users-files")
-              .createSignedUrls(_file_names, 60);
-
-          if (files_data) {
-            files_data.map((file_data) => {
-              let _is_valid_path = file_data.error == null && file_data.path;
-              if (_is_valid_path) {
-                //@ts-ignore
-                let _mimetype = Mimetypes(file_data.path);
-                _files.push({
-                  url: file_data.signedUrl,
-                  mimetype: _mimetype,
-                });
-              }
-            });
-          }
-        }
+        let _files = await this.parseFiles(data);
         this.setConversationDetails({
           data: data[0],
           files: _files,
         });
-
         return {
           status: 200,
           action: "LOAD_CONVERSATION_DETAILS",

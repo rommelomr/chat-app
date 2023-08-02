@@ -13,7 +13,10 @@
         <ion-icon aria-hidden="true" :icon="attachOutline" slot="end" />
       </ion-item>
       <ion-buttons slot="end">
-        <VoiceRecordingButton @onSendAudio="onSendFile" :is-recording="conversation_store.getIsRecordingVoice()" />
+        <VoiceRecordingButton
+          @onSendAudio="onSendFile"
+          :is-recording="conversation_store.getIsRecordingVoice()"
+        />
       </ion-buttons>
       <ion-buttons slot="end">
         <CameraButton @onSendPhoto="onSendFile" />
@@ -58,13 +61,14 @@ import {
 } from "../store/current-conversation.store";
 import moment from "moment";
 import { useConversationsStore } from "@/stores/conversations-store";
+import { useAppStore } from "@/stores/app-store";
 
 const conversation_store = useConversationsStore();
 const current_conversation = useCurrentConversation();
 
-let is_recording_voice = ref(false)
+let is_recording_voice = ref(false);
 
-const emit = defineEmits(["onSuccessSend"]);
+const emit = defineEmits(["onSuccessSend", "onCompleteSendFile"]);
 
 const onSuccessSend = (messageSender: IMessage) => {
   emit("onSuccessSend", messageSender);
@@ -205,8 +209,19 @@ const pushPrevMessage = () => {
   });
 };
 const onSendFile = async (emitted: any) => {
-  pushPrevMessage();
-  await conversation_store.sendFilesToConversation(emitted.data);
+  const app_store = useAppStore();
+  app_store.loadingBefore(async () => {
+    pushPrevMessage();
+    let { data } = await conversation_store.sendFilesToConversation(
+      emitted.data
+    );
+    emit("onCompleteSendFile", {
+      name: "FooterConversation.on_complete_send_image",
+      data: {
+        stored_file: data,
+      },
+    });
+  });
 };
 
 onMounted(() => {

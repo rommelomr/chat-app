@@ -154,7 +154,7 @@ const cancelRecording = async () => {
     }
   });
 };
-let base_64_file = ref('')
+let base_64_file = ref("");
 const stopRecording = async () => {
   let is_already_recording = recording.value == true;
   if (!is_already_recording) return;
@@ -165,7 +165,9 @@ const stopRecording = async () => {
       base_64_file.value = `${result.value.recordDataBase64}`;
       const file_name = new Date().getTime();
       //let _audio_blob = Utils.b64toBlob(base_64_file);
-      playFile(`data:${result.value.mimeType};base64,${result.value.recordDataBase64}`);
+      playFile(
+        `data:${result.value.mimeType},${result.value.recordDataBase64}`
+      );
       stopTimer();
       send_mode.value = true;
     }
@@ -222,7 +224,6 @@ watch(
   }
 );
 const acceptAudio = async () => {
-  
   is_modal_open.value = false;
   emit("onAcceptAudio", {
     name: "RecordingModal",
@@ -230,7 +231,7 @@ const acceptAudio = async () => {
       audio: _audio.value,
     },
   });
-  _audio.value = null
+  _audio.value = null;
 };
 
 const sendFiles = async (

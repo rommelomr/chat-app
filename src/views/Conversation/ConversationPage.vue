@@ -114,7 +114,10 @@
         </ion-content>
       </ion-modal>
     </ion-content>
-    <FooterConversation @onSuccessSend="onSuccessSend" />
+    <FooterConversation
+      @onSuccessSend="onSuccessSend"
+      @onCompleteSendFile="onCompleteSendFile"
+    />
     <MediaLayout :is-active="media_layout_open" @onExit="exitMedia">
       <img v-if="media == 'image'" :src="file_url" />
       <audio
@@ -440,7 +443,9 @@ const exitMedia = () => {
 const toggleMediaLayout = () => {
   media_layout_open.value = !media_layout_open.value;
 };
-
+const onCompleteSendFile = (emitted: any) => {
+  messages.value[messages.value.length - 1].files[0] = emitted.data.stored_file;
+};
 onMounted(async () => {
   await conversation_store.unsuscribeFromConversationEvents();
 

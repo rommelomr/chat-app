@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import Mimetypes from "@/utils/Mimetypes";
-import { IResponse } from "@/logic/interfaces/IResponse";
 
 export default class Utils {
   static random(min: number, max: number) {

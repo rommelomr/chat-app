@@ -46,9 +46,18 @@
                 file, index
               ) in conversations_store.getConversationDetails().files"
               :key="index"
-              @click="openModal(file)"
+              @click="openFile(file)"
             >
-              <img :src="file.url" />
+              <img
+                style="object-fit: cover"
+                v-if="file.mimetype == 'image'"
+                :src="file.url"
+              />
+              <img
+                style="background: white"
+                v-if="file.mimetype == 'audio'"
+                src="/public/assets/imgs/audio.svg"
+              />
             </div>
           </div>
         </div>
@@ -111,6 +120,15 @@
         </ion-item>
       </div>
     </ion-content>
+    <MediaLayout :is-active="file.is_active" @onExit="closeFile">
+      <img v-if="file.type == 'image'" :src="file.url" />
+      <audio
+        v-else-if="file.type == 'audio'"
+        controls
+        :src="file.url"
+        autoplay
+      ></audio>
+    </MediaLayout>
   </ion-page>
 </template>
 
@@ -119,13 +137,19 @@ import { IonPage, IonHeader, IonToolbar, modalController } from "@ionic/vue";
 import { ellipsisVertical, searchOutline } from "ionicons/icons";
 import "./ConversationDetails.scss";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import PreviewModal from "../Modals/PreviewModal.vue";
 import { useConversationsStore } from "@/stores/conversations-store";
+import { Vue3Lottie } from "vue3-lottie";
+import Sound from "../../../public/assets/lottie-files/sound.json";
 const conversations_store = useConversationsStore();
 
 const router = useRouter();
-
+const file = reactive({
+  url: "",
+  type: "",
+  is_active: false,
+});
 interface Item {
   src: string;
 }
@@ -176,17 +200,14 @@ const getConversationName = () => {
     return conversations_store.getConversationDetails().data.group[0].name;
   }
 };
-const openModal = async (item: Item) => {
-  console.log(item.src);
-  const images = groupList.value.map((item) => item.src);
-  const modal = await modalController.create({
-    component: PreviewModal,
-    componentProps: {
-      images: images,
-      selectedImage: item.src,
-    },
-  });
-
-  await modal.present();
+const openFile = async (selected_file: any) => {
+  file.type = selected_file.mimetype;
+  file.url = selected_file.url;
+  file.is_active = true;
+};
+const closeFile = () => {
+  file.is_active = false;
+  file.type = "";
+  file.url = "";
 };
 </script>
