@@ -70,7 +70,7 @@ let form_state = reactive({
 const signIn = async () => {
   app_store.setAppIsLoading(true);
   let error = await auth_store.attemptLogin(
-    form_state.code,
+    form_state.code.toLocaleLowerCase(),
     form_state.password
   );
   app_store.setAppIsLoading(false);
@@ -85,10 +85,20 @@ const signIn = async () => {
 const setAccessCode = (chat_user: any) => {
   form_state.code = chat_user.access_code;
 };
+const setChatUser = (chat_user: any) => {
+  if (chat_user.password_is_setted) {
+    setAccessCode(chat_user);
+  } else {
+    register_store.setCreatedUser(chat_user);
+    router.replace({
+      path: "/obtaincode",
+    });
+  }
+};
 const getPhoneChatUser = async () => {
   let response = await register_store.getChatUserByPhoneImei();
   response.success
-    ? setAccessCode(response.chat_user)
+    ? setChatUser(response.chat_user)
     : router.replace({
         path: "/welcome",
         query: {

@@ -84,13 +84,6 @@
         </div>
       </ion-content>
     </ion-modal>
-    <ModalGeneric
-      :show="open_modal"
-      :title="currentConversation.label ?? ''"
-      @onClose="open_modal = false"
-    >
-      <Details />
-    </ModalGeneric>
   </ion-toolbar>
 </template>
 
@@ -119,7 +112,6 @@ import {
   useCurrentConversation,
   ICurrentConversation,
 } from "../store/current-conversation.store";
-import ModalGeneric from "@/components/ModalGeneric.vue";
 import Details from "./Details.vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "@/stores/app-store";
@@ -128,8 +120,15 @@ const app_store = useAppStore();
 
 const router = useRouter();
 const goToConversationDetails = async () => {
+  const conversations_store = useConversationsStore();
+  if (conversations_store.getCurrentConversation().isEmpty) {
+    app_store.setToast({
+      is_open: true,
+      message: "Debes iniciar una conversación primero",
+    });
+    return;
+  }
   await app_store.loadingBefore(async () => {
-    const conversations_store = useConversationsStore();
     let store_response = await conversations_store.loadConversationDetails({
       id: conversations_store.getCurrentConversation().id,
     });

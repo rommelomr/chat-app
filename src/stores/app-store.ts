@@ -12,9 +12,23 @@ export const useAppStore = defineStore({
     current_device: useStorage("current_device", {
       id_machine: "",
     }),
+    toast: {
+      is_open: false,
+      message: "",
+    },
   }),
 
   actions: {
+    getToastMessage() {
+      return this.toast.message;
+    },
+    getToastIsOpen() {
+      return this.toast.is_open;
+    },
+    setToast(toast: any) {
+      this.toast.is_open = toast.is_open ?? this.toast.is_open;
+      this.toast.message = toast.message ?? this.toast.message;
+    },
     setCurrentDevice(current_device: any): void {
       this.current_device.id_machine =
         current_device.id_machine ?? this.current_device.id_machine;

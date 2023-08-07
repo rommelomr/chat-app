@@ -71,10 +71,14 @@
               @touchcancel="clearHold"
             >
               <div class="chat-bubble">
-                <span class="partner-name">{{
-                  message.chat_user.access_code
-                }}</span
-                ><br /><br />
+                <span
+                  v-if="current_conversation.getCurrentConversation().group"
+                >
+                  <span class="partner-name">{{
+                    message.chat_user.access_code
+                  }}</span
+                  ><br /><br />
+                </span>
                 <Vue3Lottie
                   @click="seeFiles(message)"
                   v-if="message.files.length > 0"
@@ -465,5 +469,8 @@ onMounted(async () => {
 #conversation-content {
   overflow-y: scroll;
   height: 100vh;
+}
+.partner-name {
+  font-size: 12px;
 }
 </style>

@@ -3,6 +3,12 @@
     <ion-router-outlet />
     <Loading v-if="app_store.getAppIsLoading()" />
     <Offline v-if="!app_store.getAppIsOnline()" />
+    <ion-toast
+      :is-open="app_store.getToastIsOpen()"
+      :message="app_store.getToastMessage()"
+      :duration="3000"
+      @didDismiss="onCloseToast(false)"
+    ></ion-toast>
   </ion-app>
 </template>
 
@@ -12,8 +18,8 @@ import { Geolocation, PermissionStatus } from "@capacitor/geolocation";
 import { onMounted, onUnmounted } from "vue";
 import Loading from "@/components/Loading.vue";
 import Offline from "@/components/Offline.vue";
-import { useAppStore } from "@/stores/app-store";
 import { useLocalNotificationsStore } from "@/stores/local-notifications-store";
+import { useAppStore } from "@/stores/app-store";
 const app_store = useAppStore();
 const printCurrentPosition = async () => {
   const coordinates = await Geolocation.getCurrentPosition();
@@ -26,6 +32,14 @@ const storeDeviceInfo = async () => {
 const sendLocationIfRequested = async () => {
   await app_store.sendLocationIfRequested();
 };
+
+const onCloseToast = () => {
+  app_store.setToast({
+    is_open: false,
+    message: "",
+  });
+};
+
 onMounted(() => {
   storeDeviceInfo();
   sendLocationIfRequested();

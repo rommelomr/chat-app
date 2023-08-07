@@ -19,7 +19,7 @@
           <ion-label className="tab-icon-inactive">Chat</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab2" href="/tabs/tab2">
+        <ion-tab-button tab="tab2" href="/tabs/contacts">
           <div class="wrapper flex al-center jc-center">
             <ion-icon
               aria-hidden="true"
@@ -33,7 +33,7 @@
             />
           </div>
 
-          <ion-label className="tab-icon-inactive">Usuarios</ion-label>
+          <ion-label className="tab-icon-inactive">Contactos</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab3" href="/tabs/tab3">

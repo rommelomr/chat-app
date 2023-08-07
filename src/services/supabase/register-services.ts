@@ -1,5 +1,47 @@
 import { supabase } from "@/utils/SupabaseClient";
+import Utils from "@/utils/Utils";
 const MAX_USERS = 99999;
+
+const CHARACTERS_COUNT = 5;
+const CHARACTERS = [
+  "J",
+  "V",
+  "S",
+  "0",
+  "8",
+  "F",
+  "O",
+  "9",
+  "P",
+  "1",
+  "N",
+  "Y",
+  "H",
+  "2",
+  "L",
+  "A",
+  "R",
+  "6",
+  "D",
+  "E",
+  "5",
+  "Z",
+  "K",
+  "C",
+  "X",
+  "W",
+  "U",
+  "B",
+  "T",
+  "Q",
+  "4",
+  "G",
+  "3",
+  "M",
+  "I",
+  "7",
+];
+
 const createDevice = async (
   brand: string,
   model: string,
@@ -36,12 +78,18 @@ const getNewAccessCode = async () => {
     console.log("error al consultar el numero de usuarios");
     throw "stop";
   }
-  let max_users_reached = data[0].count > MAX_USERS;
-  if (max_users_reached) {
-    console.log("max users reached");
-    throw "stop";
+
+  let row = [];
+  let num = data[0].count;
+  let _aux_characters = CHARACTERS;
+  for (let i = 0; i < CHARACTERS_COUNT; i++) {
+    let index = num % _aux_characters.length;
+    _aux_characters.splice(index, 1);
+    row.push(_aux_characters[index]);
+    num = Math.floor(num / _aux_characters.length);
   }
-  return data[0].count.toString().padStart(5, "0");
+
+  return row.reverse().join("");
 };
 const createUser = async (access_code: string) => {
   let { data, error } = await supabase.functions.invoke("manageUsers", {
@@ -120,14 +168,28 @@ export default {
     return _new_chat_user;
   },
   updatePassword: async (user: any) => {
-    let { data, error } = await supabase.functions.invoke("manageUsers", {
-      body: {
-        action: "updateUser",
-        user_info: {
-          ...user,
+    let { data: updated_user_data, error: update_user_error } =
+      await supabase.functions.invoke("manageUsers", {
+        body: {
+          action: "updateUser",
+          user_info: {
+            ...user,
+          },
         },
-      },
-    });
+      });
+    Utils.handleErrors(update_user_error);
+
+    alert(updated_user_data.data.user.email.split("@")[0]);
+    let { data, error } = await supabase
+      .from("chat_users")
+      .update({
+        password_is_setted: true,
+      })
+      .eq(
+        "access_code",
+        updated_user_data.data.user.email.split("@")[0].toUpperCase()
+      );
+    Utils.handleErrors(error);
   },
   getChatUserByPhoneImei: async (imei: string) => {
     let { data, error } = await supabase.rpc("get_chat_user_by_phone_imei", {

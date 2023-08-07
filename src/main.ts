@@ -4,6 +4,7 @@ import router from "./router";
 
 import {
   IonActionSheet,
+  IonToast,
   IonAlert,
   IonAvatar,
   IonBackButton,
@@ -35,6 +36,8 @@ import {
   IonicVue,
 } from "@ionic/vue";
 
+import { Vue3Lottie } from "vue3-lottie";
+
 import MediaLayout from "./components/MediaLayout.vue";
 
 /* Core CSS required for Ionic components to work properly */
@@ -64,6 +67,7 @@ const app = createApp(App).use(IonicVue).use(router);
 //@ts-ignore
 defineCustomElements(app);
 app.use(pinia);
+app.component("Vue3Lottie", Vue3Lottie);
 app.component("IonActionSheet", IonActionSheet);
 app.component("IonAlert", IonAlert);
 app.component("IonPage", IonPage);
@@ -93,6 +97,7 @@ app.component("IonToggle", IonToggle);
 app.component("IonSelect", IonSelect);
 app.component("IonSearchbar", IonSearchbar);
 app.component("IonSelectOption", IonSelectOption);
+app.component("IonToast", IonToast);
 app.component("MediaLayout", MediaLayout);
 router.isReady().then(() => {
   app.mount("#app");

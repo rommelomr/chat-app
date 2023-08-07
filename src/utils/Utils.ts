@@ -16,6 +16,8 @@ export default class Utils {
   }
   static handleErrors(error: any) {
     if (error) {
+      if (import.meta.env.DEV)
+        alert("Ha ocurrido un error inesperado. Contacte con soporte");
       console.log(error.message);
       throw "error";
     }

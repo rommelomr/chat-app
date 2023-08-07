@@ -23,6 +23,10 @@ const routes: Array<RouteRecordRaw> = [
   },
 
   {
+    path: "/users",
+    component: () => import("@/views/Users/UsersPage.vue"),
+  },
+  {
     path: "/tabs/",
     component: TabsPage,
     children: [
@@ -35,8 +39,8 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Chat/ChatPage.vue"),
       },
       {
-        path: "tab2",
-        component: () => import("@/views/Users/UsersPage.vue"),
+        path: "contacts",
+        component: () => import("@/views/Contacts/ContactsPage.vue"),
       },
       {
         path: "tab3",

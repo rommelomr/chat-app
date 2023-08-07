@@ -35,10 +35,7 @@
       <div class="multimedia ion-padding">
         <h3>Multimedia</h3>
 
-        <div
-          class="holder"
-          v-if="conversations_store.getConversationDetails().files.length > 0"
-        >
+        <div class="holder" v-if="hasFiles()">
           <div class="img-holder-container">
             <div
               class="img-holder"
@@ -209,5 +206,11 @@ const closeFile = () => {
   file.is_active = false;
   file.type = "";
   file.url = "";
+};
+const hasFiles = () => {
+  return (
+    conversations_store.getConversationDetails().files &&
+    conversations_store.getConversationDetails().files.length > 0
+  );
 };
 </script>

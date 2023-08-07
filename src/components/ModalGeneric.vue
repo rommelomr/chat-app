@@ -1,86 +1,82 @@
+<style>
+ion-modal#example-modal {
+  --width: fit-content;
+  --width: 80%;
+  --height: fit-content;
+  --border-radius: 6px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+ion-modal#example-modal ion-icon {
+  margin-right: 6px;
+
+  width: 48px;
+  height: 48px;
+
+  padding: 4px 0;
+
+  color: #aaaaaa;
+}
+
+ion-modal#example-modal .wrapper {
+  margin: 20px;
+  margin-bottom: 10px;
+  margin-top: 0px;
+}
+</style>
+
 <template>
+  <ion-content class="ion-padding">
+    <ion-modal
+      id="example-modal"
+      :is-open="modal_is_open"
+      trigger="open-custom-dialog"
+    >
+      <div class="wrapper">
+        <h1>{{ title }}</h1>
 
-      <ion-modal ref="modal" :isOpen="show_modal" :enter-animation="enterAnimation" :leave-animation="leaveAnimation">
-        <ion-content>
-          <ion-toolbar>
-            <ion-title>{{props.title}}</ion-title>
-            <ion-buttons slot="end">
-              <ion-button @click="dismiss()">
-                <ion-icon aria-hidden="true" :icon="close" />
-              </ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-            <slot>
-                
-            </slot>
-            
-        </ion-content>
-      </ion-modal>
+        <ion-list lines="none">
+          <slot></slot>
+        </ion-list>
+      </div>
+    </ion-modal>
+  </ion-content>
+</template>
 
-  </template>
-  
-<script setup lang="ts">
-import { close } from 'ionicons/icons';
-import { defineComponent, watch, ref} from 'vue';
+<script lang="ts" setup>
 import {
-createAnimation,
-IonButtons,
-IonButton,
-IonModal,
-IonHeader,
-IonContent,
-IonToolbar,
-IonTitle,
-IonItem,
-IonList,
-IonAvatar,
-IonImg,
-IonLabel,
-} from '@ionic/vue';
+  IonButton,
+  IonModal,
+  IonHeader,
+  IonContent,
+  IonToolbar,
+  IonTitle,
+  IonItem,
+  IonList,
+  IonLabel,
+  IonIcon,
+} from "@ionic/vue";
+import { personCircle } from "ionicons/icons";
+import { onMounted, reactive, ref, watch } from "vue";
 
-let modal = ref(null);
-
+let modal_is_open = ref(false);
 const props = defineProps({
-    show:{
-        type:Boolean
-    },
-    title:{
-        type:String
-    }
-})
-const emit = defineEmits(['onClose'])
-let show_modal = ref(false)
+  isOpen: {
+    type: Boolean,
+  },
+  title: {
+    type: String,
+    default: "",
+  },
+});
 
-watch(()=>props.show,()=>{
-    show_modal.value = props.show;
-})
-
-const enterAnimation = (baseEl: HTMLElement) => {
-const root = baseEl.shadowRoot;
-
-const backdropAnimation = createAnimation().addElement(root.querySelector('ion-backdrop')).fromTo('opacity', '0.01', 'var(--backdrop-opacity)');
-
-const wrapperAnimation = createAnimation()
-    .addElement(root.querySelector('.modal-wrapper'))
-    .keyframes([
-        { offset: 0, opacity: '0', transform: 'scale(0)' },
-        { offset: 1, opacity: '0.99', transform: 'scale(1)' },
-    ]);
-
-    return createAnimation()
-    .addElement(baseEl)
-    .easing('ease-out')
-    .duration(500)
-    .addAnimation([backdropAnimation, wrapperAnimation]);
-};
-const leaveAnimation = (baseEl) => {
-return enterAnimation(baseEl).direction('reverse');
-};
-
-const dismiss = () => {
-    emit('onClose')
-    modal.value.$el.dismiss();
-};
-
-
+watch(
+  () => props.isOpen,
+  (is_open) => {
+    modal_is_open.value = is_open;
+  }
+);
+onMounted(() => {
+  modal_is_open.value = props.isOpen;
+});
 </script>

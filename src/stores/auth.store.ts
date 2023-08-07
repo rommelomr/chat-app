@@ -26,7 +26,6 @@ export const useAuthStore = defineStore({
   actions: {
     async attemptLogin(email: string, password: string) {
       let _imei = (await Device.getId()).identifier;
-
       let { data, error } = await supabase.functions.invoke("appLogin", {
         body: {
           email: `${email}@messenger.chat`,

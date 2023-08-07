@@ -16,9 +16,9 @@
           </ion-button>
         </ion-buttons>
         <ion-buttons slot="end">
-          <ion-button solt="icon-only">
+          <!-- <ion-button solt="icon-only">
             <ion-icon aria-hidden="true" :icon="personAddOutline" />
-          </ion-button>
+          </ion-button> -->
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -57,8 +57,8 @@
       </div>
 
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button>
-          <ion-icon src="/public/assets/imgs/icn-chat.svg"></ion-icon>
+        <ion-fab-button @click="goToUsersTab">
+          <ion-icon aria-hidden="true" :icon="personAddOutline" />
         </ion-fab-button>
       </ion-fab>
     </ion-content>
@@ -189,6 +189,9 @@ watch(
     }
   }
 );
+const goToUsersTab = () => {
+  router.replace("/users");
+};
 onMounted(async () => {
   conversations_store.resetCurrentConverstion();
   conversations_store.resetConversationDetails();
