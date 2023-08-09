@@ -19,9 +19,9 @@
             <img src="/public/assets/imgs/man.png" alt="" />
           </ion-avatar>
           <ion-label>
-            <h3>123456</h3>
+            <h3>{{ auth_store.getUser().email.split("@")[0] }}</h3>
             <p class="ion-text-wrap">
-              La vida es mas que buena y aparte de eso tenemos cosas en común
+              {{ profile_info.description }}
             </p>
           </ion-label>
         </ion-item>
@@ -74,7 +74,7 @@ let profile_info = reactive({
 });
 
 const loadProfile = async () => {
-  let _info = profile_store.getProfile();
+  let _info = await profile_store.getProfile();
   profile_info.description = _info.description;
 };
 

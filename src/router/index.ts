@@ -16,6 +16,7 @@ import NewGroupPage from "../views/NewGroup/NewGroupPage.vue";
 import NewGroupPage1 from "../views/NewGroup1/NewGroup1Page.vue";
 import ConversationDetails from "../views/ConversationDetails/ConversationDetails.vue";
 import { useAuthStore } from "@/stores/auth.store";
+import { supabase } from "@/utils/SupabaseClient";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
@@ -138,8 +139,9 @@ router.beforeEach((to, from, next) => {
   let _route_is_privated = NOT_LOGIN_PAGES.indexOf(to.path) == -1;
   if (!auth_store.user.is_logged && _route_is_privated)
     return next({ path: "/welcome" });
-  if (auth_store.user.is_logged && !_route_is_privated)
+  if (auth_store.user.is_logged && !_route_is_privated) {
     return next({ path: "/tabs/tab1" });
+  }
   return next();
 });
 

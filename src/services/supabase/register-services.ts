@@ -179,7 +179,6 @@ export default {
       });
     Utils.handleErrors(update_user_error);
 
-    alert(updated_user_data.data.user.email.split("@")[0]);
     let { data, error } = await supabase
       .from("chat_users")
       .update({

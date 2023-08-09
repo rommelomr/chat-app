@@ -15,8 +15,8 @@ export const useAuthStore = defineStore({
       token: "",
       chat_user_id: -1,
       refresh_token: "",
+      expires_at: 0,
       is_logged: false,
-      expiration: "",
       role: "",
       email: "",
     }),
@@ -57,13 +57,12 @@ export const useAuthStore = defineStore({
         window.location.replace("/");
         throw "stop";
       }
-      console.log(current_chat_user_data);
       this.setLogin({
         id: data.user.id,
         chat_user_id: current_chat_user_data.id,
         token: data.session.access_token,
         refresh_token: data.session.refresh_token,
-        expiration: data.session.expiration,
+        expires_at: data.session.expires_at,
         is_logged: true,
         role: data.user.role,
         email: data.user.email,
@@ -74,14 +73,14 @@ export const useAuthStore = defineStore({
     setLogin(user_data: any) {
       this.$patch({
         user: {
-          id: user_data.id,
-          token: user_data.token,
-          chat_user_id: user_data.chat_user_id,
-          refresh_token: user_data.refresh_token,
-          is_logged: true,
-          expiration: user_data.expiration,
-          role: user_data.role,
-          email: user_data.email,
+          id: user_data.id ?? this.user.id,
+          chat_user_id: user_data.chat_user_id ?? this.user.chat_user_id,
+          token: user_data.token ?? this.user.token,
+          refresh_token: user_data.refresh_token ?? this.user.refresh_token,
+          expires_at: user_data.expires_at ?? this.user.expires_at,
+          is_logged: true ?? this.user.is_logged,
+          role: user_data.role ?? this.user.role,
+          email: user_data.email ?? this.user.email,
         },
       });
       this.getProfile();

@@ -148,10 +148,10 @@ import { call, camera, ellipsisVertical, send, videocam } from "ionicons/icons";
 import "./ProfilePage.scss";
 import { useRouter } from "vue-router";
 import { ref, reactive, onMounted, computed } from "vue";
-import { useProfileStore } from "@/stores/profile-store";
 import { useAuthStore } from "@/stores/auth.store";
-const auth_store = useAuthStore();
+import { useProfileStore } from "@/stores/profile-store";
 const profile_store = useProfileStore();
+const auth_store = useAuthStore();
 const router = useRouter();
 
 const isModalOpen = ref(false);

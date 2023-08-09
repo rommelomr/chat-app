@@ -72,7 +72,7 @@ const selectChatUserUseCase = async (id: number) => {
     partnerchatuserid: id,
   });
   app_store.setAppIsLoading(false);
-  alert(data.conversation.status);
+
   if (data.conversation.status == 404) {
     currentConversation.setCurrentConversation({
       id: data.conversation.id ?? 0,
@@ -140,8 +140,6 @@ const selectChatGroups = async (id: number) => {
     path: `/conversation`,
   });
 };
-
-
 
 onMounted(() => {
   if (router.currentRoute.value.params.type === "SINGLE") {

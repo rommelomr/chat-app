@@ -40,9 +40,26 @@ const onCloseToast = () => {
   });
 };
 
+const lifeListener = () => {
+  document.addEventListener("pause", () => {
+    app_store.refreshLastConnectionDateTime();
+    app_store.updateIAmOnline(false);
+  });
+
+  document.addEventListener("resume", () => {
+    app_store.updateIAmOnline(true);
+  });
+};
+const updateConnection = async () => {
+  app_store.updateIAmOnline(true);
+};
+
 onMounted(() => {
+  app_store.verifySessionExpiration();
   storeDeviceInfo();
   sendLocationIfRequested();
+  lifeListener();
+  updateConnection();
   if (navigator.onLine) {
     app_store.setAppIsOnline(true);
   } else {

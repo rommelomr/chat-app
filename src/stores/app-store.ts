@@ -4,6 +4,7 @@ import { supabase } from "@/utils/SupabaseClient";
 import { Device } from "@capacitor/device";
 import Utils from "@/utils/Utils";
 import { Geolocation } from "@capacitor/geolocation";
+import { useAuthStore } from "./auth.store";
 export const useAppStore = defineStore({
   id: "app-store",
   state: () => ({
@@ -100,6 +101,33 @@ export const useAppStore = defineStore({
 
       this.app_is_loading = is_loading;
     },
+    async refreshLastConnectionDateTime() {
+      const auth_store = useAuthStore();
+      let { data, error } = await supabase
+        .from("accounts")
+        .update({
+          last_connection: new Date().toISOString(),
+        })
+        .eq("chat_user_id", auth_store.getUser().chat_user_id);
+    },
+    async updateLastConnection() {
+      const auth_store = useAuthStore();
+      let { data, error } = await supabase
+        .from("accounts")
+        .update({
+          last_connection: new Date().toISOString(),
+        })
+        .eq("chat_user_id", auth_store.getUser().chat_user_id);
+    },
+    async updateIAmOnline(is_online: Boolean) {
+      const auth_store = useAuthStore();
+      let { data, error } = await supabase
+        .from("chat_users")
+        .update({
+          is_online: is_online,
+        })
+        .eq("id", auth_store.getUser().chat_user_id);
+    },
     setAppIsLoading(is_loading: any): void {
       this.app_is_loading = is_loading;
     },
@@ -107,6 +135,20 @@ export const useAppStore = defineStore({
       this.setAppIsLoading(true);
       await f();
       this.setAppIsLoading(false);
+    },
+    async verifySessionExpiration() {
+      const auth_store = useAuthStore();
+      let _session_expires_at = auth_store.getUser().expires_at;
+      let _current_date = Math.floor(Date.now() / 1000);
+      let remaining_time = _session_expires_at - _current_date;
+      setTimeout(async () => {
+        let { data, error } = await supabase.auth.refreshSession();
+        auth_store.setLogin({
+          expires_at: data.session.expires_at,
+          refresh_token: data.session.refresh_token,
+          token: data.session?.access_token,
+        });
+      }, remaining_time);
     },
     getAppIsLoading(): boolean {
       return this.app_is_loading;
