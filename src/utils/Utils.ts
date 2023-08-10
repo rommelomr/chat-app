@@ -130,4 +130,20 @@ export default class Utils {
       };
     }
   }
+  static async copyContentToClipboard(content: string) {
+    const tempTextarea = document.createElement("textarea");
+    tempTextarea.value = content;
+
+    // Agregar el elemento de textarea al DOM
+    document.body.appendChild(tempTextarea);
+
+    // Seleccionar y copiar el contenido del textarea
+    tempTextarea.select();
+    document.execCommand("copy");
+
+    // Eliminar el elemento de textarea temporal
+    document.body.removeChild(tempTextarea);
+
+    return content == (await navigator.clipboard.readText());
+  }
 }

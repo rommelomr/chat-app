@@ -170,7 +170,7 @@ const searchChatUsers = async (access_code: string) => {
   let { data, error } = await supabase
     .from("chat_users")
     .select("*,person:people(*,user:users(*))")
-    .eq("access_code", access_code);
+    .ilike("access_code", access_code);
   if (error) return;
 
   users.value = data;

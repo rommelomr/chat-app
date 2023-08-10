@@ -30,6 +30,12 @@ export const useAppStore = defineStore({
       this.toast.is_open = toast.is_open ?? this.toast.is_open;
       this.toast.message = toast.message ?? this.toast.message;
     },
+    showToast(message: string) {
+      this.setToast({
+        is_open: true,
+        message,
+      });
+    },
     setCurrentDevice(current_device: any): void {
       this.current_device.id_machine =
         current_device.id_machine ?? this.current_device.id_machine;
@@ -149,6 +155,26 @@ export const useAppStore = defineStore({
           token: data.session?.access_token,
         });
       }, remaining_time);
+    },
+    async loadProfilePhotos() {
+      const { data, error } = await supabase.storage
+        .from("profile-images")
+        .list("");
+      Utils.handleErrors(error);
+      let _images_names = [] as Array<any>;
+      if (data) {
+        data.map((image) => {
+          _images_names.push(image.name);
+        });
+      }
+
+      const { data: files_data, error: files_error } = await supabase.storage
+        .from("profile-images")
+        .createSignedUrls(_images_names, 30);
+
+      return {
+        data: files_data,
+      };
     },
     getAppIsLoading(): boolean {
       return this.app_is_loading;

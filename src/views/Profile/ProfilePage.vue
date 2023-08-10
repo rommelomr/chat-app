@@ -15,9 +15,13 @@
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="dp-holder ion-text-center">
         <ion-avatar>
-          <img src="/public/assets/imgs/user.png" alt="" />
+          <img :src="profile_info.photo" alt="" />
         </ion-avatar>
-        <div class="btn ion-activatable flex al-center jc-center ripple-parent">
+        <div
+          class="btn ion-activatable flex al-center jc-center ripple-parent"
+          id="open-modal"
+          expand="block"
+        >
           <ion-icon aria-hidden="true" :icon="camera" />
           <ion-ripple-effect type="bounded"></ion-ripple-effect>
         </div>
@@ -82,7 +86,9 @@
             </ion-col>
             <ion-col size="9" class="col">
               <p>Codigo</p>
-              <h6>{{ profile_info.access_code }}</h6>
+              <h6 id="acces_code_container" @click="copyContentToClipboard">
+                {{ profile_info.access_code }}
+              </h6>
             </ion-col>
           </ion-row>
         </div>
@@ -139,9 +145,31 @@
         </ion-content>
       </ion-modal>
     </ion-content>
+    <ion-modal ref="modal" trigger="open-modal" @willDismiss="onWillDismiss">
+      <!-- <ion-buttons slot="start">
+        <ion-button @click="cancel()">Cancel</ion-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+        <ion-button :strong="true" @click="confirm()">Confirm</ion-button>
+      </ion-buttons> -->
+      <ion-content class="ion-padding">
+        <div class="custom-modal-container">
+          <div
+            v-for="(image, i) in profile_images"
+            :key="'profile_image_' + i"
+            style="width: 20%; display: inline-block"
+            align="center"
+          >
+            <ion-avatar @click="selectNewProfileImage(image)">
+              <img :src="image.signedUrl" alt="" />
+            </ion-avatar>
+          </div>
+        </div>
+      </ion-content>
+    </ion-modal>
   </ion-page>
 </template>
-
+<style></style>
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
 import { call, camera, ellipsisVertical, send, videocam } from "ionicons/icons";
@@ -150,6 +178,9 @@ import { useRouter } from "vue-router";
 import { ref, reactive, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 import { useProfileStore } from "@/stores/profile-store";
+import { useAppStore } from "@/stores/app-store";
+import Utils from "@/utils/Utils";
+import { useAccountStore } from "@/stores/account-store";
 const profile_store = useProfileStore();
 const auth_store = useAuthStore();
 const router = useRouter();
@@ -176,8 +207,16 @@ let profile_info = reactive({
   name: "",
   last_name: "",
   description: "",
+  photo: "",
   access_code: auth_store.getUser().email.split("@")[0],
 });
+let profile_images = ref([]);
+const loadProfilePhotos = async () => {
+  const app_store = useAppStore();
+  let response = await app_store.loadProfilePhotos();
+  response.data.splice(0, 1);
+  profile_images.value = response.data;
+};
 const loadProfileInfo = async () => {
   let _profile_data = await profile_store.getProfile();
   profile_info.name = _profile_data.name;
@@ -185,8 +224,9 @@ const loadProfileInfo = async () => {
   profile_info.last_name = _profile_data.last_name;
   profile_form_state.last_name = _profile_data.last_name;
   profile_info.description = _profile_data.description;
-
   profile_form_state.description = _profile_data.description;
+
+  profile_info.photo = _profile_data.signedUrl;
 };
 let profile_form_state = reactive({
   name: "",
@@ -203,7 +243,34 @@ const updateProfile = async () => {
   console.log(_profile_data);
 };
 
+const copyContentToClipboard = () => {
+  Utils.copyContentToClipboard(profile_info.access_code);
+  const app_store = useAppStore();
+  app_store.showToast("Texto copiado al portapapeles");
+};
+const message = ref(
+  "This modal example uses triggers to automatically open a modal when the button is clicked."
+);
+
+const modal = ref();
+const input = ref();
+const cancel = () => modal.value.$el.dismiss(null, "cancel");
+
+const confirm = () => {
+  const name = input.value.$el.value;
+  modal.value.$el.dismiss(name, "confirm");
+};
+const onWillDismiss = (ev: CustomEvent<any>) => {
+  if (ev.detail.role === "confirm") {
+    message.value = `Hello, ${ev.detail.data}!`;
+  }
+};
+const selectNewProfileImage = async (selected_photo: any) => {
+  await profile_store.updateProfileImage(selected_photo.path.split(".")[0]);
+  profile_info.photo = selected_photo.signedUrl;
+};
 onMounted(() => {
+  loadProfilePhotos();
   loadProfileInfo();
 });
 </script>

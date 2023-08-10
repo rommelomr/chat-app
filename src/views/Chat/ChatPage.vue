@@ -56,8 +56,13 @@
         </ion-item>
       </div>
 
-      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button @click="goToUsersTab">
+      <ion-fab
+        slot="fixed"
+        vertical="bottom"
+        horizontal="end"
+        @click="goToUsersTab"
+      >
+        <ion-fab-button>
           <ion-icon aria-hidden="true" :icon="personAddOutline" />
         </ion-fab-button>
       </ion-fab>

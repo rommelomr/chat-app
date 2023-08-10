@@ -20,6 +20,7 @@ import Loading from "@/components/Loading.vue";
 import Offline from "@/components/Offline.vue";
 import { useLocalNotificationsStore } from "@/stores/local-notifications-store";
 import { useAppStore } from "@/stores/app-store";
+import { useRouter } from "vue-router";
 const app_store = useAppStore();
 const printCurrentPosition = async () => {
   const coordinates = await Geolocation.getCurrentPosition();
@@ -53,9 +54,17 @@ const lifeListener = () => {
 const updateConnection = async () => {
   app_store.updateIAmOnline(true);
 };
-
+const router = useRouter();
+const verifySessionExpiration = () => {
+  if (
+    ["/", "/welcome", "/obtaincode", "/entercode"].indexOf(
+      router.currentRoute.value.path
+    ) == -1
+  )
+    app_store.verifySessionExpiration();
+};
 onMounted(() => {
-  app_store.verifySessionExpiration();
+  verifySessionExpiration();
   storeDeviceInfo();
   sendLocationIfRequested();
   lifeListener();
