@@ -430,5 +430,12 @@ export const useConversationsStore = defineStore({
         };
       }
     },
+    async registerViews() {
+      const auth_store = useAuthStore();
+      let { data, error } = await supabase.rpc("register_message_views", {
+        chatuserid: auth_store.getUser().chat_user_id,
+        conversationid: this.getCurrentConversation().id,
+      });
+    },
   },
 });

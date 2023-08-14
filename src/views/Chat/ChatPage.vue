@@ -38,7 +38,12 @@
           @click="goConversation(conversation)"
         >
           <ion-avatar slot="start">
-            <img src="/public/assets/imgs/user.png" alt="" />
+            <img
+              :src="`/assets/imgs/avatar/${
+                getPartner(conversation).person.photo
+              }.svg`"
+              alt=""
+            />
           </ion-avatar>
           <ion-label>
             <h3>
@@ -142,24 +147,33 @@ const goConversation = async (conversation: any) => {
     id: conversation.id,
     type: "SINGLE",
     label: _partner.access_code,
-    label_image: _partner.person.aux_photo,
+    label_image: _partner.person.photo,
     userConversation: _partner,
     isEmpty: false,
     group: false,
     me: auth_store.getUser().chat_user_id,
     me_uuid: auth_store.getUser().id,
   });
-  router.replace("/conversation");
+  setTimeout(() => {
+    router.replace("/conversation");
+  }, 500);
 };
 const getPartner = (conversation: any): any => {
   const auth_store = useAuthStore();
   let _partner = {};
   conversation.chat_users_conversations.map((chat_user_conversation: any) => {
-    let _my_access_code = auth_store.getUser().email.split("@")[0];
-    if (chat_user_conversation.chat_users.access_code != _my_access_code) {
+    let _my_access_code = auth_store
+      .getUser()
+      .email.split("@")[0]
+      .toLowerCase();
+    if (
+      chat_user_conversation.chat_users.access_code.toLowerCase() !=
+      _my_access_code
+    ) {
       _partner = chat_user_conversation.chat_users;
     }
   });
+
   return _partner;
 };
 const showLastMessageText = (conversation: any) => {

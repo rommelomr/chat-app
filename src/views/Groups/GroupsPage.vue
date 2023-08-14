@@ -36,7 +36,7 @@
           @click="goLoadingConversationPage(item.name, item.groups[0].id)"
         >
           <ion-avatar slot="start">
-            <img :src="item.groups[0].photo" alt="" />
+            <img :src="`/assets/imgs/landscapes/${item.groups[0].photo}.svg`" />
           </ion-avatar>
           <ion-label>
             <h3>

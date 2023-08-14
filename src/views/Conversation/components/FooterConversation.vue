@@ -93,9 +93,12 @@ let newConversationBody = reactive({
   },
 });
 watch(
-  () => current_conversation.getCurrentConversation().id,
+  () => conversation_store.getCurrentConversation().id,
   () => {
-    setCurrentConversation();
+    if (conversation_store.getCurrentConversation().id != 0) {
+      setCurrentConversation();
+      conversation_store.registerViews();
+    }
   }
 );
 let senMessageIfNotEmptyConversation = async ({

@@ -11,9 +11,9 @@
       <ion-item lines="none" @click="goToConversationDetails">
         <ion-avatar slot="start">
           <img
-            :src="`/public/assets/imgs/avatar/${
-              currentConversation.label_image ?? 1
-            }.png`"
+            :src="`/assets/imgs/${
+              currentConversation.type == 'GROUP' ? 'landscapes' : 'avatar'
+            }/${currentConversation.label_image ?? 1}.svg`"
           />
         </ion-avatar>
         <ion-label>
@@ -142,9 +142,7 @@ const { getCurrentConversation } = useCurrentConversation();
 const currentConversation: Ref<ICurrentConversation | undefined> = ref();
 const modalRef = ref(null);
 let open_modal = ref(false);
-let onButtonPress = () => {
-  alert("hola");
-};
+
 const isOpen = ref(true);
 
 const openModal = () => {

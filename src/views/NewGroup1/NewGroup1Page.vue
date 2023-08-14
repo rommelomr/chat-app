@@ -27,10 +27,9 @@
           v-for="(group, index) in selectedList"
           :key="index"
           @click="pushOrRemoveObject(group)"
-          
         >
           <ion-avatar>
-            <img :src="`/public/assets/imgs/avatar/${group.person.photo??1}.png`"/>
+            <img :src="`/assets/imgs/avatar/${group.person.photo ?? 1}.svg`" />
           </ion-avatar>
           <h6>{{ group.access_code }}</h6>
           <div
@@ -54,10 +53,10 @@
           v-for="(group, index) in displayedGroupList"
           :key="index"
           @click="pushOrRemoveObject(group)"
-          v-show="group.person.auth_id!=userAuth.id"
+          v-show="group.person.auth_id != userAuth.id"
         >
           <ion-avatar slot="start">
-            <img :src="`/public/assets/imgs/avatar/${group.person.photo??1}.png`"/>
+            <img :src="`/assets/imgs/avatar/${group.person.photo ?? 1}.svg`" />
           </ion-avatar>
           <ion-label>
             <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
@@ -69,7 +68,7 @@
         </ion-item>
       </div>
       <ion-fab slot="fixed" vertical="bottom" horizontal="end" @click="goNew">
-        <ion-fab-button v-if="selectedList.length>0">
+        <ion-fab-button v-if="selectedList.length > 0">
           <ion-icon aria-hidden="true" :icon="arrowForward" />
         </ion-fab-button>
       </ion-fab>

@@ -13,11 +13,7 @@ export const useProfileStore = defineStore({
       const auth_store = useAuthStore();
       let response = await ProfileServices.getProfile(auth_store.getUser().id);
 
-      const { data: file_data, error: file_error } = await supabase.storage
-        .from("profile-images")
-        .createSignedUrl(auth_store.user_data.photo + ".png", 30);
-      Utils.handleErrors(file_error);
-      return { ...response.data, ...file_data };
+      return { ...response.data };
     },
     async updateProfile(profile_data: any): Promise<any> {
       const auth_store = useAuthStore();

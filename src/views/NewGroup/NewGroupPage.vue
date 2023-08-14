@@ -13,12 +13,12 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <div class="top-btn">
+      <!-- <div class="top-btn">
         <div class="btn ion-activatable flex al-center jc-center ripple-parent">
           <ion-icon aria-hidden="true" :icon="camera" />
           <ion-ripple-effect type="bounded"></ion-ripple-effect>
         </div>
-      </div>
+      </div> -->
       <div class="the-form">
         <div class="input-item">
           <ion-item lines="none">
@@ -50,15 +50,18 @@
           :key="index"
         >
           <ion-avatar>
- 
-            <img :src="`/public/assets/imgs/avatar/${group.person.photo??1}.png`"/>
+            <img :src="`/assets/imgs/avatar/${group.person.photo ?? 1}.svg`" />
           </ion-avatar>
           <h6>{{ group.access_code }}</h6>
         </div>
       </div>
-     
+
       <ion-fab
-        v-if="users.length>0 && newConversationBody.description && newConversationBody.conversation_name"
+        v-if="
+          users.length > 0 &&
+          newConversationBody.description &&
+          newConversationBody.conversation_name
+        "
         slot="fixed"
         vertical="bottom"
         horizontal="end"

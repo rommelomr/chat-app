@@ -15,7 +15,10 @@
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="dp-holder ion-text-center">
         <ion-avatar>
-          <img :src="profile_info.photo" alt="" />
+          <img
+            :src="'/assets/imgs/avatar/' + profile_info.photo + '.svg'"
+            alt=""
+          />
         </ion-avatar>
         <div
           class="btn ion-activatable flex al-center jc-center ripple-parent"
@@ -161,7 +164,7 @@
             align="center"
           >
             <ion-avatar @click="selectNewProfileImage(image)">
-              <img :src="image.signedUrl" alt="" />
+              <img :src="'/assets/imgs/avatar/' + image + '.svg'" alt="" />
             </ion-avatar>
           </div>
         </div>
@@ -213,9 +216,10 @@ let profile_info = reactive({
 let profile_images = ref([]);
 const loadProfilePhotos = async () => {
   const app_store = useAppStore();
-  let response = await app_store.loadProfilePhotos();
-  response.data.splice(0, 1);
-  profile_images.value = response.data;
+
+  for (let i = 1; i <= 9; i++) {
+    profile_images.value.push(i);
+  }
 };
 const loadProfileInfo = async () => {
   let _profile_data = await profile_store.getProfile();
@@ -226,7 +230,7 @@ const loadProfileInfo = async () => {
   profile_info.description = _profile_data.description;
   profile_form_state.description = _profile_data.description;
 
-  profile_info.photo = _profile_data.signedUrl;
+  profile_info.photo = _profile_data.photo;
 };
 let profile_form_state = reactive({
   name: "",
@@ -266,8 +270,9 @@ const onWillDismiss = (ev: CustomEvent<any>) => {
   }
 };
 const selectNewProfileImage = async (selected_photo: any) => {
-  await profile_store.updateProfileImage(selected_photo.path.split(".")[0]);
-  profile_info.photo = selected_photo.signedUrl;
+  await profile_store.updateProfileImage(selected_photo);
+
+  profile_info.photo = selected_photo;
 };
 onMounted(() => {
   loadProfilePhotos();

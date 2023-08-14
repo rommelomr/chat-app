@@ -6,7 +6,7 @@
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="chat-holder">
         <!-- <div v-for="(message,index) in messages" :key="index" 
-            :class="message.chat_user_id!=current_conversation.me ? 'sender':'reciver'"
+            :class="message.chat_user_id!=current_conversation.me ? 'current':'partner'"
           >
           <div :class="message.chat_user_id!=current_conversation.me ? 'message flex al-center jc-end':'chat-bubble' ">
             <h4>{{ message.content.text }}</h4>
@@ -27,7 +27,7 @@
                 message.chat_user_id ===
                 current_conversation.getCurrentConversation().me
               "
-              class="sender"
+              class="current"
               @touchstart="startHold"
               @touchend="clearHold"
               @touchmove="clearHold"
@@ -56,7 +56,14 @@
                     <h4>{{ message.content.text }}</h4>
                   </div>
                   <div class="time flex al-center">
-                    <ion-icon aria-hidden="true" :icon="checkmarkDone" />
+                    <ion-icon
+                      aria-hidden="true"
+                      :icon="
+                        message.views_count == message.max_viewers
+                          ? checkmarkDone
+                          : checkmark
+                      "
+                    />
                     <p>{{ getDateDifference(message.created_at) }}</p>
                   </div>
                 </div>
@@ -64,7 +71,7 @@
             </div>
             <div
               v-else
-              class="reciver"
+              class="partner"
               @touchstart="startHold"
               @touchend="clearHold"
               @touchmove="clearHold"
@@ -152,6 +159,7 @@ import {
   attachOutline,
   call,
   checkmarkDone,
+  checkmark,
   ellipsisVertical,
   mic,
   searchOutline,
@@ -452,16 +460,17 @@ const onCompleteSendFile = (emitted: any) => {
 };
 onMounted(async () => {
   await conversation_store.unsuscribeFromConversationEvents();
-
   if (!current_conversation.getCurrentConversation().isEmpty) {
     await loadMesaggesFromConversation(
       current_conversation.getCurrentConversation().id,
       current_conversation.getCurrentConversation().userConversation?.id ?? 0
     );
+    conversation_store.registerViews();
   } else {
     suscribeToNewConversation();
   }
   scrollToBottom("#conversation-content");
+
   app_store.setAppIsLoading(false);
 });
 </script>

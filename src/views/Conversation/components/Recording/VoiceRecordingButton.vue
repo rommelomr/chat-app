@@ -52,6 +52,7 @@ const onAcceptAudio = (emitted: any) => {
   conversation_store.toggleRecordingVoice();
   console.log(emitted.data.audio);
   const { data, error } = Utils.b64toBlob(emitted.data.audio);
+
   if (error) {
     Utils.handleErrors(error);
   }

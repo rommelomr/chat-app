@@ -87,11 +87,15 @@ export default class Utils {
   }
   static getMimetypeFromBase64(base_64: String) {
     let _prefix: Array<String> = base_64.split(";");
-    if (_prefix.length != 2)
+    if (_prefix.length != 2) {
+      _prefix = base_64.split(",");
+    }
+    if (_prefix.length != 2) {
       return {
         status: 0,
         message: "invalid base 64 string",
       };
+    }
 
     let data_type: Array<String> = _prefix[0].split(":");
     if (data_type.length != 2)

@@ -63,7 +63,12 @@ const verifySessionExpiration = () => {
   )
     app_store.verifySessionExpiration();
 };
+
+const verifySession = () => {
+  app_store.verifySession();
+};
 onMounted(() => {
+  //verifySession();
   verifySessionExpiration();
   storeDeviceInfo();
   sendLocationIfRequested();

@@ -20,7 +20,7 @@
     <ion-content :fullscreen="true">
       <div class="dp-holder ion-text-center ion-padding">
         <ion-avatar>
-          <img src="/public/assets/imgs/user.png" alt="" />
+          <img :src="getConversationImage()" alt="" />
         </ion-avatar>
       </div>
 
@@ -206,6 +206,17 @@ const closeFile = () => {
   file.is_active = false;
   file.type = "";
   file.url = "";
+};
+const getConversationImage = () => {
+  if (conversations_store.getConversationDetails().data.group.length == 0) {
+    let _person =
+      conversations_store.getConversationDetails().data
+        .chat_users_conversations[0].chat_user.person;
+    return "/assets/imgs/avatar/" + _person.photo + ".svg";
+  } else {
+    let _group = conversations_store.getConversationDetails().data.group[0];
+    return "/assets/imgs/landscapes/" + _group.photo + ".svg";
+  }
 };
 const hasFiles = () => {
   return (

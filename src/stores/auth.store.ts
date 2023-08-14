@@ -78,12 +78,24 @@ export const useAuthStore = defineStore({
           token: user_data.token ?? this.user.token,
           refresh_token: user_data.refresh_token ?? this.user.refresh_token,
           expires_at: user_data.expires_at ?? this.user.expires_at,
-          is_logged: true ?? this.user.is_logged,
+          is_logged: user_data.is_logged,
           role: user_data.role ?? this.user.role,
           email: user_data.email ?? this.user.email,
         },
       });
       this.getProfile();
+    },
+    cleanLogin() {
+      this.setLogin({
+        id: "",
+        token: "",
+        chat_user_id: -1,
+        refresh_token: "",
+        expires_at: 0,
+        is_logged: false,
+        role: "",
+        email: "",
+      });
     },
     setUserProperty(property: any, value: any) {
       let _user = this.getProperty("user");
@@ -111,6 +123,10 @@ export const useAuthStore = defineStore({
         },
       });
       return data;
+    },
+    logOut() {
+      this.cleanLogin();
+      window.location.assign("/");
     },
   },
 });

@@ -40,9 +40,7 @@
           v-show="item.person.auth_id != userAuth.id"
         >
           <ion-avatar slot="start">
-            <img
-              :src="`/public/assets/imgs/avatar/${item.person.photo ?? 1}.png`"
-            />
+            <img :src="`/assets/imgs/avatar/${item.person.photo ?? 1}.svg`" />
           </ion-avatar>
           <ion-label>
             <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
@@ -60,9 +58,9 @@
       <div align="center" v-if="selected_chat_user.is_selected">
         <ion-avatar slot="start">
           <img
-            :src="`/public/assets/imgs/avatar/${
+            :src="`/assets/imgs/avatar/${
               selected_chat_user.data.person.photo ?? 1
-            }.png`"
+            }.svg`"
           />
         </ion-avatar>
       </div>

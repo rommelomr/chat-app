@@ -37,9 +37,9 @@
         >
           <ion-avatar slot="start">
             <img
-              :src="`/public/assets/imgs/avatar/${
+              :src="`/assets/imgs/avatar/${
                 contact.chat_user.person.photo ?? 1
-              }.png`"
+              }.svg`"
             />
           </ion-avatar>
           <ion-label>

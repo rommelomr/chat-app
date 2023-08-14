@@ -144,17 +144,45 @@ export const useAppStore = defineStore({
     },
     async verifySessionExpiration() {
       const auth_store = useAuthStore();
-      let _session_expires_at = auth_store.getUser().expires_at;
-      let _current_date = Math.floor(Date.now() / 1000);
-      let remaining_time = _session_expires_at - _current_date;
-      setTimeout(async () => {
-        let { data, error } = await supabase.auth.refreshSession();
-        auth_store.setLogin({
-          expires_at: data.session.expires_at,
-          refresh_token: data.session.refresh_token,
-          token: data.session?.access_token,
-        });
-      }, remaining_time);
+      let { data: session_data, error: session_error } =
+        await supabase.auth.getSession();
+
+      if (session_data.session) {
+        let _session_expires_at = session_data.session.expires_at * 1000;
+        let _current_date = Date.now();
+        let remaining_time = _session_expires_at - _current_date;
+        setTimeout(
+          async () => {
+            let { data, error } = await supabase.auth.refreshSession({
+              refresh_token: session_data.session.refresh_token,
+            });
+            if (error) auth_store.logOut();
+            auth_store.setLogin({
+              expires_at: data.session.expires_at,
+              refresh_token: data.session.refresh_token,
+              token: data.session?.access_token,
+            });
+          },
+          remaining_time > 0 ? remaining_time : 0
+        );
+        return;
+      }
+
+      auth_store.logOut();
+      // let _session_expires_at = auth_store.getUser().expires_at;
+      // let _current_date = Math.floor(Date.now() / 1000);
+      // let remaining_time = _session_expires_at - _current_date;
+      // setTimeout(async () => {
+      //   let { data, error } = await supabase.auth.refreshSession({
+      //     refresh_token: auth_store.getUser().refresh_token,
+      //   });
+      //   console.log(data, error);
+      //   auth_store.setLogin({
+      //     expires_at: data.session.expires_at,
+      //     refresh_token: data.session.refresh_token,
+      //     token: data.session?.access_token,
+      //   });
+      // }, remaining_time);
     },
     async loadProfilePhotos() {
       const { data, error } = await supabase.storage
@@ -168,10 +196,6 @@ export const useAppStore = defineStore({
         });
       }
 
-      const { data: files_data, error: files_error } = await supabase.storage
-        .from("profile-images")
-        .createSignedUrls(_images_names, 30);
-
       return {
         data: files_data,
       };
@@ -184,6 +208,14 @@ export const useAppStore = defineStore({
     },
     getAppIsOnline(): boolean {
       return this.app_is_online;
+    },
+    async verifySession() {
+      let { data, error } = await supabase.auth.getSession();
+      console.log(data);
+      if (user == null) {
+        const auth_store = useAuthStore();
+        auth_store.cleanLogin();
+      }
     },
   },
 });
