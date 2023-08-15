@@ -148,6 +148,7 @@ export const useConversationsStore = defineStore({
             filter: `chat_user_id=eq.${chat_user_id}`,
           },
           async (event) => {
+            alert("suscribeToNewConversations");
             let { data, error } = await supabase
               .from("conversations")
               .select(
@@ -362,7 +363,6 @@ export const useConversationsStore = defineStore({
     resetConversationDetails(conversation_details: any) {
       this.setConversationDetails({});
     },
-
     getConversationDetails() {
       return this.conversation_details;
     },

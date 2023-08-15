@@ -57,6 +57,7 @@
                   </div>
                   <div class="time flex al-center">
                     <ion-icon
+                      v-if="message.max_viewers"
                       aria-hidden="true"
                       :icon="
                         message.views_count == message.max_viewers
@@ -64,6 +65,7 @@
                           : checkmark
                       "
                     />
+                    <ion-icon v-else aria-hidden="true" :icon="timeOutline" />
                     <p>{{ getDateDifference(message.created_at) }}</p>
                   </div>
                 </div>
@@ -126,6 +128,7 @@
       </ion-modal>
     </ion-content>
     <FooterConversation
+      @onCompleteNewMessage="onCompleteNewMessage"
       @onSuccessSend="onSuccessSend"
       @onCompleteSendFile="onCompleteSendFile"
     />
@@ -160,6 +163,7 @@ import {
   call,
   checkmarkDone,
   checkmark,
+  timeOutline,
   ellipsisVertical,
   mic,
   searchOutline,
@@ -323,6 +327,12 @@ const loadMesaggesFromConversation = async (
         if (error) return;
         //@ts-ignore
         messages.value.push(data[0]);
+        const auth_store = useAuthStore();
+        await supabase.rpc("register_message_views", {
+          chatuserid: auth_store.getUser().chat_user_id,
+          conversationid: data[0].conversation_id,
+        });
+
         scheduleNotification(data[0]);
         setTimeout(() => {
           //@ts-ignore
@@ -372,7 +382,6 @@ watch(
   () => conversation_store.getMyConversationsRealtime().new_conversation,
   (private_conversation) => {
     current_conversation.current_conversation.isEmpty = false;
-
     current_conversation.current_conversation.id =
       private_conversation.conversation_id;
   }
@@ -457,6 +466,13 @@ const toggleMediaLayout = () => {
 };
 const onCompleteSendFile = (emitted: any) => {
   messages.value[messages.value.length - 1].files[0] = emitted.data.stored_file;
+};
+const onCompleteNewMessage = (emitted: any) => {
+  let _message_files = messages.value[messages.value.length - 1].files;
+  messages.value[messages.value.length - 1] = {
+    files: _message_files,
+    ...emitted.data,
+  };
 };
 onMounted(async () => {
   await conversation_store.unsuscribeFromConversationEvents();

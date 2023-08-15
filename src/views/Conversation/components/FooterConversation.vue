@@ -68,7 +68,11 @@ const current_conversation = useCurrentConversation();
 
 let is_recording_voice = ref(false);
 
-const emit = defineEmits(["onSuccessSend", "onCompleteSendFile"]);
+const emit = defineEmits([
+  "onSuccessSend",
+  "onCompleteSendFile",
+  "onCompleteNewMessage",
+]);
 
 const onSuccessSend = (messageSender: IMessage) => {
   emit("onSuccessSend", messageSender);
@@ -132,6 +136,17 @@ let senMessageIfNotEmptyConversation = async ({
         text: _text_input_aux,
       },
     },
+  });
+
+  let { data: new_message_data, error: new_message_error } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("id", data.message_info.conversation_answer.id)
+    .single();
+  console.log(new_message_data);
+  emit("onCompleteNewMessage", {
+    name: "FooterConversation.on_complete_new_message",
+    data: new_message_data,
   });
 };
 
