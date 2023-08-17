@@ -143,7 +143,8 @@ const REALTIME_CONVERSATION_EVENTS = new Map<string, Function>([
   ],
 ]);
 
-const suscribeToEvents = () => {
+const suscribeToEvents = async () => {
+  await conversations_store.unsuscribeFromConversationEvent("insert_message");
   let _tab = router.currentRoute.value.path;
   let func = REALTIME_CONVERSATION_EVENTS.get(_tab);
   if (func) func();
@@ -154,7 +155,7 @@ onMounted(() => {
 
 watch(
   () => router.currentRoute.value.path,
-  () => {
+  async () => {
     suscribeToEvents();
     rerender_router.value++;
   }

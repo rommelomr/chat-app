@@ -1,8 +1,8 @@
 <template>
-  <ion-page class="newgroup-page">
+  <ion-page class="newgroup-page" v-if="render_details">
     <ion-header class="ion-no-border">
       <ion-toolbar>
-        <ion-buttons slot="start">
+        <ion-buttons slot="start" @click="resetConversationDetails()">
           <ion-back-button
             defaultHref="/conversation"
             mode="ios"
@@ -134,13 +134,18 @@ import { IonPage, IonHeader, IonToolbar, modalController } from "@ionic/vue";
 import { ellipsisVertical, searchOutline } from "ionicons/icons";
 import "./ConversationDetails.scss";
 import { useRouter } from "vue-router";
-import { ref, reactive } from "vue";
+import { ref, reactive, watch } from "vue";
 import PreviewModal from "../Modals/PreviewModal.vue";
 import { useConversationsStore } from "@/stores/conversations-store";
 import { Vue3Lottie } from "vue3-lottie";
 import Sound from "../../../public/assets/lottie-files/sound.json";
 const conversations_store = useConversationsStore();
+const im_contact_of_partner =
+  Object.keys(conversations_store.getConversationDetails().im_contact).length >
+  0;
 
+const partner_is_my_contact =
+  Object.keys(conversations_store.getConversationDetails().contact).length > 0;
 const router = useRouter();
 const file = reactive({
   url: "",
@@ -180,21 +185,55 @@ const groupList = ref([
 const conversationIsSingle = () => {
   return conversations_store.getCurrentConversation().type == "SINGLE";
 };
-const getDescription = () => {
-  if (conversationIsSingle()) {
-    return conversations_store.getConversationDetails().data
+
+const getChatUserDescription = () => {
+  let _description: string =
+    conversations_store.getConversationDetails().data
       .chat_users_conversations[0].chat_user.person.description;
-  } else {
-    return conversations_store.getConversationDetails().data.group[0]
-      .description;
+  if (im_contact_of_partner) {
+    return _description;
   }
+
+  let _description_is_public: boolean =
+    conversations_store.getConversationDetails().data
+      .chat_users_conversations[0].chat_user.account[0].about_me_visibility ==
+    1;
+  if (_description_is_public) return _description;
+  else return "Descripción no disponible.";
+};
+
+const getGroupDescription = () => {
+  return conversations_store.getConversationDetails().data.group[0].description;
+};
+
+const getPartnerNickname = () => {
+  return conversations_store.getConversationDetails().contact.nickname;
+};
+
+const getPartnerAccessCode = () => {
+  return conversations_store.getConversationDetails().data
+    .chat_users_conversations[0].chat_user.access_code;
+};
+
+const getChatUserName = () => {
+  if (partner_is_my_contact) {
+    return getPartnerNickname();
+  }
+  return getPartnerAccessCode();
+};
+
+const getGroupName = () => {
+  return conversations_store.getConversationDetails().data.group[0].name;
+};
+const getDescription = () => {
+  if (conversationIsSingle()) return getChatUserDescription();
+  else return getGroupDescription();
 };
 const getConversationName = () => {
   if (conversationIsSingle()) {
-    return conversations_store.getConversationDetails().data
-      .chat_users_conversations[0].chat_user.access_code;
+    return getChatUserName();
   } else {
-    return conversations_store.getConversationDetails().data.group[0].name;
+    return getGroupName();
   }
 };
 const openFile = async (selected_file: any) => {
@@ -207,15 +246,32 @@ const closeFile = () => {
   file.type = "";
   file.url = "";
 };
-const getConversationImage = () => {
-  if (conversations_store.getConversationDetails().data.group.length == 0) {
-    let _person =
-      conversations_store.getConversationDetails().data
-        .chat_users_conversations[0].chat_user.person;
+
+const getGroupImage = () => {
+  let _group = conversations_store.getConversationDetails().data.group[0];
+  return "/assets/imgs/landscapes/" + _group.photo + ".svg";
+};
+
+const getPartnerImage = () => {
+  let _person =
+    conversations_store.getConversationDetails().data
+      .chat_users_conversations[0].chat_user.person;
+  if (im_contact_of_partner) {
     return "/assets/imgs/avatar/" + _person.photo + ".svg";
+  }
+  if (
+    conversations_store.getConversationDetails().data
+      .chat_users_conversations[0].chat_user.account[0].avatar_visibility == 1
+  ) {
+    return "/assets/imgs/avatar/" + _person.photo + ".svg";
+  }
+  return "/assets/imgs/avatar/empty.svg";
+};
+const getConversationImage = () => {
+  if (conversationIsSingle()) {
+    return getPartnerImage();
   } else {
-    let _group = conversations_store.getConversationDetails().data.group[0];
-    return "/assets/imgs/landscapes/" + _group.photo + ".svg";
+    return getGroupImage();
   }
 };
 const hasFiles = () => {
@@ -224,4 +280,13 @@ const hasFiles = () => {
     conversations_store.getConversationDetails().files.length > 0
   );
 };
+
+let render_details = ref(true);
+watch(
+  () => router.currentRoute.value.path,
+  (path) => {
+    render_details.value = false;
+    if (path == "/conversation") conversations_store.resetConversationDetails();
+  }
+);
 </script>

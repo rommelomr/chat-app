@@ -79,5 +79,23 @@ export const useContactsStore = defineStore({
         data,
       } as IResponse;
     },
+    async changeContactName(new_contact_name: string, contact_id: number) {
+      let { data, error } = await supabase
+        .from("contacts")
+        .update({ nickname: new_contact_name })
+        .eq("id", contact_id)
+        .select("*")
+        .single();
+      Utils.handleErrors(error);
+      return {
+        message: "Contact added successfuly",
+        status: 1,
+        entity: "CONTACTS",
+        action: "ADD_CONTACTS",
+        data: {
+          contact: data,
+        },
+      } as IResponse;
+    },
   },
 });

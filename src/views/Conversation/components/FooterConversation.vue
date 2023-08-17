@@ -174,6 +174,7 @@ let sendMessageIfEmptyConversation = async ({
   current_conversation.current_conversation.isEmpty = false;
   current_conversation.current_conversation.id =
     data.message_info.first_message.conversation_id;
+  await conversation_store.suscribeToDetectSeen();
 };
 let setCurrentConversation = () => {
   let _current_conversation = current_conversation.getCurrentConversation();

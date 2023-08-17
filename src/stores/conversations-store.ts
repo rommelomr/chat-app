@@ -16,9 +16,13 @@ export const useConversationsStore = defineStore({
         new_current_conversation: {},
         new_conversations: {},
         my_conversations: {},
+        insert_message: {},
+        update_message: {},
+        detect_seen: {},
       },
       conversation: {},
       new_conversation: {},
+      seen_message_detected: {},
     },
     current_conversation: useStorage("current-conversation", {
       id: 0,
@@ -28,17 +32,32 @@ export const useConversationsStore = defineStore({
       userConversation: {},
       isEmpty: true,
       group: false,
+      contact_id: 0,
       me: 0,
       me_uuid: "_",
     }),
     conversation_details: useStorage("conversation-details", {
       data: {},
+      im_contact: {},
+      contact: {},
       url_files: [],
     }),
     is_recording_voice: false,
   }),
 
   actions: {
+    setInsertMessageEvent(event: any) {
+      this.my_conversations_realtime.channels.insert_message = event;
+    },
+    getInsertMessageEvent() {
+      return this.my_conversations_realtime.channels.insert_message;
+    },
+    setUpdateMessageEvent(event: any) {
+      this.my_conversations_realtime.channels.update_message = event;
+    },
+    getUpdateMessageEvent() {
+      return this.my_conversations_realtime.channels.update_message;
+    },
     toggleRecordingVoice() {
       this.is_recording_voice = !this.is_recording_voice;
     },
@@ -67,7 +86,7 @@ export const useConversationsStore = defineStore({
     ) {
       let _private_conversation_code =
         partner_chat_user_id + "" + current_chat_user_id;
-
+      console.log("suscrito a la conversación: " + _private_conversation_code);
       this.my_conversations_realtime.channels.new_current_conversation =
         supabase
           .channel(_private_conversation_code + "-new-conversations")
@@ -80,6 +99,9 @@ export const useConversationsStore = defineStore({
               filter: `chat_user_ids=eq.${_private_conversation_code}`,
             },
             async (event) => {
+              console.log(
+                "crearon la conversación: " + _private_conversation_code
+              );
               this.my_conversations_realtime.new_conversation = event.new;
               // const local_notifications = useLocalNotificationsStore();
               // local_notifications.display({
@@ -89,6 +111,43 @@ export const useConversationsStore = defineStore({
             }
           )
           .subscribe();
+    },
+    /**
+     *
+     * @param partner_chat_user_id
+     * @param current_chat_user_id
+     *
+     * function that listen when a message has been seen for all
+     * conversation members.
+     *
+     */
+    async suscribeToDetectSeen() {
+      let _conversation_id = this.getCurrentConversation().id;
+      const auth_store = useAuthStore();
+      let _private_conversation_code =
+        _conversation_id + ";" + auth_store.getUser().chat_user_id;
+      this.my_conversations_realtime.channels.detect_seen = supabase
+        .channel(_private_conversation_code + "-seen-messages")
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "messages",
+            filter: `seen_flag=eq.${_private_conversation_code};1`,
+          },
+          async (event) => {
+            console.log("visto detectado");
+            this.my_conversations_realtime.seen_message_detected = event.new;
+            //this.my_conversations_realtime.new_conversation = event.new;
+            // const local_notifications = useLocalNotificationsStore();
+            // local_notifications.display({
+            //   title: "Tienes una nueva conversación",
+            //   content: "¡Abrela ahora!",
+            // });
+          }
+        )
+        .subscribe();
     },
     /**
      * @param chat_user_id
@@ -148,7 +207,6 @@ export const useConversationsStore = defineStore({
             filter: `chat_user_id=eq.${chat_user_id}`,
           },
           async (event) => {
-            alert("suscribeToNewConversations");
             let { data, error } = await supabase
               .from("conversations")
               .select(
@@ -189,9 +247,15 @@ export const useConversationsStore = defineStore({
         data,
       };
     },
-
     async unsuscribeFromConversationEvents() {
       await supabase.removeAllChannels();
+    },
+    async unsuscribeFromConversationEvent(event: string) {
+      if (
+        Object.keys(this.my_conversations_realtime.channels[event]).length === 0
+      )
+        return;
+      supabase.removeChannel(this.my_conversations_realtime.channels[event]);
     },
     async sendFirstMessage(text: String = "") {
       //se guarda el mensaje en la bd
@@ -320,6 +384,8 @@ export const useConversationsStore = defineStore({
       this.current_conversation = {
         id: conversations_data.id ?? this.current_conversation.id,
         type: conversations_data.type ?? this.current_conversation.type,
+        contact_id:
+          conversations_data.contact_id ?? this.current_conversation.contact_id,
         label: conversations_data.label ?? this.current_conversation.label,
         label_image:
           conversations_data.label_image ??
@@ -360,7 +426,7 @@ export const useConversationsStore = defineStore({
     setConversationDetails(conversation_details: any) {
       this.conversation_details = conversation_details;
     },
-    resetConversationDetails(conversation_details: any) {
+    resetConversationDetails() {
       this.setConversationDetails({});
     },
     getConversationDetails() {
@@ -406,18 +472,55 @@ export const useConversationsStore = defineStore({
       let { data, error } = await supabase
         .from("conversations")
         .select(
-          "*,message_files(*),private_conversation:private_conversations(*),group:groups(*),chat_users_conversations(*,chat_user:chat_users(*,person:people(*)))"
+          `*,
+          message_files(*),
+          private_conversation:private_conversations(*),
+          group:groups(*),
+          chat_users_conversations(
+            *,
+            chat_user:chat_users(
+              *,
+              person:people(*),
+              account:accounts(*)
+            )
+          )`
         )
         .eq("id", conversation.id)
         .neq(
           "chat_users_conversations.chat_user_id",
           auth_store.getUser().chat_user_id
         );
+
+      let { data: contact_data, error: contact_error } = await supabase
+        .from("contacts")
+        .select(
+          `
+        *,
+        contact:contact_id(*)
+      `
+        )
+        .eq("chat_user_id", auth_store.getUser().chat_user_id)
+        .eq("contact_id", data[0].chat_users_conversations[0].chat_user.id);
+
+      let { data: im_contact_data, error: im_contact_error } = await supabase
+        .from("contacts")
+        .select(
+          `
+        *,
+        contact:contact_id(*)
+      `
+        )
+        .eq("contact_id", auth_store.getUser().chat_user_id)
+        .eq("chat_user_id", data[0].chat_users_conversations[0].chat_user.id);
+
       Utils.handleErrors(error);
+      Utils.handleErrors(contact_error);
       if (data) {
         let _files = await this.parseFiles(data);
         this.setConversationDetails({
           data: data[0],
+          im_contact: im_contact_data.length == 0 ? {} : im_contact_data[0],
+          contact: contact_data.length == 0 ? {} : contact_data[0],
           files: _files,
         });
         return {

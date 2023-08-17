@@ -47,7 +47,7 @@
           </ion-avatar>
           <ion-label>
             <h3>
-              {{ getPartner(conversation).access_code }}
+              {{ getPartnerName(conversation) }}
               <!-- <span>5m</span> -->
             </h3>
             <p>{{ showLastMessageText(conversation) }}</p>
@@ -129,7 +129,7 @@ const fetchCurrentUserConversation = async () => {
   let { data, error }: { data: any[] | null; error: any } = await supabase
     .from("conversations")
     .select(
-      "*,last_message:messages(*),flag:chat_users_conversations!inner(id),chat_users_conversations(*,chat_users(*, person:people(*)))"
+      "*,last_message:messages(*),flag:chat_users_conversations!inner(id),chat_users_conversations(*,chat_users(*, person:people(*),contacts!contacts_contact_id_fkey(*)))"
     )
     .eq("type", 1)
     .is("messages.is_last", true)
@@ -140,14 +140,21 @@ const fetchCurrentUserConversation = async () => {
     conversations.value = data;
   }
 };
+const getContact = (conversation: any) => {
+  let _partner = getPartner(conversation);
+  let _partner_is_contact = _partner.contacts.length > 0;
+  if (_partner_is_contact) return _partner.contacts[0];
+  return { id: 0 };
+};
 const goConversation = async (conversation: any) => {
   let _partner = getPartner(conversation);
   const auth_store = useAuthStore();
   conversations_store.setCurrentConversation({
     id: conversation.id,
     type: "SINGLE",
-    label: _partner.access_code,
+    label: getPartnerName(conversation),
     label_image: _partner.person.photo,
+    contact_id: getContact(conversation).id,
     userConversation: _partner,
     isEmpty: false,
     group: false,
@@ -158,6 +165,15 @@ const goConversation = async (conversation: any) => {
     router.replace("/conversation");
   }, 500);
 };
+
+const getPartnerName = (conversation: any) => {
+  let partner = getPartner(conversation);
+  if (partner.contacts.length === 0) {
+    return partner.access_code;
+  }
+  return partner.contacts[0].nickname;
+};
+
 const getPartner = (conversation: any): any => {
   const auth_store = useAuthStore();
   let _partner = {};
@@ -213,7 +229,6 @@ const goToUsersTab = () => {
 };
 onMounted(async () => {
   conversations_store.resetCurrentConverstion();
-  conversations_store.resetConversationDetails();
   const auth_store = useAuthStore();
   app_store.setAppIsLoading(true);
   await fetchCurrentUserConversation();

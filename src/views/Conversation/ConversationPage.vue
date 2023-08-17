@@ -191,10 +191,10 @@ import Hello from "../../../public/assets/lottie-files/hello.json";
 import File from "../../../public/assets/lottie-files/file.json";
 import SendingFile from "../../../public/assets/lottie-files/sending-file.json";
 import "./ConversationPage.scss";
-import { useConversationsStore } from "@/stores/conversations-store";
 import Mimetypes from "@/utils/Mimetypes";
-const conversation_store = useConversationsStore();
+import { useConversationsStore } from "@/stores/conversations-store";
 const current_conversation = useCurrentConversation();
+const conversation_store = useConversationsStore();
 const app_store = useAppStore();
 const { user } = useAuthStore();
 const router = useRouter();
@@ -295,7 +295,23 @@ const getMessageRequest = async (
     ErrorToast("Ocurrio un error!!!");
   }
 };
-
+const markMessageAsSeen = (seen_message: any) => {
+  let _message_index = messages.value.findIndex((message: any) => {
+    return message.id == seen_message.id;
+  });
+  console.log("==============0================");
+  console.log(_message_index);
+  console.log("==============0================");
+  messages.value[_message_index].max_viewers = seen_message.max_viewers;
+  messages.value[_message_index].views_count = seen_message.views_count;
+};
+watch(
+  () => conversation_store.getMyConversationsRealtime().seen_message_detected,
+  (message) => {
+    console.log("visto detectado");
+    markMessageAsSeen(message);
+  }
+);
 const loadMesaggesFromConversation = async (
   conversation: number,
   chat_user: number
@@ -341,8 +357,8 @@ const loadMesaggesFromConversation = async (
       }
     )
     .subscribe();
-
-  channels.update = await supabase
+  conversation_store.setInsertMessageEvent(channels.insert);
+  channels.update = supabase
     .channel(conversation + "-update")
     .on(
       "postgres_changes",
@@ -366,15 +382,20 @@ const loadMesaggesFromConversation = async (
       }
     )
     .subscribe();
+  conversation_store.setUpdateMessageEvent(channels.update);
 };
 
 watch(
   () => current_conversation.getCurrentConversation().id,
-  () => {
-    loadMesaggesFromConversation(
-      current_conversation.getCurrentConversation().id,
-      current_conversation.getCurrentConversation().userConversation?.id ?? 0
-    );
+  (id) => {
+    if (id) {
+      current_conversation.suscribeToDetectSeen();
+
+      loadMesaggesFromConversation(
+        current_conversation.getCurrentConversation().id,
+        current_conversation.getCurrentConversation().userConversation?.id ?? 0
+      );
+    }
   }
 );
 
@@ -467,16 +488,17 @@ const toggleMediaLayout = () => {
 const onCompleteSendFile = (emitted: any) => {
   messages.value[messages.value.length - 1].files[0] = emitted.data.stored_file;
 };
-const onCompleteNewMessage = (emitted: any) => {
+const onCompleteNewMessage = async (emitted: any) => {
   let _message_files = messages.value[messages.value.length - 1].files;
   messages.value[messages.value.length - 1] = {
     files: _message_files,
     ...emitted.data,
   };
 };
+
 onMounted(async () => {
-  await conversation_store.unsuscribeFromConversationEvents();
   if (!current_conversation.getCurrentConversation().isEmpty) {
+    conversation_store.suscribeToDetectSeen();
     await loadMesaggesFromConversation(
       current_conversation.getCurrentConversation().id,
       current_conversation.getCurrentConversation().userConversation?.id ?? 0

@@ -18,7 +18,7 @@
         </ion-avatar>
         <ion-label>
           <h3>{{ currentConversation.label }}</h3>
-          <p>Online</p>
+          <!-- <p>Online</p> -->
         </ion-label>
       </ion-item>
     </ion-buttons>
@@ -44,7 +44,7 @@
         </ion-content>
       </ion-popover>
     </ion-buttons>
-    <ion-modal
+    <!-- <ion-modal
       class="ion-modall"
       :is-open="isModalOpen"
       @dismiss="dismissModal"
@@ -65,20 +65,22 @@
           </div>
         </div>
       </ion-content>
-    </ion-modal>
-    <ion-modal class="ion-modall" :is-open="modalRef" @dismiss="dismissModal">
+    </ion-modal> -->
+    <ion-modal class="ion-modall" :is-open="isModalOpen" @dismiss="() => {}">
       <ion-content class="modall ion-padding">
         <div class="holder">
           <div class="section">
             <h3>Ingrese Nick Name</h3>
             <ion-item>
-              <ion-input value="Pedrito" />
+              <ion-input v-model="new_contact_name" />
             </ion-item>
             <div class="btns-holder flex al-center jc-end">
-              <ion-button fill="clear" @ionPress="dismissModal"
+              <ion-button fill="clear" @click="dismissModal"
                 >Cancelar</ion-button
               >
-              <ion-button fill="clear">Guardar</ion-button>
+              <ion-button @click="changeContactName" fill="clear"
+                >Guardar</ion-button
+              >
             </div>
           </div>
         </div>
@@ -116,6 +118,9 @@ import Details from "./Details.vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "@/stores/app-store";
 import { useConversationsStore } from "@/stores/conversations-store";
+import { useContactsStore } from "@/stores/contacts-store";
+
+let new_contact_name = ref("");
 const app_store = useAppStore();
 
 const router = useRouter();
@@ -131,14 +136,16 @@ const goToConversationDetails = async () => {
   await app_store.loadingBefore(async () => {
     let store_response = await conversations_store.loadConversationDetails({
       id: conversations_store.getCurrentConversation().id,
+      partner: conversations_store.getCurrentConversation().userConversation,
     });
 
     router.replace("/conversationdetails");
   });
 };
-const isModalOpen = ref(false);
+let isModalOpen = ref(false);
 
 const { getCurrentConversation } = useCurrentConversation();
+const conversation_store = useConversationsStore();
 const currentConversation: Ref<ICurrentConversation | undefined> = ref();
 const modalRef = ref(null);
 let open_modal = ref(false);
@@ -147,15 +154,20 @@ const isOpen = ref(true);
 
 const openModal = () => {
   //@ts-ignore
-  modalRef.value = true;
+  isModalOpen.value = true;
 };
 
 const dismissModal = () => {
   isModalOpen.value = false;
 };
-const closeModal = () => {
-  //@ts-ignore
-  modalRef.value.present();
+const changeContactName = async () => {
+  const contacts_store = useContactsStore();
+  await contacts_store.changeContactName(
+    new_contact_name.value,
+    conversation_store.getCurrentConversation().contact_id
+  );
+  currentConversation.value.label = new_contact_name.value;
+  isModalOpen.value = false;
 };
 
 let setCurrentConversation = () => {

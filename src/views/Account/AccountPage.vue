@@ -204,8 +204,8 @@ const setAccountData = async () => {
 
 const lastConnectionIsPublic = computed(() => {
   if (account_data.last_connection_visibility == -1) return "Cargando";
-  if (account_data.last_connection_visibility == 0) return "Nadie";
-  if (account_data.last_connection_visibility == 1) return "Todos";
+  if (account_data.last_connection_visibility == 0) return "Privado";
+  if (account_data.last_connection_visibility == 1) return "Público";
   if (account_data.last_connection_visibility == 2) return "Mis contactos";
 });
 
@@ -215,15 +215,15 @@ const getAutodeleteTime = computed(() => {
 
 const getAvatarVisibility = computed(() => {
   if (account_data.avatar_visibility == -1) return "Cargando";
-  if (account_data.avatar_visibility == 0) return "Nadie";
-  if (account_data.avatar_visibility == 1) return "Todos";
+  if (account_data.avatar_visibility == 0) return "Privado";
+  if (account_data.avatar_visibility == 1) return "Público";
   if (account_data.avatar_visibility == 2) return "Mis contactos";
 });
 
 const getAboutMeVisibility = computed(() => {
   if (account_data.about_me_visibility == -1) return "Cargando";
-  if (account_data.about_me_visibility == 0) return "Nadie";
-  if (account_data.about_me_visibility == 1) return "Todos";
+  if (account_data.about_me_visibility == 0) return "Privado";
+  if (account_data.about_me_visibility == 1) return "Público";
   if (account_data.about_me_visibility == 2) return "Mis contactos";
 });
 
@@ -246,12 +246,12 @@ const MODAL_TYPE = new Map<number, string>([
 const alert_inputs = [
   [
     {
-      label: "Todos",
+      label: "Publico",
       type: "radio",
       value: "all",
     },
     {
-      label: "Nadie",
+      label: "Privado",
       type: "radio",
       value: "anyone",
     },
