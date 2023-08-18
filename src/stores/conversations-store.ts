@@ -19,10 +19,12 @@ export const useConversationsStore = defineStore({
         insert_message: {},
         update_message: {},
         detect_seen: {},
+        file_received: {},
       },
       conversation: {},
       new_conversation: {},
       seen_message_detected: {},
+      file_received: {},
     },
     current_conversation: useStorage("current-conversation", {
       id: 0,
@@ -229,6 +231,44 @@ export const useConversationsStore = defineStore({
         )
         .subscribe();
     },
+    /**
+     * @param chat_user_id
+     * Function that listens when a file message is received
+     */
+    async suscribeToFilesReceived() {
+      let conversation_id = this.getCurrentConversation().id;
+      this.my_conversations_realtime.channels.file_received = supabase
+        .channel(conversation_id + "-conversations-file-received")
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "message_files",
+            filter: `conversation_id=eq.${conversation_id}`,
+          },
+          async (event) => {
+            console.log(event);
+            let { data, error } = await supabase
+              .from("messages")
+              .select(
+                "*,chat_user:chat_users(*,person:people(*)),files:message_files(*)"
+              )
+              .eq("id", event.new.message_id)
+              .single();
+            if (error) {
+              throw "stop: error updating conversations order";
+            }
+            // const local_notifications = useLocalNotificationsStore();
+            // local_notifications.display({
+            //   title: "Has recibido un nuevo mensaje",
+            //   content: "¡Contesta ahora!",
+            // });
+            this.my_conversations_realtime.file_received = data;
+          }
+        )
+        .subscribe();
+    },
     async getConversationWithChatUser(
       chat_user_id: number
     ): Promise<IResponse> {
@@ -257,18 +297,25 @@ export const useConversationsStore = defineStore({
         return;
       supabase.removeChannel(this.my_conversations_realtime.channels[event]);
     },
-    async sendFirstMessage(text: String = "") {
+    async sendFirstMessage(first_message_data: any) {
       //se guarda el mensaje en la bd
       let { data, error } = await supabase.functions.invoke("send-message", {
         body: {
           conversation_type: 1,
           conversation_name: "",
+          has_files:
+            first_message_data.has_files == undefined
+              ? false
+              : first_message_data.has_files,
           chat_users_ids: [this.getCurrentConversation().userConversation.id],
           auth_ids: [
             this.getCurrentConversation().userConversation.person.auth_id,
           ],
           content: {
-            text,
+            text:
+              first_message_data.text == undefined
+                ? ""
+                : first_message_data.text,
             files: [],
           },
         },
@@ -281,14 +328,21 @@ export const useConversationsStore = defineStore({
         data,
       };
     },
-    async sendNotFirstMessage(text: String = "") {
+    async sendNotFirstMessage(first_message_data: any) {
       const auth_store = useAuthStore();
       let { data, error } = await supabase.functions.invoke("send-message", {
         body: {
           conversation_id: this.getCurrentConversation().id,
           chat_user_id: auth_store.getUser().chat_user_id,
+          has_files:
+            first_message_data.has_files == undefined
+              ? false
+              : first_message_data.has_files,
           content: {
-            text,
+            text:
+              first_message_data.text == undefined
+                ? ""
+                : first_message_data.text,
           },
         },
       });
@@ -304,7 +358,7 @@ export const useConversationsStore = defineStore({
       let conversation_id;
       let message_id;
       if (this.getCurrentConversation().isEmpty) {
-        let { data } = await this.sendFirstMessage();
+        let { data } = await this.sendFirstMessage({ has_files: true });
         console.log(data);
         conversation_id = data.message_info.first_message.conversation_id;
         message_id = data.message_info.first_message.id;
@@ -313,7 +367,7 @@ export const useConversationsStore = defineStore({
           isEmpty: false,
         });
       } else {
-        let { data } = await this.sendNotFirstMessage();
+        let { data } = await this.sendNotFirstMessage({ has_files: true });
         conversation_id = this.getCurrentConversation().id;
         message_id = data.message_info.conversation_answer.id;
       }

@@ -112,7 +112,7 @@
         <ion-content class="modall ion-padding">
           <div class="holder">
             <div class="section">
-              <h3>Ingrese Nick Nameeee</h3>
+              <h3>Ingrese Nick Name</h3>
               <ion-item>
                 <ion-input value="Pedrito" />
               </ion-item>
@@ -299,9 +299,6 @@ const markMessageAsSeen = (seen_message: any) => {
   let _message_index = messages.value.findIndex((message: any) => {
     return message.id == seen_message.id;
   });
-  console.log("==============0================");
-  console.log(_message_index);
-  console.log("==============0================");
   messages.value[_message_index].max_viewers = seen_message.max_viewers;
   messages.value[_message_index].views_count = seen_message.views_count;
 };
@@ -331,6 +328,7 @@ const loadMesaggesFromConversation = async (
       },
       async (event) => {
         if (event.new.chat_user_id == _me) return;
+        if (event.new.has_files) return;
         let { data, error } = await supabase
           .from("messages")
           .select(
@@ -390,7 +388,7 @@ watch(
   (id) => {
     if (id) {
       current_conversation.suscribeToDetectSeen();
-
+      conversation_store.suscribeToDetectSeen();
       loadMesaggesFromConversation(
         current_conversation.getCurrentConversation().id,
         current_conversation.getCurrentConversation().userConversation?.id ?? 0
@@ -405,6 +403,14 @@ watch(
     current_conversation.current_conversation.isEmpty = false;
     current_conversation.current_conversation.id =
       private_conversation.conversation_id;
+    conversation_store.suscribeToDetectSeen();
+  }
+);
+
+watch(
+  () => conversation_store.my_conversations_realtime.file_received,
+  (message) => {
+    messages.value.push(message);
   }
 );
 
@@ -499,6 +505,7 @@ const onCompleteNewMessage = async (emitted: any) => {
 onMounted(async () => {
   if (!current_conversation.getCurrentConversation().isEmpty) {
     conversation_store.suscribeToDetectSeen();
+    conversation_store.suscribeToFilesReceived();
     await loadMesaggesFromConversation(
       current_conversation.getCurrentConversation().id,
       current_conversation.getCurrentConversation().userConversation?.id ?? 0

@@ -2,13 +2,13 @@
   <ion-page class="chat-page">
     <ion-header class="ion-no-border">
       <ion-toolbar>
-        <ion-buttons slot="start">
+        <!-- <ion-buttons slot="start">
           <ion-back-button
             defaultHref="tabs/tab4"
             mode="ios"
             text=""
           ></ion-back-button>
-        </ion-buttons>
+        </ion-buttons> -->
         <ion-title class="ion-text-center">Chat</ion-title>
         <ion-buttons slot="end">
           <ion-button solt="icon-only">
@@ -129,7 +129,7 @@ const fetchCurrentUserConversation = async () => {
   let { data, error }: { data: any[] | null; error: any } = await supabase
     .from("conversations")
     .select(
-      "*,last_message:messages(*),flag:chat_users_conversations!inner(id),chat_users_conversations(*,chat_users(*, person:people(*),contacts!contacts_contact_id_fkey(*)))"
+      "*,last_message:messages(*),flag:chat_users_conversations!inner(id),chat_users_conversations(*,chat_users(*, person:people(*),contacts:contacts_contact_id_fkey(*)))"
     )
     .eq("type", 1)
     .is("messages.is_last", true)

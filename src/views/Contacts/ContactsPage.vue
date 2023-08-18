@@ -31,7 +31,8 @@
           @click="
             selectChatUserUseCase(
               contact.chat_user.access_code,
-              contact.chat_user.id
+              contact.chat_user.id,
+              contact
             )
           "
         >
@@ -45,7 +46,7 @@
           <ion-label>
             <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
             <h3>{{ contact.chat_user.access_code }}</h3>
-            <p>{{ contact.chat_user.username }}</p>
+            <p>{{ contact.nickname }}</p>
           </ion-label>
         </ion-item>
       </div>
@@ -86,12 +87,17 @@ const selectedList = ref(
     selected: boolean;
   }[]
 );
+
 const showSearch = ref(false);
 const router = useRouter();
 const searchQuery = ref("");
 let userAuth = useAuthStore().getUser();
 const auth_store = useAuthStore();
-const selectChatUserUseCase = async (access_code: string, id: number) => {
+const selectChatUserUseCase = async (
+  access_code: string,
+  id: number,
+  contact: any
+) => {
   await app_store.loadingBefore(async () => {
     let messages: Array<any> = [];
     //currentConversation.reset();
@@ -108,8 +114,9 @@ const selectChatUserUseCase = async (access_code: string, id: number) => {
       await currentConversation.setCurrentConversation({
         id: 0,
         type: "SINGLE",
-        label: access_code,
+        label: contact.nickname ?? data.chat_user.access_code,
         isEmpty: true,
+        contact_id: contact.id,
         userConversation: data.chat_user,
         group: undefined,
         label_image: data.chat_user.person.photo,
@@ -122,10 +129,8 @@ const selectChatUserUseCase = async (access_code: string, id: number) => {
       await currentConversation.setCurrentConversation({
         id: data.conversation.id,
         type: "SINGLE",
-        label: `${
-          data.chat_user.access_code ??
-          router.currentRoute.value.params.code.toString()
-        }`,
+        label: contact.nickname ?? data.chat_user.access_code,
+        contact_id: contact.id,
         isEmpty: false,
         userConversation: data.chat_user,
         group: undefined,

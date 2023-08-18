@@ -120,6 +120,7 @@ let senMessageIfNotEmptyConversation = async ({
     created_at: moment().toString(),
     conversation_id: current_conversation.getCurrentConversation().id ?? 0,
     conversation_id_chat_user_id: "",
+    has_files: false,
     chat_user_id: current_conversation.current_conversation.me,
     is_forwarded: true,
   });
@@ -132,6 +133,7 @@ let senMessageIfNotEmptyConversation = async ({
     body: {
       conversation_id,
       chat_user_id,
+      has_files: false,
       content: {
         text: _text_input_aux,
       },
@@ -163,6 +165,7 @@ let sendMessageIfEmptyConversation = async ({
       conversation_type,
       conversation_name,
       chat_users_ids,
+      has_files: false,
       auth_ids,
       content: {
         text: _aux_text_input,
