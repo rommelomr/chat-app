@@ -34,6 +34,7 @@ export const useConversationsStore = defineStore({
       userConversation: {},
       isEmpty: true,
       group: false,
+      im_contact: false,
       contact_id: 0,
       me: 0,
       me_uuid: "_",
@@ -248,7 +249,8 @@ export const useConversationsStore = defineStore({
             filter: `conversation_id=eq.${conversation_id}`,
           },
           async (event) => {
-            console.log(event);
+            if (event.new.chat_user_id == this.getCurrentConversation().me)
+              return;
             let { data, error } = await supabase
               .from("messages")
               .select(
@@ -357,9 +359,10 @@ export const useConversationsStore = defineStore({
     async sendFilesToConversation(files: Array<any>) {
       let conversation_id;
       let message_id;
+      let message_response;
       if (this.getCurrentConversation().isEmpty) {
         let { data } = await this.sendFirstMessage({ has_files: true });
-        console.log(data);
+        message_response = data;
         conversation_id = data.message_info.first_message.conversation_id;
         message_id = data.message_info.first_message.id;
         this.setCurrentConversation({
@@ -370,6 +373,7 @@ export const useConversationsStore = defineStore({
         let { data } = await this.sendNotFirstMessage({ has_files: true });
         conversation_id = this.getCurrentConversation().id;
         message_id = data.message_info.conversation_answer.id;
+        message_response = data;
       }
 
       let _files_status = {
@@ -412,11 +416,7 @@ export const useConversationsStore = defineStore({
           });
         }
       }
-      console.log(_files_status.success);
-      console.log({
-        message_id,
-        conversation_id,
-      });
+
       const { data, error } = await supabase
         .from("message_files")
         .update({
@@ -431,12 +431,14 @@ export const useConversationsStore = defineStore({
       console.log(data);
       Utils.handleErrors(error);
       return {
-        data,
+        data: message_response,
       };
     },
     setCurrentConversation(conversations_data: any) {
       this.current_conversation = {
         id: conversations_data.id ?? this.current_conversation.id,
+        im_contact:
+          conversations_data.im_contact ?? this.current_conversation.im_contact,
         type: conversations_data.type ?? this.current_conversation.type,
         contact_id:
           conversations_data.contact_id ?? this.current_conversation.contact_id,

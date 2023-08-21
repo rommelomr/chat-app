@@ -243,6 +243,17 @@ const onSendFile = async (emitted: any) => {
         stored_file: data,
       },
     });
+    let _new_message;
+    if (data.message_type == "new_message") {
+      _new_message = data.message_info.first_message;
+    } else {
+      _new_message = data.message_info.conversation_answer;
+    }
+    console.log(_new_message);
+    emit("onCompleteNewMessage", {
+      name: "FooterConversation.on_complete_new_message",
+      data: _new_message,
+    });
   });
 };
 

@@ -10,11 +10,7 @@
     <ion-buttons slot="start">
       <ion-item lines="none" @click="goToConversationDetails">
         <ion-avatar slot="start">
-          <img
-            :src="`/assets/imgs/${
-              currentConversation.type == 'GROUP' ? 'landscapes' : 'avatar'
-            }/${currentConversation.label_image ?? 1}.svg`"
-          />
+          <img :src="getConversationPhoto()" />
         </ion-avatar>
         <ion-label>
           <h3>{{ currentConversation.label }}</h3>
@@ -169,7 +165,28 @@ const changeContactName = async () => {
   currentConversation.value.label = new_contact_name.value;
   isModalOpen.value = false;
 };
+const getConversationPhoto = () => {
+  let _is_group = currentConversation.value.type == "GROUP";
+  if (_is_group)
+    return `/assets/imgs/landscapes/${
+      currentConversation.value.label_image ?? 1
+    }.svg`;
 
+  let _partner_photo_is_public =
+    currentConversation.value?.userConversation.account[0].avatar_visibility ==
+    1;
+  let _partner_photo = `/assets/imgs/avatar/${
+    currentConversation.value.label_image ?? 1
+  }.svg`;
+
+  if (_partner_photo_is_public) return _partner_photo;
+
+  return `/assets/imgs/avatar/${
+    currentConversation.value.im_contact
+      ? currentConversation.value.label_image
+      : "empty"
+  }.svg`;
+};
 let setCurrentConversation = () => {
   currentConversation.value = getCurrentConversation();
 };

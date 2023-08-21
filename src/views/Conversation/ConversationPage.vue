@@ -57,7 +57,7 @@
                   </div>
                   <div class="time flex al-center">
                     <ion-icon
-                      v-if="message.max_viewers"
+                      v-if="message.max_viewers != undefined"
                       aria-hidden="true"
                       :icon="
                         message.views_count == message.max_viewers
@@ -299,13 +299,15 @@ const markMessageAsSeen = (seen_message: any) => {
   let _message_index = messages.value.findIndex((message: any) => {
     return message.id == seen_message.id;
   });
+  console.log("////////////////////////////////////////////");
+  console.log(seen_message);
+  console.log("////////////////////////////////////////////");
   messages.value[_message_index].max_viewers = seen_message.max_viewers;
   messages.value[_message_index].views_count = seen_message.views_count;
 };
 watch(
   () => conversation_store.getMyConversationsRealtime().seen_message_detected,
   (message) => {
-    console.log("visto detectado");
     markMessageAsSeen(message);
   }
 );
@@ -387,12 +389,18 @@ watch(
   () => current_conversation.getCurrentConversation().id,
   (id) => {
     if (id) {
-      current_conversation.suscribeToDetectSeen();
-      conversation_store.suscribeToDetectSeen();
-      loadMesaggesFromConversation(
-        current_conversation.getCurrentConversation().id,
-        current_conversation.getCurrentConversation().userConversation?.id ?? 0
-      );
+      setTimeout(async () => {
+        current_conversation.suscribeToDetectSeen();
+        conversation_store.suscribeToDetectSeen();
+        await loadMesaggesFromConversation(
+          current_conversation.getCurrentConversation().id,
+          current_conversation.getCurrentConversation().userConversation?.id ??
+            0
+        );
+        setTimeout(() => {
+          conversation_store.suscribeToFilesReceived();
+        }, 500);
+      }, 1000);
     }
   }
 );
@@ -409,8 +417,15 @@ watch(
 
 watch(
   () => conversation_store.my_conversations_realtime.file_received,
-  (message) => {
+  async (message) => {
     messages.value.push(message);
+    const auth_store = useAuthStore();
+    if (auth_store.getUser().id != message.chat_user_id) {
+      await supabase.rpc("register_message_views", {
+        chatuserid: auth_store.getUser().chat_user_id,
+        conversationid: current_conversation.getCurrentConversation().id,
+      });
+    }
   }
 );
 
@@ -495,6 +510,9 @@ const onCompleteSendFile = (emitted: any) => {
   messages.value[messages.value.length - 1].files[0] = emitted.data.stored_file;
 };
 const onCompleteNewMessage = async (emitted: any) => {
+  console.log("=========================================");
+  console.log(emitted);
+  console.log("=========================================");
   let _message_files = messages.value[messages.value.length - 1].files;
   messages.value[messages.value.length - 1] = {
     files: _message_files,

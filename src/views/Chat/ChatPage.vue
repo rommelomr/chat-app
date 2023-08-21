@@ -38,12 +38,7 @@
           @click="goConversation(conversation)"
         >
           <ion-avatar slot="start">
-            <img
-              :src="`/assets/imgs/avatar/${
-                getPartner(conversation).person.photo
-              }.svg`"
-              alt=""
-            />
+            <img :src="getProfilePhoto(conversation)" alt="" />
           </ion-avatar>
           <ion-label>
             <h3>
@@ -129,10 +124,34 @@ const fetchCurrentUserConversation = async () => {
   let { data, error }: { data: any[] | null; error: any } = await supabase
     .from("conversations")
     .select(
-      "*,last_message:messages(*),flag:chat_users_conversations!inner(id),chat_users_conversations(*,chat_users(*, person:people(*),contacts:contacts_contact_id_fkey(*)))"
+      `*,
+      last_message:messages(*),
+      flag:chat_users_conversations!inner(id),
+      c_u_conversations:chat_users_conversations(
+        *,
+        chat_users(
+          *,
+          person:people(*),
+          account:accounts(*),
+          contacts:contacts_contact_id_fkey(*)
+        )
+      ),
+      im_contact_flag:chat_users_conversations(
+        *,
+        chat_users(
+          *,
+          contacts:contacts_contact_id_fkey(count)
+        )
+      )
+      `
     )
     .eq("type", 1)
     .is("messages.is_last", true)
+    .eq("im_contact_flag.chat_user_id", auth_store.getUser().chat_user_id)
+    .eq(
+      "im_contact_flag.chat_users.contacts.contact_id",
+      auth_store.getUser().chat_user_id
+    )
     .eq("flag.chat_user_id", auth_store.getUser().chat_user_id)
     .order("updated_at", { ascending: false })
     .range(left, right);
@@ -155,6 +174,7 @@ const goConversation = async (conversation: any) => {
     label: getPartnerName(conversation),
     label_image: _partner.person.photo,
     contact_id: getContact(conversation).id,
+    im_contact: ImContactOfPartner(_partner),
     userConversation: _partner,
     isEmpty: false,
     group: false,
@@ -171,13 +191,13 @@ const getPartnerName = (conversation: any) => {
   if (partner.contacts.length === 0) {
     return partner.access_code;
   }
-  return partner.contacts[0].nickname;
+  return partner.contacts[0].nickname ?? partner.access_code;
 };
 
 const getPartner = (conversation: any): any => {
   const auth_store = useAuthStore();
   let _partner = {};
-  conversation.chat_users_conversations.map((chat_user_conversation: any) => {
+  conversation.c_u_conversations.map((chat_user_conversation: any) => {
     let _my_access_code = auth_store
       .getUser()
       .email.split("@")[0]
@@ -209,6 +229,7 @@ const placeConversationAtFirst = (conversation: any) => {
     _conversation_id
   );
 };
+
 watch(
   () => conversations_store.getMyConversationsRealtime().conversation,
   (conversation) => {
@@ -226,6 +247,25 @@ watch(
 );
 const goToUsersTab = () => {
   router.replace("/users");
+};
+const ImContactOfPartner = (chat_user: any) => {
+  return chat_user.contacts.length == 0;
+};
+
+const getProfilePhoto = (conversation: any) => {
+  let _partner = getPartner(conversation);
+
+  let _partner_photo_is_public = _partner.account[0].avatar_visibility === 1;
+
+  let _partner_photo = _partner.person.photo;
+
+  if (_partner_photo_is_public)
+    return `/assets/imgs/avatar/${_partner_photo}.svg`;
+
+  let _im_contact = ImContactOfPartner(_partner);
+  if (_im_contact) return `/assets/imgs/avatar/${_partner_photo}.svg`;
+
+  return `/assets/imgs/avatar/empty.svg`;
 };
 onMounted(async () => {
   conversations_store.resetCurrentConverstion();
