@@ -40,12 +40,12 @@
           v-show="item.person.auth_id != userAuth.id"
         >
           <ion-avatar slot="start">
-            <img :src="`/assets/imgs/avatar/${item.person.photo ?? 1}.svg`" />
+            <img :src="getPhoto(item)" />
           </ion-avatar>
           <ion-label>
             <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
             <h3>{{ item.access_code }}</h3>
-            <p>{{ item.username }}</p>
+            <p>{{ getDescription(item) }}</p>
           </ion-label>
         </ion-item>
       </div>
@@ -57,11 +57,7 @@
     >
       <div align="center" v-if="selected_chat_user.is_selected">
         <ion-avatar slot="start">
-          <img
-            :src="`/assets/imgs/avatar/${
-              selected_chat_user.data.person.photo ?? 1
-            }.svg`"
-          />
+          <img :src="getPhoto(selected_chat_user.data)" />
         </ion-avatar>
       </div>
       <br />
@@ -69,6 +65,10 @@
       <div align="center">
         codigo del usuario:
         {{ selected_chat_user.data.access_code }}
+      </div>
+      <div align="center">
+        Descripción:
+        {{ getDescription(selected_chat_user.data) }}
       </div>
       <br />
       <div align="center">
@@ -167,7 +167,7 @@ let users: Ref<Array<ChatUser> | null> = ref([]);
 const searchChatUsers = async (access_code: string) => {
   let { data, error } = await supabase
     .from("chat_users")
-    .select("*,person:people(*,user:users(*))")
+    .select("*,person:people(*,user:users(*)),account:accounts(*)")
     .ilike("access_code", access_code);
   if (error) return;
 
@@ -222,6 +222,19 @@ const addContact = async () => {
 const onCloseToast = () => {
   toast.message = "";
   toast.is_open = false;
+};
+const getPhoto = (chat_user: any) => {
+  let _avatar_is_public = chat_user.account[0].avatar_visibility == 1;
+  if (_avatar_is_public)
+    return `/assets/imgs/avatar/${chat_user.person.photo ?? 1}.svg`;
+
+  return `/assets/imgs/avatar/empty.svg`;
+};
+const getDescription = (chat_user: any) => {
+  let _description_is_public = chat_user.account[0].about_me_visibility == 1;
+  if (_description_is_public) return chat_user.description;
+
+  return "Descripción privada";
 };
 const displayedChatUsers = computed(() => {
   const query = searcher.value.toLowerCase().trim();
