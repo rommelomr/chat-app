@@ -60,6 +60,7 @@ import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { useRegisterStore } from "@/stores/register-store";
 import { useAppStore } from "@/stores/app-store";
+import { useAuthStore } from "@/stores/auth.store";
 const register_store = useRegisterStore();
 const app_store = useAppStore();
 const router = useRouter();
@@ -133,6 +134,8 @@ const onPageLoaded = () => {
 
 onMounted(() => {
   const ionViewDidEnter = onIonViewDidEnter(onPageLoaded);
+  const auth_store = useAuthStore();
+  auth_store.cleanLogin();
   ionViewDidEnter();
 });
 

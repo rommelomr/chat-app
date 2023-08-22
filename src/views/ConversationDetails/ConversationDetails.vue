@@ -2,7 +2,7 @@
   <ion-page class="newgroup-page" v-if="render_details">
     <ion-header class="ion-no-border">
       <ion-toolbar>
-        <ion-buttons slot="start" @click="resetConversationDetails()">
+        <ion-buttons slot="start">
           <ion-back-button
             defaultHref="/conversation"
             mode="ios"

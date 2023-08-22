@@ -20,11 +20,13 @@ export const useConversationsStore = defineStore({
         update_message: {},
         detect_seen: {},
         file_received: {},
+        partner_last_connection_change: {},
       },
       conversation: {},
       new_conversation: {},
       seen_message_detected: {},
       file_received: {},
+      partner_last_connection: {},
     },
     current_conversation: useStorage("current-conversation", {
       id: 0,
@@ -595,6 +597,26 @@ export const useConversationsStore = defineStore({
         chatuserid: auth_store.getUser().chat_user_id,
         conversationid: this.getCurrentConversation().id,
       });
+    },
+    async suscribeToPartnerAccount() {
+      let _partner = this.getCurrentConversation().userConversation;
+      this.my_conversations_realtime.channels.account_change = supabase
+        .channel(_partner.id + "-account-changes")
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "accounts",
+            filter: `chat_user_id=eq.${_partner.id}`,
+          },
+          async (event) => {
+            console.log("ejecutao");
+            this.my_conversations_realtime.partner_last_connection =
+              event.new.last_connection;
+          }
+        )
+        .subscribe();
     },
   },
 });

@@ -14,7 +14,9 @@
         </ion-avatar>
         <ion-label>
           <h3>{{ currentConversation.label }}</h3>
-          <!-- <p>Online</p> -->
+          <p>
+            {{ show_online_message ? "online" : getLastTime() }}
+          </p>
         </ion-label>
       </ion-item>
     </ion-buttons>
@@ -105,7 +107,7 @@ import {
   send,
   videocam,
 } from "ionicons/icons";
-import { Ref, ref } from "vue";
+import { Ref, ref, onMounted, watch } from "vue";
 import {
   useCurrentConversation,
   ICurrentConversation,
@@ -165,7 +167,14 @@ const changeContactName = async () => {
   currentConversation.value.label = new_contact_name.value;
   isModalOpen.value = false;
 };
+const conversationIsGroup = () => {
+  return currentConversation.value.type == "GROUP";
+};
+const conversationIsLoading = () => {
+  return currentConversation.value.label == "Loading..";
+};
 const getConversationPhoto = () => {
+  if (conversationIsLoading()) return `/assets/imgs/avatar/empty.svg`;
   let _is_group = currentConversation.value.type == "GROUP";
   if (_is_group)
     return `/assets/imgs/landscapes/${
@@ -190,5 +199,44 @@ const getConversationPhoto = () => {
 let setCurrentConversation = () => {
   currentConversation.value = getCurrentConversation();
 };
+let lastTimeIsPrivate = () => {
+  return (
+    currentConversation.value?.userConversation.account[0]
+      .last_connection_visibility == 0
+  );
+};
+const getLastTime = () => {
+  if (conversationIsLoading() || conversationIsGroup() || lastTimeIsPrivate())
+    return "";
+
+  let _date_time =
+    currentConversation.value.userConversation.account[0].last_connection.split(
+      "+"
+    )[0];
+  _date_time = _date_time.split(".")[0];
+  _date_time = _date_time.split("T");
+  return _date_time[1] + " " + _date_time[0];
+};
+let show_online_message = ref(false);
+let show_online_timeout = null;
+const keepOnlineMessage = () => {
+  show_online_message.value = true;
+  clearTimeout(show_online_timeout);
+  show_online_timeout = setTimeout(() => {
+    show_online_message.value = false;
+  }, 40000);
+};
+watch(
+  () => conversation_store.my_conversations_realtime.partner_last_connection,
+  () => {
+    keepOnlineMessage();
+  }
+);
 setCurrentConversation();
+const suscribeToPartnerAccount = () => {
+  conversation_store.suscribeToPartnerAccount();
+};
+onMounted(() => {
+  suscribeToPartnerAccount();
+});
 </script>

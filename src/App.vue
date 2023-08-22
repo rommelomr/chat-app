@@ -21,6 +21,7 @@ import Offline from "@/components/Offline.vue";
 import { useLocalNotificationsStore } from "@/stores/local-notifications-store";
 import { useAppStore } from "@/stores/app-store";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "./stores/auth.store";
 const app_store = useAppStore();
 const printCurrentPosition = async () => {
   const coordinates = await Geolocation.getCurrentPosition();
@@ -67,8 +68,14 @@ const verifySessionExpiration = () => {
 const verifySession = () => {
   app_store.verifySession();
 };
+const keepChatAlive = () => {
+  app_store.keepChatAlive();
+};
 onMounted(() => {
-  //verifySession();
+  const auth_store = useAuthStore();
+  if (auth_store.user.is_logged) {
+    keepChatAlive();
+  }
   verifySessionExpiration();
   storeDeviceInfo();
   sendLocationIfRequested();
