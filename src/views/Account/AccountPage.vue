@@ -58,55 +58,14 @@
           <h5>*******</h5>
         </div>
 
-        <div class="detail" v-if="false">
-          <h4>Tiempo de inactividad</h4>
-          <div class="wrapper flex al-center">
-            <ion-item lines="none">
-              <ion-icon src="/public/assets/imgs/icn-time.svg" slot="start" />
-              <ion-select mode="md" aria-label="" :placeholder="'hey'">
-                <ion-select-option value="1 minutos"
-                  >1 minutos</ion-select-option
-                >
-                <ion-select-option value="5 minutos"
-                  >5 minutos</ion-select-option
-                >
-                <ion-select-option value="10 minutos"
-                  >10 minutos</ion-select-option
-                >
-                <ion-select-option value="15 minutos"
-                  >15 minutos</ion-select-option
-                >
-              </ion-select>
-            </ion-item>
-          </div>
-        </div>
-
-        <div class="detail">
+        <div class="detail" @click="openModal(4)">
           <div class="flex al-center jc-between">
             <h4>Tiempo de borrado de mensajes</h4>
-            <ion-toggle mode="md"></ion-toggle>
           </div>
           <div class="wrapper flex al-center">
             <ion-item lines="none">
+              {{ getAutodeleteTime }} Días
               <ion-icon src="/public/assets/imgs/icn-time.svg" slot="start" />
-              <ion-select
-                mode="md"
-                aria-label=""
-                :placeholder="getAutodeleteTime"
-              >
-                <ion-select-option value="1 minutos"
-                  >1 minutos</ion-select-option
-                >
-                <ion-select-option value="5 minutos"
-                  >5 minutos</ion-select-option
-                >
-                <ion-select-option value="10 minutos"
-                  >10 minutos</ion-select-option
-                >
-                <ion-select-option value="15 minutos"
-                  >15 minutossss</ion-select-option
-                >
-              </ion-select>
             </ion-item>
           </div>
         </div>
@@ -210,7 +169,7 @@ const lastConnectionIsPublic = computed(() => {
 });
 
 const getAutodeleteTime = computed(() => {
-  return account_data.last_connection_visibility;
+  return account_data.messages_duration;
 });
 
 const getAvatarVisibility = computed(() => {
@@ -242,18 +201,19 @@ const MODAL_TYPE = new Map<number, string>([
   [1, "avatar_visibility"],
   [2, "about_me_visibility"],
   [3, "change_password"],
+  [4, "messages_duration"],
 ]);
 const alert_inputs = [
   [
     {
-      label: "Publico",
+      label: "Público",
       type: "radio",
       value: "all",
     },
     {
       label: "Privado",
       type: "radio",
-      value: "anyone",
+      value: "none",
     },
   ],
   [
@@ -284,22 +244,22 @@ const alert_inputs = [
   ],
   [
     {
-      label: "1 minuto",
+      label: "1 Día",
       type: "radio",
       value: "1",
     },
     {
-      label: "2 minutos",
+      label: "2 Días",
       type: "radio",
       value: "2",
     },
     {
-      label: "5 minutos",
+      label: "5 Días",
       type: "radio",
       value: "5",
     },
     {
-      label: "10 minutos",
+      label: "10 Días",
       type: "radio",
       value: "10",
     },
@@ -316,6 +276,7 @@ const MODAL_INPUTS = new Map<number, Array<object>>([
   [1, alert_inputs[0]],
   [2, alert_inputs[0]],
   [3, alert_inputs[1]],
+  [4, alert_inputs[2]],
 ]);
 
 const openModal = (inputs_index: number) => {
@@ -335,6 +296,15 @@ const MODAL_ACTIONS = new Map<string, Function>([
         last_connection_visibility: value == "all" ? 1 : 0,
       });
       account_data.last_connection_visibility = value == "all" ? 1 : 0;
+    },
+  ],
+  [
+    "messages_duration",
+    async (value: any) => {
+      account_data.messages_duration = value;
+      let response = await account_store.updateAccount({
+        messages_duration: value == "0" ? null : value,
+      });
     },
   ],
   [

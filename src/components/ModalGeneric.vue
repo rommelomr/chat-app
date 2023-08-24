@@ -31,6 +31,7 @@ ion-modal#example-modal .wrapper {
       id="example-modal"
       :is-open="modal_is_open"
       trigger="open-custom-dialog"
+      @didDismiss="onDismiss"
     >
       <div class="wrapper">
         <h1>{{ title }}</h1>
@@ -58,7 +59,7 @@ import {
 } from "@ionic/vue";
 import { personCircle } from "ionicons/icons";
 import { onMounted, reactive, ref, watch } from "vue";
-
+const emit = defineEmits(["onDismiss"]);
 let modal_is_open = ref(false);
 const props = defineProps({
   isOpen: {
@@ -76,6 +77,11 @@ watch(
     modal_is_open.value = is_open;
   }
 );
+const onDismiss = () => {
+  emit("onDismiss", {
+    name: "ModalGeneric.onDismiss",
+  });
+};
 onMounted(() => {
   modal_is_open.value = props.isOpen;
 });

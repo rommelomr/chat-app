@@ -114,7 +114,10 @@ const selectChatUserUseCase = async (
       await currentConversation.setCurrentConversation({
         id: 0,
         type: "SINGLE",
-        label: contact.nickname ?? data.chat_user.access_code,
+        label:
+          contact.nickname == ""
+            ? data.chat_user.access_code
+            : contact.nickname,
         isEmpty: true,
         contact_id: contact.id,
         userConversation: data.chat_user,
@@ -125,11 +128,15 @@ const selectChatUserUseCase = async (
       });
     }
     if (data.conversation.status == 200) {
+      console.log(contact);
       console.log(data);
       await currentConversation.setCurrentConversation({
         id: data.conversation.id,
         type: "SINGLE",
-        label: contact.nickname ?? data.chat_user.access_code,
+        label:
+          contact.nickname == ""
+            ? data.chat_user.access_code
+            : contact.nickname,
         contact_id: contact.id,
         isEmpty: false,
         userConversation: data.chat_user,

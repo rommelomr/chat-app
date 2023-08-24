@@ -22,7 +22,9 @@ export const useContactsStore = defineStore({
       const auth_store = useAuthStore();
       let { data, error } = await supabase
         .from("contacts")
-        .select("*,chat_user:contact_id(*,person:people(*))")
+        .select(
+          "*,chat_user:contact_id(*,person:people(*),account:accounts(*))"
+        )
         .eq("chat_user_id", auth_store.getUser().chat_user_id);
 
       Utils.handleErrors(error);

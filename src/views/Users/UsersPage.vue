@@ -52,38 +52,41 @@
     </ion-content>
 
     <ModalGeneric
+      @onDismiss="dismissModal"
       :is-open="selected_chat_user.is_selected"
       title="Agregar contacto"
     >
-      <div align="center" v-if="selected_chat_user.is_selected">
-        <ion-avatar slot="start">
-          <img :src="getPhoto(selected_chat_user.data)" />
-        </ion-avatar>
-      </div>
-      <br />
+      <div v-if="selected_chat_user.is_selected">
+        <div align="center">
+          <ion-avatar slot="start">
+            <img :src="getPhoto(selected_chat_user.data)" />
+          </ion-avatar>
+        </div>
+        <br />
 
-      <div align="center">
-        codigo del usuario:
-        {{ selected_chat_user.data.access_code }}
-      </div>
-      <div align="center">
-        Descripción:
-        {{ getDescription(selected_chat_user.data) }}
-      </div>
-      <br />
-      <div align="center">
-        <ion-input
-          v-model="new_contact_name"
-          type="text"
-          class="ion-text-left"
-          placeholder="Asignar nickname"
-        />
-      </div>
-      <br />
-      <div align="center">
-        <ion-button @click="addContact" expand="block"
-          >Agregar como contacto</ion-button
-        >
+        <div align="center">
+          codigo del usuario:
+          {{ selected_chat_user.data.access_code }}
+        </div>
+        <div align="center">
+          Descripción:
+          {{ getDescription(selected_chat_user.data) }}
+        </div>
+        <br />
+        <div align="center">
+          <ion-input
+            v-model="new_contact_name"
+            type="text"
+            class="ion-text-left"
+            placeholder="Asignar nickname"
+          />
+        </div>
+        <br />
+        <div align="center">
+          <ion-button @click="addContact" expand="block"
+            >Agregar como contacto</ion-button
+          >
+        </div>
       </div>
     </ModalGeneric>
     <ion-toast
@@ -136,6 +139,7 @@ let userAuth = useAuthStore().getUser();
 
 const dismissModal = () => {
   selected_chat_user.is_selected = false;
+  selected_chat_user.data = {};
 };
 
 let toast = reactive({
@@ -231,11 +235,13 @@ const getPhoto = (chat_user: any) => {
   return `/assets/imgs/avatar/empty.svg`;
 };
 const getDescription = (chat_user: any) => {
+  console.log(chat_user);
   let _description_is_public = chat_user.account[0].about_me_visibility == 1;
-  if (_description_is_public) return chat_user.description;
+  if (_description_is_public) return chat_user.person.description;
 
   return "Descripción privada";
 };
+
 const displayedChatUsers = computed(() => {
   const query = searcher.value.toLowerCase().trim();
   if (query === "") {

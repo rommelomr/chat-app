@@ -224,7 +224,7 @@ const keepOnlineMessage = () => {
   clearTimeout(show_online_timeout);
   show_online_timeout = setTimeout(() => {
     show_online_message.value = false;
-  }, 40000);
+  }, 17000);
 };
 watch(
   () => conversation_store.my_conversations_realtime.partner_last_connection,
@@ -236,7 +236,23 @@ setCurrentConversation();
 const suscribeToPartnerAccount = () => {
   conversation_store.suscribeToPartnerAccount();
 };
+const getPartner = () => {
+  return currentConversation.value.userConversation;
+};
+const detectPartnerOnline = () => {
+  let _last_connection_date = new Date(
+    getPartner()?.account[0].last_connection
+  );
+  _last_connection_date.setSeconds(_last_connection_date.getSeconds() + 15);
+  let _current_date = new Date();
+  console.log(_last_connection_date);
+  console.log(_current_date);
+  if (_last_connection_date >= _current_date) {
+    show_online_message.value = true;
+  }
+};
 onMounted(() => {
+  detectPartnerOnline();
   suscribeToPartnerAccount();
 });
 </script>

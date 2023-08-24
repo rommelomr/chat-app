@@ -188,10 +188,14 @@ const goConversation = async (conversation: any) => {
 
 const getPartnerName = (conversation: any) => {
   let partner = getPartner(conversation);
+  console.log(partner);
   if (partner.contacts.length === 0) {
     return partner.access_code;
   }
-  return partner.contacts[0].nickname ?? partner.access_code;
+  console.log(partner.contacts[0].nickname == "");
+  return partner.contacts[0].nickname == ""
+    ? partner.access_code
+    : partner.contacts[0].nickname;
 };
 
 const getPartner = (conversation: any): any => {

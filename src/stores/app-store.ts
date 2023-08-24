@@ -217,16 +217,20 @@ export const useAppStore = defineStore({
         auth_store.cleanLogin();
       }
     },
-    async keepChatAlive() {
+    async sendAliveStatus() {
       const auth_store = useAuthStore();
+      await supabase
+        .from("accounts")
+        .update({
+          last_connection: new Date(),
+        })
+        .eq("chat_user_id", auth_store.getUser().chat_user_id);
+    },
+    async keepChatAlive() {
+      await this.sendAliveStatus();
       setInterval(async () => {
-        await supabase
-          .from("accounts")
-          .update({
-            last_connection: new Date(),
-          })
-          .eq("chat_user_id", auth_store.getUser().chat_user_id);
-      }, 30000);
+        await this.sendAliveStatus();
+      }, 15000);
     },
   },
 });

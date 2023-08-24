@@ -276,18 +276,19 @@ const getMessageRequest = async (
   chat_user: number
 ): Promise<any | undefined> => {
   let _me = current_conversation.getCurrentConversation().me;
-
+  const auth_store = useAuthStore();
   try {
     let { data, error } = await supabase
       .from("messages")
       .select(
-        "*,chat_user:chat_users(*,person:people(*)),files:message_files(*)"
+        "*,message_view(*),chat_user:chat_users(*,person:people(*)),files:message_files(*)"
       )
+
       .eq("conversation_id", current_conversation.getCurrentConversation().id)
+
       .or(
         `chat_user_id.neq.${_me},and(chat_user_id.eq.${_me},deleted_for_me.eq.FALSE)`
       )
-      .is("message_files.deleted_at", null)
       .is("deleted_for_all", false)
       .order("created_at", { ascending: true });
     return data;
