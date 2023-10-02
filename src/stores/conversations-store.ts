@@ -174,7 +174,20 @@ export const useConversationsStore = defineStore({
             let { data, error } = await supabase
               .from("conversations")
               .select(
-                "*,last_message:messages(*),flag:chat_users_conversations(id),chat_users_conversations(*,chat_users(*,person:people(*))),groups(*),private_conversation:private_conversations(*)"
+                `*,
+                last_message:messages(*),
+                flag:chat_users_conversations(id),
+                c_u_conversations:chat_users_conversations(
+                  *,
+                  chat_users(
+                    *,
+                    person:people(*),
+                    account:accounts(*),
+                    contacts:contacts_contact_id_fkey(*)
+                  )
+                ),
+                groups(*),
+                private_conversation:private_conversations(*)`
               )
               .eq("id", event.new.conversation_id)
               .is("messages.is_last", true)
@@ -597,6 +610,24 @@ export const useConversationsStore = defineStore({
         chatuserid: auth_store.getUser().chat_user_id,
         conversationid: this.getCurrentConversation().id,
       });
+    },
+    async emptyConversation() {
+      let _conversation_id = this.getCurrentConversation().id;
+
+      let { data, error } = await supabase.rpc("empty_conversation", {
+        conversationid: _conversation_id,
+      });
+
+      Utils.handleErrors(error);
+      return {
+        status: 200,
+        action: "EMPTY_CONVERSATION",
+        message: "Conversation empty",
+        entity: "CONVERSATIONS",
+        data: {
+          updated: true,
+        },
+      };
     },
     async suscribeToPartnerAccount() {
       let _partner = this.getCurrentConversation().userConversation;

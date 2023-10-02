@@ -150,4 +150,19 @@ export default class Utils {
 
     return content == (await navigator.clipboard.readText());
   }
+  static utcToLocalDateTime(date: any, type?: string) {
+    let fecha = new Date(date);
+
+    // Obtener la hora local
+    let horaLocal = fecha.toLocaleTimeString();
+
+    // Obtener la fecha local
+    let fechaLocal = fecha.toLocaleDateString();
+
+    if (!type) return fechaLocal + " " + horaLocal;
+
+    if (type == "date") return fechaLocal;
+
+    if (type == "time") return horaLocal;
+  }
 }

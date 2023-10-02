@@ -23,7 +23,7 @@
 
                 <div class="btn-holder ion-padding">
                   <ion-button expand="block" @click="setAccesTypeOpen(true)">
-                    AGREGAR Y CONTINUAR
+                    ACEPTAR Y CONTINUAR
                   </ion-button>
                 </div>
               </div>

@@ -157,9 +157,13 @@ const goNew = () => {
   router.replace("/newgroup");
 };
 const init = async () => {
+  const auth_store = useAuthStore();
   let { data, error } = await supabase
     .from("chat_users")
-    .select("*,person:people(*,user:users(*))");
+    .select(
+      "*,person:people(*,user:users(*)),contacts!contacts_chat_user_id_fkey(*)"
+    )
+    .eq("contacts.chat_user_id", auth_store.getUser().chat_user_id);
   if (error || !data) return;
   users.value = data;
 };

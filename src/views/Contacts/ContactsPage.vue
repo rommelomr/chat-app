@@ -50,6 +50,17 @@
           </ion-label>
         </ion-item>
       </div>
+      <ion-fab
+        style="margin-bottom: 70px"
+        slot="fixed"
+        vertical="bottom"
+        horizontal="end"
+        @click="goToUsersTab"
+      >
+        <ion-fab-button>
+          <ion-icon aria-hidden="true" :icon="personAddOutline" />
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
@@ -66,7 +77,12 @@ import {
 } from "vue";
 import { supabase } from "@/utils/SupabaseClient";
 import { IonPage, IonHeader, IonToolbar } from "@ionic/vue";
-import { arrowForward, close, searchOutline } from "ionicons/icons";
+import {
+  personAddOutline,
+  arrowForward,
+  close,
+  searchOutline,
+} from "ionicons/icons";
 import "./ContactsPage.scss";
 import { useRouter } from "vue-router";
 import { ChatUser } from "@/logic/interfaces/iChatUser";
@@ -208,4 +224,8 @@ const displayedGroupList = computed(() => {
     );
   }
 });
+
+const goToUsersTab = () => {
+  router.replace("/users");
+};
 </script>

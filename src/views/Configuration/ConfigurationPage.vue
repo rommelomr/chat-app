@@ -69,7 +69,7 @@ let profile_info = reactive({
 
 const loadProfile = async () => {
   let _info = await profile_store.getProfile();
-  console.log(_info);
+
   profile_info.description = _info.description;
   profile_info.photo = "/assets/imgs/avatar/" + _info.photo + ".svg";
 };

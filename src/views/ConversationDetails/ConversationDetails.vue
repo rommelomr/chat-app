@@ -23,6 +23,13 @@
           <img :src="getConversationImage()" alt="" />
         </ion-avatar>
       </div>
+      <div
+        class="dp-holder ion-text-center ion-padding"
+        v-if="!partner_is_my_contact"
+      >
+        Esta persona no esta en tu lista de contactos
+        <a @click="addContact">Agregar a mis contactos</a>
+      </div>
 
       <div class="quote ion-padding">
         <h4 class="ion-text-wrap">
@@ -74,7 +81,7 @@
             .chat_users_conversations"
           :key="'conversation_' + i"
         >
-          <h4>{{ pivot_chat_user.chat_user.access_code }}</h4>
+          {{ pivot_chat_user.chat_user.access_code }}
           <!-- <div class="btn-holder flex al-center">
             <div
               class="btn ion-activatable flex al-center jc-center ripple-parent"
@@ -108,14 +115,14 @@
           <ion-label>Bloquear usuario</ion-label>
         </ion-item>
       </div>
-      <div class="seperator" style="margin-top: 0"></div>
+      <!-- <div class="seperator" style="margin-top: 0"></div>
 
       <div class="last">
         <ion-item button lines="none" detail="false">
           <ion-icon src="/public/assets/imgs/reporter.svg" slot="start" />
           <ion-label>Reportar contacto</ion-label>
         </ion-item>
-      </div>
+      </div> -->
     </ion-content>
     <MediaLayout :is-active="file.is_active" @onExit="closeFile">
       <img v-if="file.type == 'image'" :src="file.url" />
@@ -126,6 +133,26 @@
         autoplay
       ></audio>
     </MediaLayout>
+    <ion-modal class="ion-modall" :is-open="isModalOpen" @dismiss="() => {}">
+      <ion-content class="modall ion-padding">
+        <div class="holder">
+          <div class="section">
+            <h3>Ingrese Nick Name</h3>
+            <ion-item>
+              <ion-input v-model="new_contact_name" />
+            </ion-item>
+            <div class="btns-holder flex al-center jc-end">
+              <ion-button fill="clear" @click="dismissModal"
+                >Cancelar</ion-button
+              >
+              <ion-button @click="createContact" fill="clear"
+                >Guardar</ion-button
+              >
+            </div>
+          </div>
+        </div>
+      </ion-content>
+    </ion-modal>
   </ion-page>
 </template>
 
@@ -139,19 +166,24 @@ import PreviewModal from "../Modals/PreviewModal.vue";
 import { useConversationsStore } from "@/stores/conversations-store";
 import { Vue3Lottie } from "vue3-lottie";
 import Sound from "../../../public/assets/lottie-files/sound.json";
+import { useContactsStore } from "@/stores/contacts-store";
+
+const chat_users_store = useContactsStore();
 const conversations_store = useConversationsStore();
-const im_contact_of_partner =
+let im_contact_of_partner =
   Object.keys(conversations_store.getConversationDetails().im_contact).length >
   0;
 
-const partner_is_my_contact =
-  Object.keys(conversations_store.getConversationDetails().contact).length > 0;
+let partner_is_my_contact = ref(
+  Object.keys(conversations_store.getConversationDetails().contact).length > 0
+);
 const router = useRouter();
 const file = reactive({
   url: "",
   type: "",
   is_active: false,
 });
+
 interface Item {
   src: string;
 }
@@ -182,6 +214,7 @@ const groupList = ref([
     src: "assets/imgs/img.png",
   },
 ]);
+
 const conversationIsSingle = () => {
   return conversations_store.getCurrentConversation().type == "SINGLE";
 };
@@ -225,10 +258,12 @@ const getChatUserName = () => {
 const getGroupName = () => {
   return conversations_store.getConversationDetails().data.group[0].name;
 };
+
 const getDescription = () => {
   if (conversationIsSingle()) return getChatUserDescription();
   else return getGroupDescription();
 };
+
 const getConversationName = () => {
   if (conversationIsSingle()) {
     return getChatUserName();
@@ -236,11 +271,13 @@ const getConversationName = () => {
     return getGroupName();
   }
 };
+
 const openFile = async (selected_file: any) => {
   file.type = selected_file.mimetype;
   file.url = selected_file.url;
   file.is_active = true;
 };
+
 const closeFile = () => {
   file.is_active = false;
   file.type = "";
@@ -256,6 +293,7 @@ const getPartnerImage = () => {
   let _person =
     conversations_store.getConversationDetails().data
       .chat_users_conversations[0].chat_user.person;
+
   if (im_contact_of_partner) {
     return "/assets/imgs/avatar/" + _person.photo + ".svg";
   }
@@ -267,6 +305,7 @@ const getPartnerImage = () => {
   }
   return "/assets/imgs/avatar/empty.svg";
 };
+
 const getConversationImage = () => {
   if (conversationIsSingle()) {
     return getPartnerImage();
@@ -274,6 +313,7 @@ const getConversationImage = () => {
     return getGroupImage();
   }
 };
+
 const hasFiles = () => {
   return (
     conversations_store.getConversationDetails().files &&
@@ -289,4 +329,32 @@ watch(
     if (path == "/conversation") conversations_store.resetConversationDetails();
   }
 );
+
+let isModalOpen = ref(false);
+let new_contact_name = ref("");
+
+const dismissModal = () => {
+  isModalOpen.value = false;
+  new_contact_name.value = "";
+};
+
+const createContact = async () => {
+  let _partner =
+    conversations_store.getConversationDetails().data
+      .chat_users_conversations[0].chat_user;
+
+  const store_response = await chat_users_store.addContact(
+    _partner.id,
+    new_contact_name.value
+  );
+  conversations_store.getConversationDetails().contact = store_response.data;
+
+  partner_is_my_contact.value = true;
+  isModalOpen.value = false;
+  conversations_store.getCurrentConversation().label = new_contact_name.value;
+};
+
+const addContact = () => {
+  isModalOpen.value = true;
+};
 </script>

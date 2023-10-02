@@ -64,7 +64,7 @@
           </div>
           <div class="wrapper flex al-center">
             <ion-item lines="none">
-              {{ getAutodeleteTime }} Días
+              {{ getAutodeleteTime }}
               <ion-icon src="/public/assets/imgs/icn-time.svg" slot="start" />
             </ion-item>
           </div>
@@ -169,7 +169,11 @@ const lastConnectionIsPublic = computed(() => {
 });
 
 const getAutodeleteTime = computed(() => {
-  return account_data.messages_duration;
+  return account_data.messages_duration
+    ? alert_inputs[2].filter((input: any) => {
+        return input.value == account_data.messages_duration;
+      })[0].label
+    : "Desactivado";
 });
 
 const getAvatarVisibility = computed(() => {
@@ -246,22 +250,22 @@ const alert_inputs = [
     {
       label: "1 Día",
       type: "radio",
-      value: "1",
+      value: "1440",
     },
     {
       label: "2 Días",
       type: "radio",
-      value: "2",
+      value: "2880",
     },
     {
       label: "5 Días",
       type: "radio",
-      value: "5",
+      value: "7200",
     },
     {
       label: "10 Días",
       type: "radio",
-      value: "10",
+      value: "14400",
     },
     {
       label: "Nunca",
@@ -301,7 +305,7 @@ const MODAL_ACTIONS = new Map<string, Function>([
   [
     "messages_duration",
     async (value: any) => {
-      account_data.messages_duration = value;
+      account_data.messages_duration = value == "0" ? null : value;
       let response = await account_store.updateAccount({
         messages_duration: value == "0" ? null : value,
       });
@@ -365,6 +369,7 @@ const updateAccount = (value: string, option: string) => {
   }
 };
 const onCloseModal = (event: any) => {
+  console.log(event.detail.data);
   if (event.detail.data)
     updateAccount(event.detail.data.values, modal.selected_option);
   modal.is_open = false;

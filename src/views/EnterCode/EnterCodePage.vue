@@ -69,16 +69,22 @@ let form_state = reactive({
 });
 const signIn = async () => {
   app_store.setAppIsLoading(true);
-  let error = await auth_store.attemptLogin(
+  let response = await auth_store.attemptLogin(
     form_state.code.toLocaleLowerCase(),
     form_state.password
   );
   app_store.setAppIsLoading(false);
+  if (response.succes) {
+    router.replace({
+      path: "/tabs/tab1",
+    });
+    return;
+  }
   router.replace({
     path: "/welcome",
     query: {
       isObtaincode: true.toString(),
-      message: error.message,
+      message: response.message,
     },
   });
 };

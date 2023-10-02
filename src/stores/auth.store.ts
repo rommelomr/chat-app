@@ -10,7 +10,7 @@ import { Device } from "@capacitor/device";
 export const useAuthStore = defineStore({
   id: "auth-store",
   state: () => ({
-    user: useStorage("auth", {
+    user: {
       id: "",
       token: "",
       chat_user_id: -1,
@@ -19,7 +19,7 @@ export const useAuthStore = defineStore({
       is_logged: false,
       role: "",
       email: "",
-    }),
+    },
     user_data: useStorage("user_data", {}),
   }),
 
@@ -67,8 +67,9 @@ export const useAuthStore = defineStore({
         role: data.user.role,
         email: data.user.email,
       });
-      window.location.replace("/tabs/tab1");
-      throw "stop";
+      return {
+        succes: true,
+      };
     },
     setLogin(user_data: any) {
       this.$patch({

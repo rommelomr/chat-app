@@ -13,6 +13,7 @@ export const useAppStore = defineStore({
     current_device: useStorage("current_device", {
       id_machine: "",
     }),
+    current_user_account: useStorage("current_user_account", {}),
     toast: {
       is_open: false,
       message: "",
@@ -35,6 +36,12 @@ export const useAppStore = defineStore({
         is_open: true,
         message,
       });
+    },
+    setCurrentUserAccount(current_user_account: any): void {
+      this.current_user_account = current_user_account;
+    },
+    getCurrentUserAccount() {
+      return this.current_user_account;
     },
     setCurrentDevice(current_device: any): void {
       this.current_device.id_machine =
@@ -231,6 +238,16 @@ export const useAppStore = defineStore({
       setInterval(async () => {
         await this.sendAliveStatus();
       }, 15000);
+    },
+    async loadCurrentUserAccount() {
+      const auth_store = useAuthStore();
+      let { data, error } = await supabase
+        .from("accounts")
+        .select("*")
+        .eq("chat_user_id", auth_store.getUser().chat_user_id)
+        .single();
+      Utils.handleErrors(error);
+      this.setCurrentUserAccount(data);
     },
   },
 });

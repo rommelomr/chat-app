@@ -10,7 +10,7 @@
           ></ion-back-button>
         </ion-buttons>
         <ion-title>
-          <h3>Usuarios</h3>
+          <h3>Buscar usuario</h3>
         </ion-title>
       </ion-toolbar>
     </ion-header>

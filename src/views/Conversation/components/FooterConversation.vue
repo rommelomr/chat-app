@@ -5,11 +5,12 @@
   >
     <ion-toolbar>
       <ion-item lines="none">
-        <ion-input
+        <input
+          id="message-input"
           v-model="textInput"
           type="text"
           placeholder="Escribir mensaje aquí"
-        ></ion-input>
+        />
         <ion-icon aria-hidden="true" :icon="attachOutline" slot="end" />
       </ion-item>
       <ion-buttons slot="end">
@@ -105,6 +106,7 @@ watch(
     }
   }
 );
+
 let senMessageIfNotEmptyConversation = async ({
   conversation_id,
   chat_user_id,
@@ -145,6 +147,7 @@ let senMessageIfNotEmptyConversation = async ({
     .select("*")
     .eq("id", data.message_info.conversation_answer.id)
     .single();
+
   console.log(new_message_data);
   emit("onCompleteNewMessage", {
     name: "FooterConversation.on_complete_new_message",
@@ -198,7 +201,13 @@ let setCurrentConversation = () => {
   newConversationBody.auth_ids.push(uu_id ?? "");
   //}
 };
+const focusInput = () => {
+  const input = document.getElementById("message-input");
+  console.log(input);
+  input?.focus();
+};
 const setMessageSelector = () => {
+  focusInput();
   if (textInput.value == "") return;
   if (
     bodyMessage.content &&
@@ -261,3 +270,16 @@ onMounted(() => {
   setCurrentConversation();
 });
 </script>
+<style scoped>
+#message-input {
+  background: none;
+  border: none;
+  color: white;
+}
+#message-input:focus {
+  outline: none;
+}
+#message-input::placeholder {
+  color: white;
+}
+</style>

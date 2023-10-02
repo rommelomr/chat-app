@@ -1,7 +1,7 @@
 <template>
   <ion-page class="conversation-page">
     <ion-header class="ion-no-border">
-      <Toolbar />
+      <Toolbar @on-empty-chat="onEmptyChat" />
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="chat-holder">
@@ -231,7 +231,7 @@ const deleteForMe = async (id: number) => {
 const scheduleNotification = async (message: IMessage) => {};
 const presentActionSheet = async (id: number) => {
   const actionSheet = await actionSheetController.create({
-    header: "Borarr",
+    header: "Borrar",
     buttons: [
       {
         text: "Borrar para mi",
@@ -278,14 +278,15 @@ const getMessageRequest = async (
   let _me = current_conversation.getCurrentConversation().me;
   const auth_store = useAuthStore();
   try {
+    const timestamp = Date.now(); // Obtiene el timestamp actual en milisegundos
+    const currentDate = new Date(timestamp); // Crea una instancia de Date usando el timestamp
     let { data, error } = await supabase
-      .from("messages")
+      .from("non_deleted_messages")
       .select(
         "*,message_view(*),chat_user:chat_users(*,person:people(*)),files:message_files(*)"
       )
-
       .eq("conversation_id", current_conversation.getCurrentConversation().id)
-
+      .or(`autodelete_at.is.null,autodelete_at.gt.${currentDate.toISOString()}`)
       .or(
         `chat_user_id.neq.${_me},and(chat_user_id.eq.${_me},deleted_for_me.eq.FALSE)`
       )
@@ -300,9 +301,7 @@ const markMessageAsSeen = (seen_message: any) => {
   let _message_index = messages.value.findIndex((message: any) => {
     return message.id == seen_message.id;
   });
-  console.log("////////////////////////////////////////////");
-  console.log(seen_message);
-  console.log("////////////////////////////////////////////");
+
   messages.value[_message_index].max_viewers = seen_message.max_viewers;
   messages.value[_message_index].views_count = seen_message.views_count;
 };
@@ -335,7 +334,8 @@ const loadMesaggesFromConversation = async (
         let { data, error } = await supabase
           .from("messages")
           .select(
-            "*,chat_user:chat_users(*,person:people(*)),files:message_files(*)",
+            `*,
+            ,chat_user:chat_users(*,person:people(*)),files:message_files(*)`,
             {
               count: "exact",
             }
@@ -520,7 +520,9 @@ const onCompleteNewMessage = async (emitted: any) => {
     ...emitted.data,
   };
 };
-
+const onEmptyChat = () => {
+  messages.value = [];
+};
 onMounted(async () => {
   if (!current_conversation.getCurrentConversation().isEmpty) {
     conversation_store.suscribeToDetectSeen();

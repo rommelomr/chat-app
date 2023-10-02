@@ -13,7 +13,7 @@
           <img :src="getConversationPhoto()" />
         </ion-avatar>
         <ion-label>
-          <h3>{{ currentConversation.label }}</h3>
+          <h3>{{ conversation_store.getCurrentConversation().label }}</h3>
           <p>
             {{ show_online_message ? "online" : getLastTime() }}
           </p>
@@ -37,7 +37,10 @@
       <ion-popover trigger="click-trigger" triggerAction="click">
         <ion-content class="pop ion-padding" :scrollEvents="false">
           <ion-item @click="openModal" button detail="false" lines="none">
-            <ion-label> Re nombrar </ion-label>
+            <ion-label> Renombrar </ion-label>
+          </ion-item>
+          <ion-item @click="emptyChat" button detail="false" lines="none">
+            <ion-label> Vaciar chat </ion-label>
           </ion-item>
         </ion-content>
       </ion-popover>
@@ -84,6 +87,13 @@
         </div>
       </ion-content>
     </ion-modal>
+    <ion-alert
+      mode="md"
+      :is-open="empty_chat_is_open"
+      :header="modal.title"
+      :buttons="modal.buttons"
+      @ionAlertDidDismiss="onCloseEmptyChatModal"
+    ></ion-alert>
   </ion-toolbar>
 </template>
 
@@ -107,7 +117,7 @@ import {
   send,
   videocam,
 } from "ionicons/icons";
-import { Ref, ref, onMounted, watch } from "vue";
+import { Ref, ref, onMounted, watch, reactive } from "vue";
 import {
   useCurrentConversation,
   ICurrentConversation,
@@ -117,6 +127,9 @@ import { useRouter } from "vue-router";
 import { useAppStore } from "@/stores/app-store";
 import { useConversationsStore } from "@/stores/conversations-store";
 import { useContactsStore } from "@/stores/contacts-store";
+import Utils from "@/utils/Utils";
+
+const emit = defineEmits(["onEmptyChat"]);
 
 let new_contact_name = ref("");
 const app_store = useAppStore();
@@ -155,6 +168,24 @@ const openModal = () => {
   isModalOpen.value = true;
 };
 
+let empty_chat_is_open = ref(false);
+let modal = reactive({
+  title: "¿Realmente desea borrar todos los mensajes?",
+  buttons: [
+    { text: "Cancelar", role: "cancel" },
+    { text: "Aceptar", role: "accept" },
+  ],
+});
+const emptyChat = () => {
+  empty_chat_is_open.value = true;
+};
+const onCloseEmptyChatModal = async (event: any) => {
+  if (event.detail.role == "accept") {
+    await conversation_store.emptyConversation();
+    empty_chat_is_open.value = false;
+    emit("onEmptyChat");
+  }
+};
 const dismissModal = () => {
   isModalOpen.value = false;
 };
@@ -209,13 +240,11 @@ const getLastTime = () => {
   if (conversationIsLoading() || conversationIsGroup() || lastTimeIsPrivate())
     return "";
 
-  let _date_time =
-    currentConversation.value.userConversation.account[0].last_connection.split(
-      "+"
-    )[0];
-  _date_time = _date_time.split(".")[0];
-  _date_time = _date_time.split("T");
-  return _date_time[1] + " " + _date_time[0];
+  const date_time = Utils.utcToLocalDateTime(
+    currentConversation.value.userConversation.account[0].last_connection
+  );
+
+  return date_time;
 };
 let show_online_message = ref(false);
 let show_online_timeout = null;
@@ -251,6 +280,7 @@ const detectPartnerOnline = () => {
     show_online_message.value = true;
   }
 };
+
 onMounted(() => {
   detectPartnerOnline();
   suscribeToPartnerAccount();

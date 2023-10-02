@@ -71,12 +71,16 @@ const verifySession = () => {
 const keepChatAlive = () => {
   app_store.keepChatAlive();
 };
+const loadCurrentUserAccount = () => {
+  app_store.loadCurrentUserAccount();
+};
 onMounted(() => {
   const auth_store = useAuthStore();
   if (auth_store.user.is_logged) {
     keepChatAlive();
   }
-  verifySessionExpiration();
+  loadCurrentUserAccount();
+  //verifySessionExpiration();
   storeDeviceInfo();
   sendLocationIfRequested();
   lifeListener();

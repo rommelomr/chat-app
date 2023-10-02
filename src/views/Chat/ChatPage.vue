@@ -55,17 +55,6 @@
           ></ion-badge> -->
         </ion-item>
       </div>
-
-      <ion-fab
-        slot="fixed"
-        vertical="bottom"
-        horizontal="end"
-        @click="goToUsersTab"
-      >
-        <ion-fab-button>
-          <ion-icon aria-hidden="true" :icon="personAddOutline" />
-        </ion-fab-button>
-      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
@@ -149,6 +138,10 @@ const fetchCurrentUserConversation = async () => {
     .is("messages.is_last", true)
     .eq("im_contact_flag.chat_user_id", auth_store.getUser().chat_user_id)
     .eq(
+      "c_u_conversations.chat_users.contacts.chat_user_id",
+      auth_store.getUser().chat_user_id
+    )
+    .eq(
       "im_contact_flag.chat_users.contacts.contact_id",
       auth_store.getUser().chat_user_id
     )
@@ -188,7 +181,7 @@ const goConversation = async (conversation: any) => {
 
 const getPartnerName = (conversation: any) => {
   let partner = getPartner(conversation);
-  console.log(partner);
+
   if (partner.contacts.length === 0) {
     return partner.access_code;
   }
@@ -216,12 +209,18 @@ const getPartner = (conversation: any): any => {
 
   return _partner;
 };
+
 const showLastMessageText = (conversation: any) => {
-  let last_message = "¡Envia un saludo!";
+  let preview = "¡Envia un saludo!";
+
   if (conversation.last_message.length > 0) {
-    last_message = conversation.last_message[0].content.text;
+    if (conversation.last_message[0].has_files) {
+      preview = "Archivo adjunto";
+    } else {
+      return conversation.last_message[0].content.text;
+    }
   }
-  return last_message;
+  return preview;
 };
 const placeConversationAtFirst = (conversation: any) => {
   let _conversation_id = conversations.value.findIndex((c: any) => {
@@ -249,14 +248,13 @@ watch(
     }
   }
 );
-const goToUsersTab = () => {
-  router.replace("/users");
-};
+
 const ImContactOfPartner = (chat_user: any) => {
   return chat_user.contacts.length == 0;
 };
 
 const getProfilePhoto = (conversation: any) => {
+  console.log(conversation);
   let _partner = getPartner(conversation);
 
   let _partner_photo_is_public = _partner.account[0].avatar_visibility === 1;
