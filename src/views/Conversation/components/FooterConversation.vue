@@ -243,13 +243,18 @@ const onSendFile = async (emitted: any) => {
   const app_store = useAppStore();
   app_store.loadingBefore(async () => {
     pushPrevMessage();
-    let { data } = await conversation_store.sendFilesToConversation(
+    let { data, files_name } = await conversation_store.sendFilesToConversation(
       emitted.data
     );
+    let _files = [] as any[];
+    files_name.map((file_name: any) => {
+      _files.push({ name: file_name });
+    });
     emit("onCompleteSendFile", {
       name: "FooterConversation.on_complete_send_image",
       data: {
         stored_file: data,
+        files: _files,
       },
     });
     let _new_message;

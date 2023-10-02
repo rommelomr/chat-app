@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isActive" id="container">
+  <div style="color: white" v-if="isActive" id="container">
     <div id="header">
       <button id="button" @click="onExit">salir</button>
     </div>
@@ -32,7 +32,7 @@ const onExit = () => {
   position: absolute;
   width: 100vw;
   height: 100vh;
-  z-index: 10;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -432,6 +432,8 @@ export const useConversationsStore = defineStore({
         }
       }
 
+      console.log(_files_status);
+
       const { data, error } = await supabase
         .from("message_files")
         .update({
@@ -440,13 +442,12 @@ export const useConversationsStore = defineStore({
           conversation_id,
         })
         .in("name", _files_status.success)
-        .select("*")
-        .single();
+        .select("*");
 
-      console.log(data);
       Utils.handleErrors(error);
       return {
         data: message_response,
+        files_name: _files_status.success,
       };
     },
     setCurrentConversation(conversations_data: any) {
@@ -473,6 +474,7 @@ export const useConversationsStore = defineStore({
       };
     },
     async getSignedUrls(files: Array<string>) {
+      console.log(files);
       const { data, error } = await supabase.storage
         .from("users-files")
         .createSignedUrls(files, 30);

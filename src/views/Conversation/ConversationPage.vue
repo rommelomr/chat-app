@@ -22,6 +22,7 @@
         </div>
         <div id="conversation-content">
           <div v-for="(message, index) in messages" :key="index">
+            <pre>{{ message.files }}</pre>
             <div
               v-if="
                 message.chat_user_id ===
@@ -508,7 +509,12 @@ const toggleMediaLayout = () => {
   media_layout_open.value = !media_layout_open.value;
 };
 const onCompleteSendFile = (emitted: any) => {
-  messages.value[messages.value.length - 1].files[0] = emitted.data.stored_file;
+  console.log(emitted.data);
+  if (emitted.data.stored_file.message_type == "new_message") {
+    messages.value[messages.value.length - 1].files[0] = emitted.data.files[0];
+  }
+
+  //messages.value[messages.value.length - 1].files[0] = emitted.data.stored_file;
 };
 const onCompleteNewMessage = async (emitted: any) => {
   console.log("=========================================");
