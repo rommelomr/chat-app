@@ -22,7 +22,6 @@
         </div>
         <div id="conversation-content">
           <div v-for="(message, index) in messages" :key="index">
-            <pre>{{ message.files }}</pre>
             <div
               v-if="
                 message.chat_user_id ===
