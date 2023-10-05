@@ -447,7 +447,7 @@ export const useConversationsStore = defineStore({
       Utils.handleErrors(error);
       return {
         data: message_response,
-        files_name: _files_status.success,
+        files: _message_files,
       };
     },
     setCurrentConversation(conversations_data: any) {

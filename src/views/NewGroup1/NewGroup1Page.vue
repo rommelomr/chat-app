@@ -21,7 +21,16 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <div class="avatar-list" v-if="selectedList.length > 0">
+      <div class="avatar-list">
+        <div
+          v-if="selectedList.length == 0"
+          style="padding-top: 28px; padding-bottom: 28px"
+          class="avatar-holder ion-text-center"
+        >
+          <span style="font-size: 13px"
+            >Seleccione al menos un contacto para crear un grupo.</span
+          >
+        </div>
         <div
           class="avatar-holder ion-text-center"
           v-for="(group, index) in selectedList"

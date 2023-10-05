@@ -25,7 +25,10 @@
       </div>
       <div
         class="dp-holder ion-text-center ion-padding"
-        v-if="!partner_is_my_contact"
+        v-if="
+          !partner_is_my_contact &&
+          !conversations_store.getCurrentConversation().groups
+        "
       >
         Esta persona no esta en tu lista de contactos
         <a @click="addContact">Agregar a mis contactos</a>
@@ -109,12 +112,23 @@
 
       <div class="seperator"></div>
 
-      <div class="last">
+      <div
+        class="last"
+        v-if="conversations_store.getCurrentConversation().groups"
+      >
         <ion-item button lines="none" detail="false">
           <ion-icon src="/public/assets/imgs/block.svg" slot="start" />
-          <ion-label>Bloquear usuario</ion-label>
+          <ion-label>Salir del grupo</ion-label>
         </ion-item>
       </div>
+
+      <div class="last" v-else>
+        <ion-item button lines="none" detail="false">
+          <ion-icon src="/public/assets/imgs/block.svg" slot="start" />
+          <ion-label>Bloquear contacto</ion-label>
+        </ion-item>
+      </div>
+
       <!-- <div class="seperator" style="margin-top: 0"></div>
 
       <div class="last">

@@ -1,6 +1,6 @@
 <template>
   <ion-toolbar v-if="currentConversation">
-    <ion-buttons slot="start">
+    <ion-buttons slot="start" style="padding-right: 10px">
       <ion-back-button
         defaultHref="/tabs/tab1"
         mode="ios"
@@ -269,6 +269,8 @@ const getPartner = () => {
   return currentConversation.value.userConversation;
 };
 const detectPartnerOnline = () => {
+  if (conversation_store.getCurrentConversation().label == "Loading..")
+    return "";
   let _last_connection_date = new Date(
     getPartner()?.account[0].last_connection
   );

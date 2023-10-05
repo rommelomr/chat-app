@@ -28,7 +28,7 @@
                 current_conversation.getCurrentConversation().me
               "
               class="current"
-              @touchstart="startHold"
+              @touchstart="startHold(message)"
               @touchend="clearHold"
               @touchmove="clearHold"
               @touchcancel="clearHold"
@@ -41,7 +41,7 @@
                       v-if="
                         message.files.length > 0 && message.files[0].id != ''
                       "
-                      :animationData="File"
+                      :animationData="getFile(message.files[0])"
                       :height="70"
                       :width="70"
                     />
@@ -66,7 +66,14 @@
                       "
                     />
                     <ion-icon v-else aria-hidden="true" :icon="timeOutline" />
-                    <p>{{ getDateDifference(message.created_at) }}</p>
+                    <p>
+                      {{
+                        Utils.utcToLocalDateTime(
+                          message.created_at,
+                          "time-date"
+                        )
+                      }}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -74,31 +81,35 @@
             <div
               v-else
               class="partner"
-              @touchstart="startHold"
+              @touchstart="startHold(message)"
               @touchend="clearHold"
               @touchmove="clearHold"
               @touchcancel="clearHold"
             >
               <div class="chat-bubble">
                 <span
-                  v-if="current_conversation.getCurrentConversation().group"
+                  v-if="current_conversation.getCurrentConversation().groups"
                 >
                   <span class="partner-name">{{
-                    message.chat_user.access_code
+                    getUserName(message.chat_user.access_code)
                   }}</span
                   ><br /><br />
                 </span>
                 <Vue3Lottie
                   @click="seeFiles(message)"
                   v-if="message.files.length > 0"
-                  :animationData="File"
+                  :animationData="getFile(message.files[0])"
                   :height="100"
                   :width="100"
                 />
                 <h4>{{ message.content.text }}</h4>
               </div>
               <div class="time">
-                <p>{{ getDateDifference(message.created_at) }}</p>
+                <p>
+                  {{
+                    Utils.utcToLocalDateTime(message.created_at, "time-date")
+                  }}
+                </p>
               </div>
             </div>
           </div>
@@ -189,10 +200,13 @@ import { useAppStore } from "@/stores/app-store";
 import { Vue3Lottie } from "vue3-lottie";
 import Hello from "../../../public/assets/lottie-files/hello.json";
 import File from "../../../public/assets/lottie-files/file.json";
+import AudioLottie from "../../../public/assets/lottie-files/sound-2.json";
+import ImageLottie from "../../../public/assets/lottie-files/image.json";
 import SendingFile from "../../../public/assets/lottie-files/sending-file.json";
 import "./ConversationPage.scss";
 import Mimetypes from "@/utils/Mimetypes";
 import { useConversationsStore } from "@/stores/conversations-store";
+import Utils from "@/utils/Utils";
 const current_conversation = useCurrentConversation();
 const conversation_store = useConversationsStore();
 const app_store = useAppStore();
@@ -223,38 +237,50 @@ const deleteForAll = async (id: number) => {
 };
 
 const deleteForMe = async (id: number) => {
-  let { data, error } = await supabase
-    .from("messages")
-    .update({ deleted_for_me: true })
-    .eq("id", id);
+  // let { data, error } = await supabase
+  //   .from("messages")
+  //   .update({ deleted_for_me: true })
+  //   .eq("id", id);
+
+  console.log(current_conversation.getCurrentConversation().me);
+  let { data, error } = await supabase.from("deleted_messages").insert({
+    chat_user_id: current_conversation.getCurrentConversation().me,
+    message_id: id,
+    conversation_id: current_conversation.getCurrentConversation().id,
+  });
 };
 const scheduleNotification = async (message: IMessage) => {};
-const presentActionSheet = async (id: number) => {
+const presentActionSheet = async (
+  id: number,
+  message_is_of_current: boolean
+) => {
+  let buttons = [
+    {
+      text: "Borrar para mi",
+      role: "destructive",
+      data: {
+        action: "delete",
+      },
+    },
+    {
+      text: "Cancel",
+      role: "cancel",
+      data: {
+        action: "cancel",
+      },
+    },
+  ];
+  if (message_is_of_current)
+    buttons.splice(1, 0, {
+      text: "Borarr para todos",
+      role: "destructive",
+      data: {
+        action: "delete_all",
+      },
+    });
   const actionSheet = await actionSheetController.create({
-    header: "Borrar",
-    buttons: [
-      {
-        text: "Borrar para mi",
-        role: "destructive",
-        data: {
-          action: "delete",
-        },
-      },
-      {
-        text: "Borarr para todos",
-        role: "destructive",
-        data: {
-          action: "delete_all",
-        },
-      },
-      {
-        text: "Cancel",
-        role: "cancel",
-        data: {
-          action: "cancel",
-        },
-      },
-    ],
+    header: "Opciones",
+    buttons: buttons,
   });
 
   await actionSheet.present();
@@ -477,9 +503,12 @@ const seeFiles = async (message: any) => {
 const holdTimer = ref(null);
 
 const startHold = (message: any) => {
+  let message_is_of_current =
+    message.chat_user_id == conversation_store.getCurrentConversation().me;
+
   holdTimer.value = setTimeout(() => {
     console.log('Evento "on-hold" detectado.');
-    presentActionSheet(message.id);
+    presentActionSheet(message.id, message_is_of_current);
     // Coloca aquí el código que deseas ejecutar durante el evento "on-hold".
   }, 500); // Ajusta el tiempo en milisegundos según la duración deseada para el "on-hold".
 };
@@ -508,12 +537,7 @@ const toggleMediaLayout = () => {
   media_layout_open.value = !media_layout_open.value;
 };
 const onCompleteSendFile = (emitted: any) => {
-  console.log(emitted.data);
-  if (emitted.data.stored_file.message_type == "new_message") {
-    messages.value[messages.value.length - 1].files[0] = emitted.data.files[0];
-  }
-
-  //messages.value[messages.value.length - 1].files[0] = emitted.data.stored_file;
+  messages.value[messages.value.length - 1].files[0] = emitted.data.files[0];
 };
 const onCompleteNewMessage = async (emitted: any) => {
   console.log("=========================================");
@@ -528,6 +552,40 @@ const onCompleteNewMessage = async (emitted: any) => {
 const onEmptyChat = () => {
   messages.value = [];
 };
+const getFile = (file: any) => {
+  console.log(file);
+  let { data, error } = Mimetypes(file.metadata.mimetype);
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+  if (data.name == "audio") return AudioLottie;
+  if (data.name == "image") return ImageLottie;
+  return File;
+};
+
+watch(
+  () => current_conversation.getCurrentConversation().id,
+  () => {
+    getContactsFromGroup();
+  }
+);
+const getContactsFromGroup = async () => {
+  const { data, error } = await supabase.rpc("get_contact_nicknames", {
+    currentchatuserid: current_conversation.getCurrentConversation().me,
+    conversationid: current_conversation.getCurrentConversation().id,
+  });
+  Utils.handleErrors(error);
+  current_conversation.setGroupContacts(data);
+};
+
+const getUserName = (code: string) => {
+  let contacts = current_conversation.getGroupContacts();
+  //@ts-ignore
+  return contacts[code] ?? code;
+};
+
 onMounted(async () => {
   if (!current_conversation.getCurrentConversation().isEmpty) {
     conversation_store.suscribeToDetectSeen();
@@ -551,6 +609,10 @@ onMounted(async () => {
   height: 100vh;
 }
 .partner-name {
+  background: #163f68;
+  color: white;
+  padding: 4px;
+  border-radius: 5px 5px 5px 5px;
   font-size: 12px;
 }
 </style>

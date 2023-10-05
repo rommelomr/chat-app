@@ -53,7 +53,12 @@
           </ion-badge> -->
         </ion-item>
       </div>
-      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <ion-fab
+        style="margin-bottom: 70px"
+        slot="fixed"
+        vertical="bottom"
+        horizontal="end"
+      >
         <ion-fab-button @click="goNewGroup">
           <ion-icon src="/public/assets/imgs/icn-addperson.svg"></ion-icon>
         </ion-fab-button>

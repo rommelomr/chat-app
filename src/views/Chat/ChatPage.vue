@@ -110,11 +110,12 @@ const fetchCurrentUserConversation = async () => {
   const auth_store = useAuthStore();
 
   let { left, right } = getRangeForPagination(_pagination);
+
   let { data, error }: { data: any[] | null; error: any } = await supabase
     .from("conversations")
     .select(
       `*,
-      last_message:messages(*),
+      last_message:last_non_deleted_message(*),
       flag:chat_users_conversations!inner(id),
       c_u_conversations:chat_users_conversations(
         *,
@@ -135,7 +136,7 @@ const fetchCurrentUserConversation = async () => {
       `
     )
     .eq("type", 1)
-    .is("messages.is_last", true)
+
     .eq("im_contact_flag.chat_user_id", auth_store.getUser().chat_user_id)
     .eq(
       "c_u_conversations.chat_users.contacts.chat_user_id",
@@ -148,6 +149,45 @@ const fetchCurrentUserConversation = async () => {
     .eq("flag.chat_user_id", auth_store.getUser().chat_user_id)
     .order("updated_at", { ascending: false })
     .range(left, right);
+
+  // let { data, error }: { data: any[] | null; error: any } = await supabase
+  //   .from("conversations")
+  //   .select(
+  //     `*,
+  //     last_message:messages(*),
+  //     flag:chat_users_conversations!inner(id),
+  //     c_u_conversations:chat_users_conversations(
+  //       *,
+  //       chat_users(
+  //         *,
+  //         person:people(*),
+  //         account:accounts(*),
+  //         contacts:contacts_contact_id_fkey(*)
+  //       )
+  //     ),
+  //     im_contact_flag:chat_users_conversations(
+  //       *,
+  //       chat_users(
+  //         *,
+  //         contacts:contacts_contact_id_fkey(count)
+  //       )
+  //     )
+  //     `
+  //   )
+  //   .eq("type", 1)
+  //   .is("messages.is_last", true)
+  //   .eq("im_contact_flag.chat_user_id", auth_store.getUser().chat_user_id)
+  //   .eq(
+  //     "c_u_conversations.chat_users.contacts.chat_user_id",
+  //     auth_store.getUser().chat_user_id
+  //   )
+  //   .eq(
+  //     "im_contact_flag.chat_users.contacts.contact_id",
+  //     auth_store.getUser().chat_user_id
+  //   )
+  //   .eq("flag.chat_user_id", auth_store.getUser().chat_user_id)
+  //   .order("updated_at", { ascending: false })
+  //   .range(left, right);
   if (data) {
     conversations.value = data;
   }

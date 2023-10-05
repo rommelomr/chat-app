@@ -159,10 +159,12 @@ export default class Utils {
     // Obtener la fecha local
     let fechaLocal = fecha.toLocaleDateString();
 
-    if (!type) return fechaLocal + " " + horaLocal;
-
     if (type == "date") return fechaLocal;
 
     if (type == "time") return horaLocal;
+
+    if (type == "time-date") return horaLocal + " " + fechaLocal;
+
+    return fechaLocal + " " + horaLocal;
   }
 }

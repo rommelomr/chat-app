@@ -41,6 +41,9 @@ export const useCurrentConversation = defineStore({
       me: 0,
       me_uuid: "_",
     }),
+    group_contacts: useStorage("group_contacts", {
+      contacts: {},
+    }),
   }),
 
   actions: {
@@ -87,25 +90,6 @@ export const useCurrentConversation = defineStore({
         },
       });
     },
-    getCurrentConversation(): ICurrentConversation {
-      return this.current_conversation;
-    },
-    async getMe(): Promise<IMe | undefined> {
-      try {
-        let { data, error } = await supabase.rpc(
-          "get_all_current_chat_user_info"
-        );
-        return {
-          id: data.id ?? 0,
-          me_id: data.person.user.auth_id,
-        };
-      } catch {
-        return {
-          id: 0,
-          me_id: "__",
-        };
-      }
-    },
     async suscribeToDetectSeen() {
       let _conversation_id = this.getCurrentConversation().id;
       const conversation_store = useConversationsStore();
@@ -137,6 +121,31 @@ export const useCurrentConversation = defineStore({
           )
           .subscribe();
     },
+    setGroupContacts(contacts: any) {
+      this.group_contacts.contacts = contacts;
+    },
     ////////GETTERS///////
+    getCurrentConversation(): ICurrentConversation {
+      return this.current_conversation;
+    },
+    async getMe(): Promise<IMe | undefined> {
+      try {
+        let { data, error } = await supabase.rpc(
+          "get_all_current_chat_user_info"
+        );
+        return {
+          id: data.id ?? 0,
+          me_id: data.person.user.auth_id,
+        };
+      } catch {
+        return {
+          id: 0,
+          me_id: "__",
+        };
+      }
+    },
+    getGroupContacts() {
+      return this.group_contacts.contacts;
+    },
   },
 });

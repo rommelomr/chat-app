@@ -57,11 +57,7 @@
       </div>
 
       <ion-fab
-        v-if="
-          users.length > 0 &&
-          newConversationBody.description &&
-          newConversationBody.conversation_name
-        "
+        v-if="users.length > 0 && newConversationBody.conversation_name"
         slot="fixed"
         vertical="bottom"
         horizontal="end"

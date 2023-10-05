@@ -243,27 +243,27 @@ const onSendFile = async (emitted: any) => {
   const app_store = useAppStore();
   app_store.loadingBefore(async () => {
     pushPrevMessage();
-    let { data, files_name } = await conversation_store.sendFilesToConversation(
+    let { data, files } = await conversation_store.sendFilesToConversation(
       emitted.data
     );
+
     let _files = [] as any[];
-    files_name.map((file_name: any) => {
-      _files.push({ name: file_name });
-    });
+
     emit("onCompleteSendFile", {
       name: "FooterConversation.on_complete_send_image",
       data: {
         stored_file: data,
-        files: _files,
+        files: files,
       },
     });
+
     let _new_message;
     if (data.message_type == "new_message") {
       _new_message = data.message_info.first_message;
     } else {
       _new_message = data.message_info.conversation_answer;
     }
-    console.log(_new_message);
+
     emit("onCompleteNewMessage", {
       name: "FooterConversation.on_complete_new_message",
       data: _new_message,
