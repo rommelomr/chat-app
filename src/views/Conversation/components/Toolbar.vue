@@ -284,7 +284,9 @@ const detectPartnerOnline = () => {
 };
 
 onMounted(() => {
-  detectPartnerOnline();
-  suscribeToPartnerAccount();
+  if (!conversation_store.getCurrentConversation().groups) {
+    detectPartnerOnline();
+    suscribeToPartnerAccount();
+  }
 });
 </script>

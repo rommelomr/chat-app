@@ -82,7 +82,7 @@ const selectChatUserUseCase = async (id: number) => {
         router.currentRoute.value.params.code.toString()
       }`,
       isEmpty: true,
-      userConversation: data.chat_user,
+      userConversation: data.chat_user ?? {},
       group: undefined,
       label_image: data.chat_user.person.photo,
       me: 0,
@@ -98,7 +98,7 @@ const selectChatUserUseCase = async (id: number) => {
         router.currentRoute.value.params.code.toString()
       }`,
       isEmpty: false,
-      userConversation: data.chat_user,
+      userConversation: data.chat_user ?? {},
       group: undefined,
       label_image: data.chat_user.person.photo,
       me: 0,
@@ -129,7 +129,7 @@ const selectChatGroups = async (id: number) => {
       type: "GROUP",
       label: `${data[0].name}`,
       isEmpty: false,
-      userConversation: undefined,
+      userConversation: {},
       group: data[0],
       label_image: data[0].photo,
       me: 0,

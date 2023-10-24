@@ -581,7 +581,8 @@ const getContactsFromGroup = async () => {
 };
 
 const getUserName = (code: string) => {
-  let contacts = current_conversation.getGroupContacts();
+  let contacts = current_conversation.getGroupContacts() ?? {};
+
   //@ts-ignore
   return contacts[code] ?? code;
 };

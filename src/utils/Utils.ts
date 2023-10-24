@@ -167,4 +167,11 @@ export default class Utils {
 
     return fechaLocal + " " + horaLocal;
   }
+  static parseContactsToStorage(contacts: any) {
+    let _parsed_contacts = {};
+    contacts.map((contact: any) => {
+      _parsed_contacts[contact.chat_user.access_code] = contact.nickname;
+    });
+    return _parsed_contacts;
+  }
 }

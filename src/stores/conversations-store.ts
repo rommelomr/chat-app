@@ -48,6 +48,9 @@ export const useConversationsStore = defineStore({
       url_files: [],
     }),
     is_recording_voice: false,
+    group_contacts: useStorage("group_contacts", {
+      contacts: {},
+    }),
   }),
 
   actions: {
@@ -650,6 +653,31 @@ export const useConversationsStore = defineStore({
           }
         )
         .subscribe();
+    },
+    async addChatUsersToConversations(contacts: any) {
+      let _new_chat_users_conversations = [] as any[];
+      contacts.map((contact: any) => {
+        _new_chat_users_conversations.push({
+          auth_id: contact.chat_user.person.auth_id,
+          chat_user_id: contact.contact_id,
+          conversation_id: this.current_conversation.id,
+        });
+      });
+
+      let { data, error } = await supabase
+        .from("chat_users_conversations")
+        .insert(_new_chat_users_conversations)
+        .select("*,chat_user:chat_users(*)");
+
+      Utils.handleErrors(error);
+
+      return {
+        status: 200,
+        action: "ADD_CHAT_USERS_TO_CONVERSATIONS",
+        message: "Chat users added to conversation",
+        entity: "CHAT_USERS_CONVERSATIONS",
+        data: data,
+      };
     },
   },
 });

@@ -56,22 +56,20 @@
         placeholder="Search"
         @ionInput="handleInput($event)"
       ></ion-searchbar>
-
       <div class="the-list">
         <ion-item
-          v-for="(group, index) in displayedGroupList"
+          v-for="(user, index) in users"
           :key="index"
-          @click="pushOrRemoveObject(group)"
-          v-show="group.person.auth_id != userAuth.id"
+          @click="pushOrRemoveObject(user)"
         >
           <ion-avatar slot="start">
-            <img :src="`/assets/imgs/avatar/${group.person.photo ?? 1}.svg`" />
+            <img :src="`/assets/imgs/avatar/${user.person.photo ?? 1}.svg`" />
           </ion-avatar>
           <ion-label>
-            <!-- <ion-icon aria-hidden="true" :icon="call" v-if="group.selected" /> -->
-            <h3>{{ group.access_code }}</h3>
+            <!-- <ion-icon aria-hidden="true" :icon="call" v-if="user.selected" /> -->
+            <h3>{{ user.access_code }}</h3>
             <p>
-              {{ group.person.name ?? "" }} {{ group.person.last_name ?? "" }}
+              {{ user.person.name ?? "" }} {{ user.person.last_name ?? "" }}
             </p>
           </ion-label>
         </ion-item>
@@ -168,13 +166,19 @@ const goNew = () => {
 const init = async () => {
   const auth_store = useAuthStore();
   let { data, error } = await supabase
-    .from("chat_users")
+    .from("contacts")
     .select(
-      "*,person:people(*,user:users(*)),contacts!contacts_chat_user_id_fkey(*)"
+      "*,chat_user:chat_users!contacts_contact_id_fkey(*,person:people(*,user:users(*)),contacts!inner!contacts_contact_id_fkey(*))"
     )
-    .eq("contacts.chat_user_id", auth_store.getUser().chat_user_id);
+    .eq("chat_user_id", auth_store.getUser().chat_user_id);
+
   if (error || !data) return;
-  users.value = data;
+  let _users = [] as any[];
+  console.log(data);
+  data.map((contact: any) => {
+    _users.push(contact.chat_user);
+  });
+  users.value = _users;
 };
 onMounted(async () => {
   let { data, error } = await supabase.rpc("get_all_current_chat_user_info");

@@ -39,6 +39,8 @@ import {
 import { Vue3Lottie } from "vue3-lottie";
 
 import MediaLayout from "./components/MediaLayout.vue";
+import HeaderModal from "./components/HeaderModal.vue";
+import InfoCard from "./components/InfoCard.vue";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/vue/css/core.css";
@@ -67,6 +69,8 @@ const app = createApp(App).use(IonicVue).use(router);
 //@ts-ignore
 defineCustomElements(app);
 app.use(pinia);
+app.component("InfoCard", InfoCard);
+app.component("HeaderModal", HeaderModal);
 app.component("Vue3Lottie", Vue3Lottie);
 app.component("IonActionSheet", IonActionSheet);
 app.component("IonAlert", IonAlert);
